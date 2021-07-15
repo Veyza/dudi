@@ -4,8 +4,9 @@
 ! This is free software. You can use and redistribute it 
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! **REFERENCE TO THE PAPER IN THE RIGHT FORMAT SO THAT IT COULD BE JUST COPIED AND PASTED TO THE REFERENCE LIST**
-
+! Anastasiia Ershova and Jürgen Schmidt, 
+! Two-body model for the spatial distribution of dust ejected from
+! an atmosphereless body, 2021, A&A, 650, A186 
 ! File: dataoutmod.f95
 ! Description: The subroutines used to write the result to a text-file
 
