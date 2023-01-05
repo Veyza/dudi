@@ -217,7 +217,7 @@ need to be modified are the following:
 Supply input data
 -------------------------------------------------------------------------------
 All the calculations are performed by the subroutine 
-IntegrateNumberDensity(num_dens, point, source, tnow) 
+DUDI(density, point, source, tnow) 
 which will return the result in the variable num_res
 
     num_res	        array of 2 real numbers. The first number is
@@ -295,7 +295,7 @@ parameters describing the dust ejection
                                                 coordinates of the point 
                                                 source in the moon-centered CS:
                                                         
-    *********************************************************                                                    
+    *********************************************************
     source%rrM(1) = rm * sin(point%alphaM) * cos(point%betaM)
     source%rrM(2) = rm * sin(point%alphaM) * sin(point%betaM)
     source%rrM(3) = rm * cos(point%alphaM)
@@ -315,7 +315,7 @@ parameters describing the dust ejection
     ***************************************************************************	
     module input_data contains the subroutine jet_direction so that 
     the following line of the code:
-    ___________________________________________________________________________           
+    ___________________________________________________________________________
 
     call jet_direction(source%alphaM, source%betaM, source%zeta, source%eta, 
                                               source%rrM, source%symmetry_axis)
