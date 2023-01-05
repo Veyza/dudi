@@ -220,7 +220,7 @@ All the calculations are performed by the subroutine
 DUDI(density, point, source, tnow) 
 which will return the result in the variable num_res
 
-    num_res	        array of 2 real numbers. The first number is
+    density	        array of 2 real numbers. The first number is
                         the density of particles on bound orbits,
                         the second number is the density of particles
                         on escaping trajectories 
@@ -268,7 +268,7 @@ position_in_space contains the following elements:
                                                   spacecraft in the moon-centered
                                                   coordinate system :
 
-    ***************************************************************  
+    ***************************************************************
     point%rvector(1) = point%r * sin(point%alpha) * cos(point%beta)
     point%rvector(2) = point%r * sin(point%alpha) * sin(point%beta)
     point%rvector(3) = point%r * cos(point%alpha)
