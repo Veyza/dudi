@@ -285,6 +285,10 @@ _______________________________________________________________________________
 source is a structure of a derived type source_properties which contains 
 parameters describing the dust ejection
 
+    real(8)     source%r                        radial distance of the point 
+                                                source from the moon center
+                                                (meters)
+
     real(8)     source%alphaM                   polar angle of the point 
                                                 source (radians)
 
@@ -296,9 +300,9 @@ parameters describing the dust ejection
                                                 source in the moon-centered CS:
                                                         
     *********************************************************
-    source%rrM(1) = rm * sin(point%alphaM) * cos(point%betaM)
-    source%rrM(2) = rm * sin(point%alphaM) * sin(point%betaM)
-    source%rrM(3) = rm * cos(point%alphaM)
+    source%rrM(1) = source%r * sin(point%alphaM) * cos(point%betaM)
+    source%rrM(2) = source%r * sin(point%alphaM) * sin(point%betaM)
+    source%rrM(3) = source%r * cos(point%alphaM)
     *********************************************************
     
     real(8)     source%zeta                     zenith angle of the axis around
