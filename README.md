@@ -93,7 +93,16 @@ Specify the key parameters
                                used for integration over velocity to obtain
                                the particles density separately for particles
                                on unbound (hyperbolic) trajectories
-                               (possible values are 5, 10, 20, 30, 40, 50)                               
+                               (possible values are 5, 10, 20, 30, 40, 50)  
+    
+    maxNofWarnings             maximum number of warnings that can be written
+                               to the file fort.666. This number is not equal
+                               to the number of lines in the file fort.666
+                               because most of warnings are printed in multi-
+                               ple lines. If more warnings must be printed,
+                               the program stops running, discards the result,
+                               and prints to the command line a massage about 
+                               the exceeded maximum number of warnings.
                                
 
 
