@@ -63,8 +63,11 @@ module const
 		integer, parameter :: order_v_el = 50
 		integer, parameter :: order_v_hy = 20
 		
-		integer :: N_of_warnings = 0
-		integer, parameter :: maxNofWarnings = 20
+		integer :: N_of_warnings = 0				! warnings counter
+		integer, parameter :: maxNofWarnings = 100	! maximum number of
+		                                            ! warnings printed 
+		                                            ! out to the text file
+		                                            ! fort.666
 		
 	
 
