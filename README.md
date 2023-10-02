@@ -546,7 +546,7 @@ separately for 4 sources different in size and ejection direction distributions
 Set the following values to the parameters in the module const.f95:
 
   moon_mass = 4.8d+22     ! Europa's mass in kg
-  rm = 3.1216d+6          ! Europa's mean radius in meters
+  rm = 1.56d+6          ! Europa's mean radius in meters
 	
   rho = 920d0             ! dust grains density in kg/m^3 
                           ! (assuming pure water ice composition)
