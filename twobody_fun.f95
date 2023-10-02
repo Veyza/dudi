@@ -53,9 +53,21 @@ module TwoBody_fun
 			if(psi /= psi .or. abs(psi-halfpi) < 1d-8) then
 				if(psi /= psi) then
 					write(666,*) 'Apu << sin(psi) =', hh / s%r / u, 'corrections applied'
+					N_of_warnings = N_of_warnings + 1
+					if(N_of_warnings > maxNofWarnings) then
+						write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+						write(*,*) 'CHECK FILE fort.666'
+						stop
+					endif
 				endif
 				if(abs(psi-halfpi) < 1d-8) then
 					write(666,*) 'psi is close to pi/2, corrections applied'
+					N_of_warnings = N_of_warnings + 1
+					if(N_of_warnings > maxNofWarnings) then
+						write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+						write(*,*) 'CHECK FILE fort.666'
+						stop
+					endif
 				endif
 				psi = halfpi - 1d-5
 			endif
@@ -127,6 +139,12 @@ module TwoBody_fun
 								obtained numerically because the analytical &
 								expression contains numerically difficult parts'
 				ddphidtheta = numder
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif			
 
 			
@@ -192,7 +210,6 @@ module TwoBody_fun
 					call theta_geometry_hyperbola(point%r, s%r, velocity, &
 					               dphi, abs(semi_major_axis), ee, theta, &
 					            deltat, dphi_is_large, s%production_fun > 0)
-!~ 			write(*,*) 'intergand << theta', theta
 				endif
 			endif
 			uu = sqrt(vesc * vesc &
@@ -375,6 +392,12 @@ module TwoBody_fun
 						if(dphi_is_large(i)) then
 							write(666,*) 'the case of \Delta\phi > pi has been encoutered'
 						endif
+						N_of_warnings = N_of_warnings + 1
+						if(N_of_warnings > maxNofWarnings) then
+							write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+							write(*,*) 'CHECK FILE fort.666'
+							stop
+						endif
 					endif
 						
 				else
@@ -531,6 +554,12 @@ module TwoBody_fun
 						if(dphi_is_large(i)) then
 							write(666,*) 'the case of \Delta\phi > pi has been encoutered'
 						endif
+						N_of_warnings = N_of_warnings + 1
+						if(N_of_warnings > maxNofWarnings) then
+							write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+							write(*,*) 'CHECK FILE fort.666'
+							stop
+						endif
 					endif
 				else
 					theta(i) = -888d0
@@ -580,6 +609,12 @@ module TwoBody_fun
 			ee1 = sqrt(1d0 + 2d0 * Ekep * (hh / gm) * (hh / gm))
 			if(abs(ee1 - ee) > eps) then
 				write(666,*) 'eccentricity is incorrect:', ee, 'instead of', ee1
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif
 
 		!   delta phi (equation 32)
@@ -589,19 +624,43 @@ module TwoBody_fun
 			if(cosp > 1d0) then
 				cosp = 1d0
 				write(666,*) 'cos(phi) > 1 obtained, corrections applied'
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif
 			if(cosp < -1d0) then
 				cosp = -1d0
 				write(666,*) 'cos(phi) < -1 obtained, corrections applied'
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif
 			
 			if(cospm > 1d0) then
 				cospm = 1d0
 				write(666,*) 'cos(phiM) > 1 obtained, corrections applied'
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif
 			if(cospm < -1d0) then
 				cospm = -1d0
 				write(666,*) 'cos(phiM) < -1 obtained, corrections applied'
+				N_of_warnings = N_of_warnings + 1
+				if(N_of_warnings > maxNofWarnings) then
+					write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+					write(*,*) 'CHECK FILE fort.666'
+					stop
+				endif
 			endif
 			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			phi1 = acos(cosp)
