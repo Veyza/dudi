@@ -117,7 +117,7 @@ module integrator
 				if(vc < vmax) then
 				! the particles on the escaping trajectories
 					call GaussLegendreQuadra(xhy, why, order_v_hy)
-					v_limits(1) = v_limits(2)
+					v_limits(1) = max(v_limits(2), vmin2)
 					v_limits(2) = vmax
 					ldif = v_limits(2) - v_limits(1)
 					ldif = ldif * 0.5d0
