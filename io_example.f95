@@ -29,10 +29,10 @@ program io_example
 	integer, parameter :: Ns = 1                  ! number of sources
 	real(8) tnow
 	integer i, ii, iii, i_s, nn, itmp, m
-	real density(-Hpix:Hpix, -Vpix:Vpix, -ni:ni)
+	real density(-ni:ni,-Hpix:Hpix, -Vpix:Vpix)
 	real image(-Hpix:Hpix, -Vpix:Vpix), source_image(-Hpix:Hpix, -Vpix:Vpix)
-	real tmp_res(-Hpix:Hpix, -Vpix:Vpix, -ni:ni, 2)
-	type(position_in_space) points(-Hpix:Hpix, -Vpix:Vpix, -ni:ni)
+	real tmp_res(2, -ni:ni, -Hpix:Hpix, -Vpix:Vpix)
+	type(position_in_space) points(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
 	type(source_properties) :: sources(Ns)
 	real, parameter :: bg = 1d-15
 	real(8) moments(4)
@@ -50,8 +50,8 @@ program io_example
 			! form the integration grid for this specific plume
 			call line_of_sight(points, sources(i_s))
 				
-			do i = -Hpix, Hpix
 			do iii = -Vpix, Vpix
+			do i = -Hpix, Hpix
 			
 			!$OMP PARALLEL PRIVATE(ii) &
 			!$OMP SHARED(nn, i, iii, sources, points)
@@ -61,22 +61,22 @@ program io_example
 				do ii = -ni, ni
 					! if the point isn't on the LOS crossing the moon and
 					! not on the LOS having 0-index like (i,0) or (0,iii)
-					if(points(i,iii,ii)%compute) then
+					if(points(ii,i,iii)%compute) then
 						! calculate the density
-						call DUDI(tmp_res(i,iii,ii,:), points(i,iii,ii), sources(i_s), tnow)
+						call DUDI(tmp_res(:,ii,i,iii), points(ii,i,iii), sources(i_s), tnow)
 					else
-						tmp_res(i,iii,ii,:) = 0d0
+						tmp_res(:,ii,i,iii) = 0d0
 					endif
 
 				enddo		! ii = -nn, nn (over the line of sight)
 			!$OMP END DO
 			!$OMP END PARALLEL
 
-			enddo	! iii = -Vpix, Vpix
 			enddo	! i = -Hpix, Hpix
+			enddo	! iii = -Vpix, Vpix
 			
 			! bound and unbound from the i_s source together
-			density = tmp_res(:,:,:,1) + tmp_res(:,:,:,2)
+			density = tmp_res(1,:,:,:) + tmp_res(2,:,:,:)
 			tmp_res = 0d0
 			! create an image of this source
 			call Integral_over_LoS(density, source_image)
@@ -84,9 +84,9 @@ program io_example
 			image = image + source_image
 
 		enddo		! i_s = Ns, 1, -1 (sources)
-		do i = -Hpix, Hpix
-			do ii = -Vpix, Vpix
-				if(points(i,ii,0)%r >= rm) then
+		do ii = -Vpix, Vpix
+			do i = -Hpix, Hpix
+				if(points(0,i,ii)%r >= rm) then
 					image(i,ii) = image(i,ii) + bg
 				endif
 			enddo

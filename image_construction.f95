@@ -33,7 +33,7 @@ module image_construction
 			implicit none
 			integer i, ii, iii, nn
 			real(8) euler_rot(3), xout, yout, zout
-			type(position_in_space), intent(out) :: points(-Hpix:Hpix,-Vpix:Vpix,-ni:ni)
+			type(position_in_space), intent(out) :: points(-ni:ni,-Hpix:Hpix,-Vpix:Vpix)
 			type(source_properties), intent(in) :: source
 			real(8) Hcamscale, Vcamscale		! rad / pixel in horisontal and vertical direction
 			real(8) trmat(3,3), pixdir(3), pixdircam(3), distance, K1(3), K2(3), scpos(3)
@@ -59,19 +59,20 @@ module image_construction
 			mooncenterdir = mooncenterdir / norma3d(mooncenterdir)
 			
 			
-			do i = -Hpix, Hpix
+			do ii = -Vpix, Vpix
 					! pixdircam is a unit vector in camera's CS pointing
 					! in the direction which is pictured in the pixel with coords (i,ii)
 					! (0,0,1) would be a direction of the center
 					! of the matrix where 4 central pixels meet
 					
-					if(i < 0) pixdircam(1) = (dble(i)+0.5d0) * Hcamscale
-					if(i > 0) pixdircam(1) = (dble(i)-0.5d0) * Hcamscale	
-								
-				do ii = -Vpix, Vpix
-
+						
 					if(ii < 0) pixdircam(2) = (dble(ii)+0.5d0) * Vcamscale
 					if(ii > 0) pixdircam(2) = (dble(ii)-0.5d0) * Vcamscale
+								
+				do i = -Hpix, Hpix
+
+					if(i < 0) pixdircam(1) = (dble(i)+0.5d0) * Hcamscale
+					if(i > 0) pixdircam(1) = (dble(i)-0.5d0) * Hcamscale
 					
 					pixdircam(3) = sqrt(1d0 - pixdircam(1)**2 - pixdircam(2)**2)
 					! angle between 2 unit vectors
@@ -88,27 +89,27 @@ module image_construction
 						                         source%rrM, source%symmetry_axis)
 						
 						forall(iii = -ni:ni)
-							points(i,ii,iii)%rvector = K1 + pixdir * iii * sampdist_large
+							points(iii,i,ii)%rvector = K1 + pixdir * iii * sampdist_large
 						endforall
 											! if the line of sight is special
 						do iii = -ni, ni
-							points(i,ii,iii)%r = norma3d(points(i,ii,iii)%rvector)
-							points(i,ii,iii)%r_scaled = points(i,ii,iii)%r / rm
-							points(i,ii,iii)%alpha = acos(points(i,ii,iii)%rvector(3) &
-							                              / points(i,ii,iii)%r)
-							points(i,ii,iii)%beta = myatan1(points(i,ii,iii)%rvector(1), &
-							                         points(i,ii,iii)%rvector(2))
+							points(iii,i,ii)%r = norma3d(points(iii,i,ii)%rvector)
+							points(iii,i,ii)%r_scaled = points(iii,i,ii)%r / rm
+							points(iii,i,ii)%alpha = acos(points(iii,i,ii)%rvector(3) &
+							                              / points(iii,i,ii)%r)
+							points(iii,i,ii)%beta = myatan1(points(iii,i,ii)%rvector(1), &
+							                         points(iii,i,ii)%rvector(2))
 							! with the given maximum ejection velocity the radial distance
 							! which the dust particle can achieve is restricted
 							! also the density inside the moon should not be computed
-							points(i,ii,iii)%compute = points(i,ii,iii)%r < 1.98d6 &
-							                             .and. points(i,ii,iii)%r > rm
+							points(iii,i,ii)%compute = points(iii,i,ii)%r < 1.98d6 &
+							                             .and. points(iii,i,ii)%r > rm
 						enddo
 					
 					else
 					! if the line of sight points to the moon's disk or the pixels with a 0-index
 						forall(iii = -ni:ni)
-							points(i,ii,iii)%compute = .FALSE.
+							points(iii,i,ii)%compute = .FALSE.
 						endforall
 					endif
 				enddo
@@ -126,8 +127,8 @@ module image_construction
 		subroutine Integral_over_LoS(dens0, image)
 			use const
 			implicit none
-			real, intent(in) :: dens0(-Hpix:Hpix, -Vpix:Vpix, -ni:ni)
-			real dens(-Hpix:Hpix, -Vpix:Vpix, -ni:ni)
+			real, intent(in) :: dens0(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
+			real dens(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
 			real, intent(out) :: image(-Hpix:Hpix, -Vpix:Vpix)
 			integer i, ii, k
 			real tmpTr
@@ -137,12 +138,12 @@ module image_construction
 			! double loop
 			! over all the pixels
 			! exclude the cross in the middle of the "image"
-			do i = -Hpix, Hpix
 			do ii = -Vpix, Vpix
+			do i = -Hpix, Hpix
 				if(i /= 0 .and. ii /= 0) then
 					tmpTr = 0d0
 					do k = -ni, ni-1
-						tmpTr = tmpTr + dens(i,ii,k) + dens(i,ii,k+1)
+						tmpTr = tmpTr + dens(k,i,ii) + dens(k+1,i,ii)
 					enddo
 					image(i,ii) = sampdist_large * 0.5d0 * tmpTr
 				endif
