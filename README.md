@@ -44,6 +44,8 @@ Example 3. The images of a fictive volcano erupted on Io
 --------------------------------------------------------
 Possible issues
 ---------------
+Changes in the latest version
+-----------------------------
 
 
 
@@ -675,3 +677,27 @@ file size unlimited. In bash it is done by the command:
                   ulimit -s unlimited
 In tcshell use comand:
                   limit stacksize unlimited
+                  
+
+Changes in the latest version
+-------------------------------------------------------------------------------
+Version 1.0.1:
+1. DUDI counts warnings that are printed to the file fort.666 during the run. 
+   If the number of warnings printed to the file exceeds the given limit
+   (parameter maxNofWarnings set in the module const.f95), DUDI will exit with
+   a message to the command line. It prevents DUDI from generating a huge text
+   file filled with warnings resulting from mistakes in parameter settings.
+2. Function size_distribution (module distributions_fun.f95) no longer takes in
+   the parameter "p" from module const.f95. This parameter defines which physi-
+   cal quantity is computed: number density, mean radius of the particles, area
+   which is blocked by the particles, or mass density. 
+   Function size_distribution now always returns just PDF for the given grain
+   radius. Calculations based on parameter p, necessary to obtain the required 
+   quantity, are performed by the functions in module gu.f95.
+3. The previous version of the code treated incorrectly the case when the 
+   minimum ejection velocity was higher than the moon escape velocity. The 
+   mistake is fixed by correcting one line in module integrator.f95.
+4. Multidimentional arrays are reshaped and nested loops are reordered in the 
+   Io example generating synthetic images. The difference is subtle in case 
+   of the given workload but the new version of the code is better as 
+   an example or a template.
