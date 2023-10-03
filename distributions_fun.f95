@@ -162,7 +162,7 @@ module distributions_fun
 			! sd is a parameter used to select the expression for the distribution
 			! mom defines the obtained quantity: 0 -- number density,
 			! 1 -- mean radius, 2 -- cross section, 3 -- volume
-			function size_distribution(R, sd, mom) result(fR)
+			function size_distribution(R, sd) result(fR)
 				use const
 				implicit none
 				real(8), parameter :: mu = -1d0
@@ -171,7 +171,7 @@ module distributions_fun
 				real(8), parameter :: r1 = 0.2d0
 				real(8), parameter :: r2 = 20d0
 				real(8), intent(in) :: R
-				integer, intent(in) :: sd, mom
+				integer, intent(in) :: sd
 				real(8) fR, C_size_distr
 				
 				select case(sd)
@@ -198,7 +198,7 @@ module distributions_fun
 						! HERE IS THE PLACE FOR WRITING YOUR OWN PDF
 						fR = 0d0
 				endselect
-				fR =  R**mom * fR / C_size_distr
+				fR =  fR / C_size_distr
 				
 				
 			end function size_distribution

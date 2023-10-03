@@ -50,7 +50,7 @@ module Gu
 					do ii = 1, order_R
 						r_i = ldif * xi(ii) + lsum
 						S(i) = S(i) + ldif * wi(ii) &
-							* size_distribution(r_i, sd, p) &
+							* size_distribution(r_i, sd) * r_i**p &
 							* ejection_speed_distribution(ud, ui(i), r_i)
 					enddo
 				enddo
@@ -92,7 +92,8 @@ module Gu
 				
 				do i = 1, order_R
 					r_i = ldif * xi(i) + lsum
-					mass = mass + ldif * wi(i) * size_distribution(r_i, sd, 3)
+					mass = mass + ldif * wi(i) * size_distribution(r_i, sd) &
+					       * r_i**3
 				enddo
 				
 				! upon integration we obtained the volume of particles as if they were cubes
