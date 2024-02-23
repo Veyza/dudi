@@ -4,7 +4,9 @@ of an atmosphereless body by Anastasiia Ershova & Juergen Schmidt.
 The derivation of the model, along with the formulae implemented in the code,
 as well as detailed examples of the model capabilities 
 can be found in the paper:
-*reference to the paper*
+Ershova, A. & Schmidt, J. (2021). Two-body model for the spatial distribution
+of dust ejected from an atmosphereless body. 
+Astronomy & Astrophysics, 650:A186.
 
 DUDI is written in Fortran-95. A makefile is provided for compilation.
 The user must have the compiler gfortran installed. There are no other 
