@@ -8,6 +8,9 @@ Ershova, A. & Schmidt, J. (2021). Two-body model for the spatial
 distribution of dust ejected from an atmosphereless body. Astronomy and
 Astrophysics, 650.
 
+== License
+
+DUDI is distributed under GNU GENERAL PUBLIC LICENSE Version 3.
 
 = Table of Contents
 
@@ -74,7 +77,7 @@ simulation settings:
 Customize dust ejection characteristics in `distributions_fun.f95`. This file
 includes functions that define the size, speed, and direction distribution of 
 dust ejection, and the dust production rate. Each function utilizes Fortran's 
-`select case` operator is utilized, where a selector specifies a different 
+`select case` operator, where a selector specifies a different 
 distribution to compute. Several distributions are already implemented and are 
 used in the example applications.
 
@@ -129,10 +132,10 @@ Both `source` and `point` structures include multiple precomputed quantities use
 at various stages of the calculations. These structures do not have all independent
 values, requiring careful setup and validation.
 
- The `point´ is a structure of a derived type position_in_space which defines the 
+ The `point` is a structure of a derived type `position_in_space` which defines the 
 point in space where the density is calculated.
 
-*Components of the `position_in_space´ structure:*
+*Components of the `position_in_space` structure:*
 - `point%r` (real(8)): Radial distance of the point from the center of the moon 
    (meters).
 - `point%r_scaled` (real(8)): Radial distance scaled to the moon's radius. 
@@ -153,10 +156,10 @@ point in space where the density is calculated.
    efficiency.
 
 
-The `source` is a structure of a derived type `source_properties´ which contains 
+The `source` is a structure of a derived type `source_properties` which contains 
 parameters describing the dust ejection.
 
-*Components of the `source_properties´ structure:*
+*Components of the `source_properties` structure:*
 - `source%r` (real(8)): Radial distance of the point source from the moon center
    (meters).
 - `source%alphaM` (real(8)): Polar angle of the point source (radians).
