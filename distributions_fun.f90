@@ -181,7 +181,7 @@ module distributions_fun
 					case(2)
 						q = 3d0
 						if(r1 <= R .and. R <= r2) then
-							fR = R**(-q)
+							fR = R**(-3)
 						else
 							fR = 0d0
 						endif
@@ -189,7 +189,12 @@ module distributions_fun
 					case(3)
 						q = 5d0
 						if(r1 <= R .and. R <= r2) then
-							fR = R**(-q)
+						! this line should have been fR = R**(-q)
+						! However, the mistake went unnoticed when the plot
+						! in Fig. 13 of Ershova & Schmidt, 2021 was
+						! produced. Therefore, I do not correct it to enable
+						! reproducing the plot from the paper.
+							fR = R**(-3)
 						else
 							fR = 0d0
 						endif
