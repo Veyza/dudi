@@ -1,6 +1,6 @@
-! This file is a part of DUDI, the Fortran-95 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation 
 ! of the two-body model for dust dynamics
-! Version 1.0.1
+! Version 1.1.0
 ! This is free software. You can use and redistribute it 
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
@@ -8,7 +8,7 @@
 ! Two-body model for the spatial distribution of dust ejected from
 ! an atmosphereless body, 2021, A&A, 650, A186 
 
-! File: inputdata.f95
+! File: inputdata.f90
 ! Description: The subroutines suplying the parameters of sources, and 
 !              spacecraft positions, and the auxiliary functions used by them
 
@@ -130,7 +130,7 @@ module inputdata
 					call jet_direction(sources(i)%betaM, sources(i)%zeta, sources(i)%eta, &
 					                   sources(i)%rrM, sources(i)%symmetry_axis)
 					call Gu_integral(sources(i)%ui, sources(i)%Gu_precalc, sources(i)%sd, &
-					                 sources(i)%ud)
+					                 sources(i)%ud, rmin, rmax)
 				enddo
 				
 				! the points are equidistantly placed on a 10deg arc
@@ -192,7 +192,7 @@ module inputdata
 					call jet_direction(source(i)%betaM, source(i)%zeta, &
 					         source(i)%eta, source(i)%rrM, source(i)%symmetry_axis)
 					call Gu_integral(source(i)%ui, source(i)%Gu_precalc, &
-					                 source(i)%sd, source(i)%ud)
+					                 source(i)%sd, source(i)%ud, rmin, rmax)
 				enddo
 			
 			end subroutine get_volcano_params
@@ -240,7 +240,7 @@ module inputdata
 						     sources(i)%eta, sources(i)%rrM, sources(i)%symmetry_axis)
 						     
 						call Gu_integral(sources(i)%ui, sources(i)%Gu_precalc, &
-						               sources(i)%sd, sources(i)%ud)
+						               sources(i)%sd, sources(i)%ud, rmin, rmax)
 												
 					enddo
 				close(100)

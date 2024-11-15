@@ -1,6 +1,6 @@
-! This file is a part of DUDI, the Fortran-95 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation 
 ! of the two-body model for dust dynamics
-! Version 1.0.1
+! Version 1.1.0
 ! This is free software. You can use and redistribute it 
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
@@ -8,7 +8,7 @@
 ! Two-body model for the spatial distribution of dust ejected from
 ! an atmosphereless body, 2021, A&A, 650, A186 
 
-! File: const.f95
+! File: const.f90
 ! Description: The fundamental constants and the numerical parameters
 !              that are used by many subroutines
 
@@ -54,7 +54,7 @@ module const
 		! parameters controling accuracy
 		! number of precalculated values of GR(u) integral
 		! <=> u/u_gas goes from 0 to 1 with step 1/GRN
-		integer, parameter :: GRN = 2000
+		integer, parameter :: GRN = 1000
 		! order of integration G(R,u) over R to obtain GR(u)
 		integer, parameter :: order_R = 30
 		! order of Gaussian quadrature for integration

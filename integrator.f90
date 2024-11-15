@@ -1,15 +1,14 @@
-! This file is a part of DUDI, the Fortran-95 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation 
 ! of the two-body model for dust dynamics
-! Version 1.0.1
+! Version 1.1.0
 ! This is free software. You can use and redistribute it 
-! under the terms of the GNU General Public License 
-! (http://www.gnu.org/licenses/)
+! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
 ! Anastasiia Ershova and Jürgen Schmidt, 
 ! Two-body model for the spatial distribution of dust ejected from
 ! an atmosphereless body, 2021, A&A, 650, A186 
 
-! File: integrator.f95
+! File: integrator.f90
 ! Description: The subroutines that manage the numerical integration
 
 ! Author: Anastasiia Ershova
@@ -117,7 +116,7 @@ module integrator
 				if(vc < vmax) then
 				! the particles on the escaping trajectories
 					call GaussLegendreQuadra(xhy, why, order_v_hy)
-					v_limits(1) = max(v_limits(2), vmin2)
+					v_limits(1) = v_limits(2)
 					v_limits(2) = vmax
 					ldif = v_limits(2) - v_limits(1)
 					ldif = ldif * 0.5d0
