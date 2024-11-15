@@ -181,7 +181,7 @@ module distributions_fun
 					case(2)
 						q = 3d0
 						if(r1 <= R .and. R <= r2) then
-							fR = R**(-3)
+							fR = R**(-q)
 						else
 							fR = 0d0
 						endif
@@ -189,7 +189,7 @@ module distributions_fun
 					case(3)
 						q = 5d0
 						if(r1 <= R .and. R <= r2) then
-							fR = R**(-3)
+							fR = R**(-q)
 						else
 							fR = 0d0
 						endif
