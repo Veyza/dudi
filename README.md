@@ -349,13 +349,15 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       four scenarios.
   - Parameter Settings in `const..f90`:
     * `moon_mass = 4.8d+22`  // Europa's mass in kg
-! The plot shown in the paper (Ershova & Schmidt, 2021) was generated with an 
-! erroneous value of rm = 3.12e+6, Europa's mean diameter (instead of radius)
-! in meters. We retain  this value here to allow reproduction of Fig. 13 from 
-! (Ershova & Schmidt, 2021). The case of surface deposition on Europa was purely 
-! illustrative and did not lead to scientifically significant conclusions. 
-! Therefore, we do not consider it necessary to publish an erratum to address
-! this issue.
+  
+ The plot shown in the paper (Ershova & Schmidt, 2021) was generated with an
+ erroneous value of rm = 3.12e+6, Europa's mean diameter (instead of radius)
+ in meters. We retain  this value here to allow reproduction of Fig. 13 from
+ (Ershova & Schmidt, 2021). The case of surface deposition on Europa was purely
+ illustrative and did not lead to scientifically significant conclusions.
+ Therefore, we do not consider it necessary to publish an erratum to address
+ this issue.
+ 
     * `rm = 3.12d+6`         // Europa's mean diameter in meters
     * `rho = 920d0`          // Dust grains density in kg/m3 (assuming water
                              // ice composition)
