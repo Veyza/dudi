@@ -1,6 +1,6 @@
 = README for DUDI (DUst DIstribution) Package
 
-DUDI is a Fortran-90 software package developed to simulate the two-body
+DUDI is a Fortran-95 software package developed to simulate the two-body
 model for the distribution of dust ejected from the surface of an
 atmosphereless celestial body. This tool is based on the research by
 Anastasiia Ershova & Juergen Schmidt, as detailed in the paper:
@@ -474,6 +474,8 @@ To address this:
   Multidimensional arrays are reshaped and nested loops reordered in the Io
   example, enhancing performance.
 
+
+
 === Version 1.1.0
 
 - **Subroutine `Gu_integral` enhancements:**
@@ -493,5 +495,35 @@ To address this:
 - **Source file extension changed to .f90:**
   This change allows the Intel compiler to be used for DUDI compilation 
   without any additional consequences.
+
+
+
+=== Version 1.2.0
+
+  A feature has been added to compute the average velocity vector of dust grains 
+  at a given point and time.
+
+- **New Subroutine `DUDI_mean_velocity`:**
+  The subroutine `DUDI_mean_velocity` has been added to the module 
+  `integrator.f90`. It computes the average velocity vector of dust grains at 
+  a given point and time.
+
+  **Input:**
+  - The input parameters are identical to those of the main subroutine `DUDI`.
+
+  **Output:**
+  - Returns an array of 8 real numbers:
+    1. A 3D vector representing the average velocity of dust grains moving upward.
+    2. A 3D vector representing the average velocity of dust grains moving downward.
+    3. The number density of dust grains moving upward.
+    4. The number density of dust grains moving downward.
+
+  **New Subroutine `Integrand_mean_flux`:**
+  - The subroutine `DUDI_mean_velocity` calls a newly introduced subroutine 
+    `Integrand_mean_flux` from the module `twobody_fun.f90`.
+
+-   A detailed description of the algorithm can be found in the file
+    **`DUDI_average_velocity_vectors.pdf´** available in this repository.
+
 
 

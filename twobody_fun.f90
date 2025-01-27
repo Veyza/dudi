@@ -1,6 +1,6 @@
 ! This file is a part of DUDI, the Fortran-90 implementation 
 ! of the two-body model for dust dynamics
-! Version 1.1.0
+! Version 1.2.0
 ! This is free software. You can use and redistribute it 
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
@@ -275,6 +275,145 @@ module TwoBody_fun
 			
 		end subroutine Integrand_number_density	
 
+
+
+		! Integrand_mean_flux performs integration over theta and lambda,
+		! returns the array of 8 numbers:
+		! Integrand(1:3) and Integrand(4:6) are the integrand of flux
+		! corresponding to the current integration step in velocity modulus
+		! Integrand(1:3) combines the terms with velocity vector
+		! pointing upward (above the local horizon)
+		! Integrand(4:6) combines the velocity vectors pointing downward
+		! Integrand(7) is the number density of particles moving upward
+		! Integrand(8) is the number density of the fallback grains
+		subroutine Integrand_mean_flux(Integrand, velocity, amin, &
+			                                point, dphi, dbeta, s, tnow)
+			use const
+			use define_types
+			use help
+			use distributions_fun
+			implicit none
+			integer i
+			real(8), intent(in) :: velocity, dphi, dbeta, amin, tnow
+			type(source_properties), intent(in) :: s
+			type(position_in_space), intent(in) :: point
+			real(8) lambdaM, sinlambdaM, coslambdaM, lambda
+			real(8) uu, Ekep, ee(2), psi(2), wpsi(2), semi_major_axis
+			real(8), intent(out) :: Integrand(8)
+			real(8) theta(2), ddphidtheta(2), tmp, deltat(2)
+			real(8) fac1, fac2, Jpsi, tmpIntegrand(8), rate(2), cf, alt
+			real(8) sindphi, vtmp(3)
+			logical dphi_is_large(2)
+			real(8) up_vvec(3), down_vvec(3)
+
+			semi_major_axis = (2d0 / point%r - velocity**2 / gm)**(-1)
+			theta = -999d0
+			! find solutions for theta
+			if(semi_major_axis < 0d0 .or. semi_major_axis >= amin) then
+				if(semi_major_axis > 0d0) then
+					call theta_geometry_ellipse(point%r, s%r, velocity, &
+					                  dphi, semi_major_axis, ee, theta, &
+					                  deltat, dphi_is_large, s%production_fun > 0)
+				else
+					call theta_geometry_hyperbola(point%r, s%r, velocity, &
+					               dphi, abs(semi_major_axis), ee, theta, &
+					            deltat, dphi_is_large, s%production_fun > 0)
+				endif
+			endif
+			uu = sqrt(vesc * vesc &
+						+ 2.0 * (velocity * velocity / 2d0 - gm / point%r))
+			if(uu > s%ud%umax .or. uu < s%ud%umin) then
+				fac1 = 0d0
+			else
+		!	 interpolate Gu from a precalculated table
+				if(uu / s%ud%umax > s%ui(GRN)) then
+					fac1 = velocity * s%Gu_precalc(GRN) / uu / uu
+				else
+					fac1 = LiNTERPOL(GRN, s%Gu_precalc, s%ui, uu) 
+					fac1 = velocity * fac1 / uu / uu
+				endif
+			endif
+			Integrand = 0d0
+			wpsi = halfpi	
+			do i = 1, 2
+				if(s%production_fun > 0) then
+					rate(i) = production_rate(tnow - deltat(i), s%production_rate, &
+				                                               s%production_fun)
+				else
+					rate(i) = s%production_rate
+				endif
+				if(theta(i) >= 0d0 .and. rate(i) > 0) then
+
+					call Apu_u_angles_ddphidtheta(point, s, velocity, &
+					                    theta(i), ee(i), dbeta, dphi, &
+					                             uu, psi(i), wpsi(i), &
+					                 lambdaM, lambda, ddphidtheta(i), &
+					                       sindphi, dphi_is_large(i))
+					
+			! the distribution of ejection angle is defined in coordinates (wpsi, wlambdaM) 
+			! where wpsi is an angle between the jet main axis of symmetry and the direction of ejection
+			! wlambdaM is a longitude in the plane perpendicular to the jet's main axis
+			! However, the factor 1/cos(psi) comes from the Jacobian of transformation 
+			! (alphaM, betaM, u, psi, lambdaM) -> (alpha, beta, v, theta, lambda)
+			! and here psi is an angle between the direction of ejection and the normal to surface
+					fac2 = ejection_direction_distribution(s%ejection_angle_distr, wpsi(i), &
+															psi(i), lambdaM, s%zeta, s%eta)
+					fac2 = fac2 / cos(psi(i))
+					
+					tmpIntegrand = 0.0
+					! average upward and downward directions of fluxes
+					! are computed separately to save information
+					if(theta(i) < halfpi) then
+						! number density
+						tmpIntegrand(7) = fac1 * fac2 / abs(ddphidtheta(i)) * rate(i)
+						! velocity vector in the local horizontal coordinate system
+						up_vvec = velocity &
+						* (/sin(theta(i)) * cos(lambda), -sin(theta(i)) * sin(lambda), cos(theta(i))/)
+						! velocity vector in the coordinate system where
+						! the source coordinates are defined
+						call eulrot(-halfpi, -point%alpha, -(point%beta+halfpi), &
+						           up_vvec(1), up_vvec(2), up_vvec(3), &
+						           vtmp(1), &
+						           vtmp(2), &
+						           vtmp(3), &
+						           .FALSE.)
+						tmpIntegrand(1:3) = vtmp * tmpIntegrand(7)
+					else
+						! number density
+						tmpIntegrand(8) = fac1 * fac2 / abs(ddphidtheta(i)) * rate(i)
+						! velocity vector in the local horizontal coordinate system
+						down_vvec = velocity &
+						* (/sin(theta(i)) * cos(lambda), -sin(theta(i)) * sin(lambda), cos(theta(i))/)
+						! velocity vector in the coordinate system where
+						! the source coordinates are defined
+						call eulrot(-halfpi, -point%alpha, -(point%beta+halfpi), &
+						           down_vvec(1), down_vvec(2), down_vvec(3), &
+						           vtmp(1), &
+						           vtmp(2), &
+						           vtmp(3), &
+						           .FALSE.)
+						tmpIntegrand(4:6) = vtmp * tmpIntegrand(8)
+					endif
+					
+					Integrand = Integrand + tmpIntegrand
+					tmp = sum(tmpIntegrand)
+					if(tmp /= tmp) then
+						write(*,*) 'NaN is obtained for an integrand value', tmpIntegrand
+						write(*,*) 'factor related to ejection speed distribution: fac1 =', fac1
+						write(*,*) 'factor related to ejection direction distribution: fac2 =', fac2
+						write(*,*) 'the partial derivative of delta phi by theta =', ddphidtheta(i)
+						write(*,*) 'theta =', theta(i), 'psi =', psi(i), &
+						'lambdaM =', lambdaM, 'lambda =', lambda
+						write(*,*) 'dust production rate =', rate(i)
+						write(*,*) 'point coords', point%rvector
+						write(*,*) 'source coords', s%rrM
+						stop
+					endif
+				endif
+				tmpIntegrand = 0d0
+			enddo
+			
+		end subroutine Integrand_mean_flux
 
 		
 		
