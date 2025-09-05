@@ -528,4 +528,4 @@ To address this:
 
 === Version 1.2.1
   - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.  
-  - Updated Makefile accordingly
+  - Updated Makefile and .gitignore accordingly
