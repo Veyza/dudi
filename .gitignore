@@ -1,0 +1,16 @@
+# build artefacts
+bin/
+build/
+results/
+*.o
+*.mod
+*.out
+*.exe
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp

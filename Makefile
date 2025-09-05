@@ -1,87 +1,139 @@
-# This file is a part of DUDI, the Fortran-90 implementation 
+# This file is a part of DUDI, the Fortran-95 implementation 
 # of the two-body model for dust dynamics
-# Version 1.2.0
-# This is free software. You can use and redistribute it 
-# under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
-# If you do, please cite the following paper
-# Anastasiia Ershova and Jürgen Schmidt, 
-# Two-body model for the spatial distribution of dust ejected from
-# an atmosphereless body, 2021, A&A, 650, A186 
+# Version 1.2.1
+# License: GPL-3.0
 
-# Author: Anastasiia Ershova
-# E-mail: vveyzaa@gmail.com
-objs = const.o define_types.o help.o distributions_fun.o inputdata.o dataoutmod.o gu.o twobody_fun.o integrator.o
-mods = const.mod define_types.mod help.mod distributions_fun.mod inputdata.mod dataoutmod.mod gu.mod twobody_fun.mod integrator.mod
-f95s = const.f90 define_types.f90 help.f90 distributions_fun.f90 inputdata.f90 dataoutmod.f90 gu.f90 twobody_fun.f90 integrator.f90
+# =========================
+#  DUDI explicit targets
+# =========================
+# Usage:
+#   make [dudi]
+#   make enceladus | europa | io        # build *_dudi, run it, then plot
+#   make enceladus_dudi | europa_dudi | io_dudi   # build-only
+#   make run-dudi | run-enceladus_dudi | run-europa_dudi | run-io_dudi
+#   make list | make clean | make distclean
 
-main : main_program.o $(objs)
-	gfortran -fopenmp $(objs) main_program.o -o dudi 
+# -------- Compiler settings --------
+FC      ?= gfortran
+#FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
+FFLAGS ?= -O3 -fimplicit-none -Wno-tabs -Wno-unused-variable
+LDFLAGS ?=
+PYTHON  ?= python3
 
-enceladus_comp : enceladus_example.o $(objs)
-	gfortran -fopenmp $(objs) enceladus_example.o -o enceladus_dudi
+# -------- Layout --------
+MODDIR := build
+BINDIR := bin
+SRCDIR := src
+EXDIR  := examples
+RESDIR := results
 
-europa_comp : europa_example.o $(objs)
-	gfortran -fopenmp $(objs) europa_example.o -o europa_dudi
+# -------- Core sources --------
+CORE_SOURCES := $(wildcard $(SRCDIR)/*.f90)
 
-io_comp : io_example.o $(objs) image_construction.o
-	gfortran -fopenmp $(objs) image_construction.o io_example.o -o io_dudi
+# -------- Example/main program sources --------
+MAIN_SRC            ?= $(EXDIR)/main_program.f90
+ENCELADUS_SRC       ?= $(EXDIR)/enceladus_example.f90
+EUROPA_SRC          ?= $(EXDIR)/europa_example.f90
+IO_SRC              ?= $(EXDIR)/io_example.f90
 
-enceladus : enceladus_comp
-	./enceladus_dudi
-	python3 e2plot.py 
+# ---- Plot scripts ----
+ENCELADUS_PYSCRIPT ?= scripts/e2plot.py
+EUROPA_PYSCRIPT    ?= scripts/deposition.py
+IO_PYSCRIPT        ?= scripts/volcano_image.py
 
-europa : europa_comp
-	./europa_dudi
-	python3 deposition.py
+# -------- Phony targets --------
+.PHONY: all help list clean distclean \
+        dudi enceladus europa io enceladus_dudi europa_dudi io_dudi \
+        run-dudi run-enceladus_dudi run-europa_dudi run-io_dudi
 
-io : io_comp
-	./io_dudi
-	python3 volcano_image.py
+# Default: build the library demo binary
+all: dudi
 
-insitusampling.o : insitusampling.f90 $(objs) trajectory.o
-	gfortran -c $< -fopenmp
+help:
+	@echo "Build-only binaries:"
+	@echo "  make dudi | enceladus_dudi | europa_dudi | io_dudi"
+	@echo ""
+	@echo "Pipelines (build -> run -> plot):"
+	@echo "  make enceladus | europa | io"
+	@echo ""
+	@echo "Run-only helpers:"
+	@echo "  make run-dudi | run-enceladus_dudi | run-europa_dudi | run-io_dudi"
+	@echo ""
+	@echo "Override plot scripts/Python if needed:"
+	@echo "  ENCELADUS_PYSCRIPT=$(ENCELADUS_PYSCRIPT)"
+	@echo "  EUROPA_PYSCRIPT=$(EUROPA_PYSCRIPT)"
+	@echo "  IO_PYSCRIPT=$(IO_PYSCRIPT)"
+	@echo "  PYTHON=$(PYTHON)"
 
-enceladus_example.o : enceladus_example.f90 $(objs)
-	gfortran -c $< -fopenmp
+list:
+	@echo "Core src:          $(CORE_SOURCES)"
+	@echo "MAIN_SRC:          $(MAIN_SRC)"
+	@echo "ENCELADUS_SRC:     $(ENCELADUS_SRC)"
+	@echo "EUROPA_SRC:        $(EUROPA_SRC)"
+	@echo "IO_SRC:            $(IO_SRC)"
+	@echo "Plot scripts: enc=$(ENCELADUS_PYSCRIPT)  eur=$(EUROPA_PYSCRIPT)  io=$(IO_PYSCRIPT)"
 
-europa_example.o : europa_example.f90 $(objs)
-	gfortran -c $< -fopenmp
+# Ensure dirs exist
+$(MODDIR) $(BINDIR) $(RESDIR):
+	mkdir -p $@
 
-io_example.o : io_example.f90 $(objs) image_construction.o
-	gfortran -c $< -fopenmp
+# -----------------------------
+#  Build rules (explicit only)
+# -----------------------------
 
-main_program.o : main_program.f90 $(objs)
-	gfortran -c $< -fopenmp
+# dudi (library demo)
+$(BINDIR)/dudi: $(CORE_SOURCES) $(MAIN_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(MAIN_SRC) -o $@ $(LDFLAGS)
+dudi: $(BINDIR)/dudi
 
-image_construction.o : image_construction.f90
-	gfortran -c -O3 $< -fopenmp
+# *_dudi binaries (build-only)
+$(BINDIR)/enceladus_dudi: $(CORE_SOURCES) $(ENCELADUS_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(ENCELADUS_SRC) -o $@ $(LDFLAGS)
+enceladus_dudi: $(BINDIR)/enceladus_dudi
 
-integrator.o : integrator.f90 const.o twobody_fun.o help.o define_types.o
-	gfortran -c -O3 $< -fopenmp
+$(BINDIR)/europa_dudi: $(CORE_SOURCES) $(EUROPA_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(EUROPA_SRC) -o $@ $(LDFLAGS)
+europa_dudi: $(BINDIR)/europa_dudi
 
-twobody_fun.o : twobody_fun.f90 const.o help.o define_types.o distributions_fun.o
-	gfortran -c -O3 $< -fopenmp
+$(BINDIR)/io_dudi: $(CORE_SOURCES) $(IO_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(IO_SRC) -o $@ $(LDFLAGS)
+io_dudi: $(BINDIR)/io_dudi
 
-distributions_fun.o : distributions_fun.f90 const.o
-	gfortran -c -O3 $< -fopenmp
+# -----------------------------
+#  Pipelines: build -> run -> plot
+# -----------------------------
+enceladus: $(BINDIR)/enceladus_dudi | $(RESDIR)
+	@echo ">>> Running enceladus_dudi"
+	$(BINDIR)/enceladus_dudi
+	@echo ">>> Plotting with: $(PYTHON) $(ENCELADUS_PYSCRIPT)"
+	$(PYTHON) $(ENCELADUS_PYSCRIPT)
 
-dataoutmod.o : dataoutmod.f90 const.o
-	gfortran -c $< -fopenmp
+europa: $(BINDIR)/europa_dudi | $(RESDIR)
+	@echo ">>> Running europa_dudi"
+	$(BINDIR)/europa_dudi
+	@echo ">>> Plotting with: $(PYTHON) $(EUROPA_PYSCRIPT)"
+	$(PYTHON) $(EUROPA_PYSCRIPT)
 
-inputdata.o : inputdata.f90 const.o gu.o
-	gfortran -c $< -fopenmp
+io: $(BINDIR)/io_dudi | $(RESDIR)
+	@echo ">>> Running io_dudi"
+	$(BINDIR)/io_dudi
+	@echo ">>> Plotting with: $(PYTHON) $(IO_PYSCRIPT)"
+	$(PYTHON) $(IO_PYSCRIPT)
 
-gu.o : gu.f90 const.o distributions_fun.o
-	gfortran -c $< -fopenmp
+# -----------------------------
+#  Run helpers (binary only)
+# -----------------------------
+run-dudi:           $(BINDIR)/dudi           ; $(BINDIR)/dudi
+run-enceladus_dudi: $(BINDIR)/enceladus_dudi ; $(BINDIR)/enceladus_dudi
+run-europa_dudi:    $(BINDIR)/europa_dudi    ; $(BINDIR)/europa_dudi
+run-io_dudi:        $(BINDIR)/io_dudi        ; $(BINDIR)/io_dudi
 
-help.o : help.f90 const.o
-	gfortran -c -O3 $< -fopenmp
+# -----------------------------
+#  Cleaning
+# -----------------------------
+clean:
+	@rm -f $(MODDIR)/*.o $(MODDIR)/*.mod
 
-define_types.o : define_types.f90 const.o
-	gfortran -c $<
+distclean: clean
+	@rm -rf $(BINDIR) $(RESDIR)/*
 
-const.o : const.f90 
-	gfortran -c $< -fopenmp
-
-clean :
-	rm *.mod *.o *dudi
