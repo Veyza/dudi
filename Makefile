@@ -20,6 +20,19 @@ FFLAGS ?= -O3 -fimplicit-none -Wno-tabs -Wno-unused-variable
 LDFLAGS ?=
 PYTHON  ?= python3
 
+# Refuse/override Fortran 77 compilers
+NEEDS_FC_GUARD := $(filter-out clean distclean help list,$(MAKECMDGOALS))
+ifneq ($(NEEDS_FC_GUARD),)
+  ifneq (,$(findstring f77,$(FC)))
+    $(info FC='$(FC)' looks like Fortran 77; switching to gfortran)
+    override FC := gfortran
+  endif
+endif
+
+# Avoid built-in implicit rules that might pick f77
+.SUFFIXES:
+MAKEFLAGS += --no-builtin-rules
+
 # -------- Layout --------
 MODDIR := build
 BINDIR := bin
