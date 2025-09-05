@@ -40,8 +40,18 @@ SRCDIR := src
 EXDIR  := examples
 RESDIR := results
 
-# -------- Core sources --------
-CORE_SOURCES := $(wildcard $(SRCDIR)/*.f90)
+# -------- Core sources (ordered: providers before users) --------
+CORE_SOURCES := \
+  $(SRCDIR)/const.f90 \
+  $(SRCDIR)/define_types.f90 \
+  $(SRCDIR)/help.f90 \
+  $(SRCDIR)/distributions_fun.f90 \
+  $(SRCDIR)/gu.f90 \
+  $(SRCDIR)/twobody_fun.f90 \
+  $(SRCDIR)/inputdata.f90 \
+  $(SRCDIR)/dataoutmod.f90 \
+  $(SRCDIR)/integrator.f90 \
+  $(SRCDIR)/image_construction.f90
 
 # -------- Example/main program sources --------
 MAIN_SRC            ?= $(EXDIR)/main_program.f90
