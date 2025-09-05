@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace        # remove trailing spaces
       - id: end-of-file-fixer          # ensure newline at EOF
@@ -8,7 +8,7 @@ repos:
       - id: check-added-large-files    # prevent huge accidental commits
 
   - repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 25.1.0
     hooks:
       - id: black                      # auto-format Python code
         language_version: python3
