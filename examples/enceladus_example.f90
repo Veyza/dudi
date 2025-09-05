@@ -1,6 +1,6 @@
 ! This file is a part of the Fortran-90 implementation
 ! of the two-body model for dust dynamics
-! Version 1.2.1
+! Version 1.2.2
 ! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
