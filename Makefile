@@ -1,6 +1,6 @@
-# This file is a part of DUDI, the Fortran-90 implementation 
+# This file is a part of DUDI, the Fortran-95 implementation 
 # of the two-body model for dust dynamics
-# Version 1.2.0
+# Version 1.2.1
 # License: GPL-3.0
 
 # =========================
