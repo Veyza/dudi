@@ -54,7 +54,7 @@ to the sections 'Specify the key parameters' and 'Running Examples'.
 
 == 3. Specifying Parameters
 
-Configure model parameters in `const..f90` for physical properties and
+Configure model parameters in `src/const.f90` for physical properties and
 simulation settings:
 
 * `moon_mass`   (real(8)): Mass of the moon (kg).
@@ -74,7 +74,7 @@ simulation settings:
 
 == 4. Specifying Functions Describing the Dust Ejection
 
-Customize dust ejection characteristics in `distributions_fun..f90`. This file
+Customize dust ejection characteristics in `src/distributions_fun.f90`. This file
 includes functions that define the size, speed, and direction distribution of 
 dust ejection, and the dust production rate. Each function utilizes Fortran's 
 `select case` operator, where a selector specifies a different 
@@ -117,7 +117,7 @@ used in the example applications.
 == 5. Utilizing the DUDI Subroutine
 
 The `DUDI(density, point, source, tnow)` subroutine performs the calculations.
-The subroutine is located in the `integrator..f90` file. It writes the result to
+The subroutine is located in the `src/integrator.f90` file. It writes the result to
 the `density` variable and takes as input:
 
 - `density`: An array of two real numbers, which the subroutine updates:
@@ -213,11 +213,11 @@ call Gu_integral(source%ui, source%Gu_precalc, source%sd, source%ud, rmin, rmax)
 
 == 6. Applying the DUDI Subroutine
 
-The `DUDI` subroutine, located in `integrator..f90`, performs the numerical 
+The `DUDI` subroutine, located in `src/integrator.f90`, performs the numerical 
 integration required to compute dust density. This subroutine must be called 
 from a main program, which manages the input and output of the data.
 
-A template for such a main program, `main_program..f90`, is provided within the
+A template for such a main program, `examples/main_program.f90`, is provided within the
 package to assist users in setting up their simulations quickly and efficiently.
 
 The `main_program..f90` file is provided as a template for the main program. It
@@ -235,14 +235,14 @@ the `dataout` module is called to write the results to a file.
 
 
 *Customization:*
-- Users are encouraged to modify the `main_program..f90` template and the related
+- Users are encouraged to modify the `examples/main_program.f90` template and the related
   input/output subroutines according to their specific research needs.
 
 
 
 == 7. Output of the Results
 
-The `result_out` function in the `dataoutmod..f90` module handles the output of
+The `result_out` function in the `src/dataoutmod.f90` module handles the output of
 simulation results. It writes data to the file `twobody_model_result.dat` in the
 `./results/` directory with the following column structure:
 - 1st column: Total density at the point.
@@ -254,7 +254,7 @@ simulation results. It writes data to the file `twobody_model_result.dat` in the
 - 6th column: Spacecraft's eastern longitude in degrees.
 
 Users have the flexibility to customize the output by writing their own function
-within the `dataoutmod..f90` module.
+within the `src/dataoutmod.f90` module.
 
 
 
@@ -270,7 +270,7 @@ at some integration steps for each "source and spacecraft position" pair, but
 not necessarily at all steps.
 
 Furthermore, if the number of warnings in `fort.666` exceeds the limit set by
-`maxNofWarnings` in the `const..f90` module, the program will stop and print a
+`maxNofWarnings` in the `src/const.f90` module, the program will stop and print a
 warning message to the command line. 
 
 
@@ -304,7 +304,7 @@ uses specific parameters and input files.
 
 *Example 1: The Number Density Profile 
 of the E2 Flyby of the Cassini Spacecraft at Enceladus*
-  - Main Program: `enceladus_example..f90`
+  - Main Program: `examples/enceladus_example.f90`
     - Performs a loop over 100 points along the Cassini spacecraft trajectory.
     - Computes the number density of dust from a tilted jet representing the
       Enceladus dust plume.
@@ -341,7 +341,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
 
 
 *Example 2: Dust Deposition on the Surface of Europa*
-  - Main Program: `europa_example..f90`
+  - Main Program: `examples/europa_example.f90`
     - Calculates the dust flux onto Europa's surface for four distinct cases,
       each representing a combination of one of two different size distributions
       and one of two ejection direction distributions.
@@ -392,7 +392,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       
       
 *Example 3: The Images of a Fictive Volcano Erupted on Io*
-  - Main Program: `io_example..f90`
+  - Main Program: `examples/io_example.f90`
     - Utilizes additional modules including `image_construction..f90`.
     - Constructs images simulating a CCD camera with 128x128 pixels,
       calculating the line of sight for each pixel across a grid of 41 points.
@@ -522,8 +522,10 @@ To address this:
   - The subroutine `DUDI_mean_velocity` calls a newly introduced subroutine 
     `Integrand_mean_flux` from the module `twobody_fun.f90`.
 
--   A detailed description of the algorithm can be found in the file
+  - A detailed description of the algorithm can be found in the file
     **`DUDI_average_velocity_vectors.pdf´** available in this repository.
 
 
-
+=== Version 1.2.1
+  - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.  
+  - Updated Makefile accordingly
