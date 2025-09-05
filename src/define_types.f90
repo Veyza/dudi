@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: define_types.f90
 ! Description: Definition of the structures used by the routines
@@ -17,7 +17,7 @@
 module define_types
 	use const
 	implicit none
-	
+
 	type ejection_speed_properties
 		integer ud_shape                ! parameter defining which distribution is used for ejection speed
 		real(8) umax                    ! gas velocity
@@ -42,13 +42,13 @@ module define_types
 		real(8) production_rate               ! parameter used in definition of the function for production rate (usually the normalization factor)
 		logical is_jet                        ! .TRUE. if the ejection is concentrated (omega is small)
 	end type source_properties
-	
+
 	type position_in_space             ! where the dust density is to be calculated
 		real(8) r                        ! distance from the center of the moon
 		real(8) r_scaled                 ! distance from the center of the moon divided by the moon radius
 		real(8) alpha                    ! polar angle
 		real(8) beta                     ! eastern longitude
-		real(8) rvector(3)               ! Cartesian coordinates of the point 
+		real(8) rvector(3)               ! Cartesian coordinates of the point
 		logical compute	                 ! marker that density should or should not be conputed in this point
 	end type position_in_space
 

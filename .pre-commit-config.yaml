@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace        # remove trailing spaces
+      - id: end-of-file-fixer          # ensure newline at EOF
+      - id: check-yaml                 # validate YAML files
+      - id: check-added-large-files    # prevent huge accidental commits
+
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black                      # auto-format Python code
+        language_version: python3
+

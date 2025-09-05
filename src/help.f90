@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: help.f90
 ! Description: General auxiliary functions and subroutines
@@ -23,15 +23,15 @@ module help
 				implicit none
 				real(8), intent(in) :: r(2), phi
 				real(8) x(2)
-				
+
 				x(1) = r(1) * cos(phi) - r(2) * sin(phi)
 				x(2) = r(1) * sin(phi) + r(2) * cos(phi)
-				
+
 			end function rot2d
-			
-			
-			
-			
+
+
+
+
 			! solves a system of 2 quadratic equations
 			! (x - x0)**2 + (y - y0)**2 = R0**2, x0**2 + y0**2 = 1
 			!(x - x1)**2 + y**2 = R1**2
@@ -44,17 +44,17 @@ module help
 				real(8) sR, dx, sx, dx2, dy2, R02, R12, x1x0
 				real(8) sumdifs2, sqrtshort, ybracket
 				real(8) tmp(2), eps, eps1, eps0
-				
+
 				sR = R0 + R1
 				dx = x0 - x1 ; sx = x0 + x1
 				x1x0 = x0 * x1
 				dx2 = dx * dx ; dy2 = y0 * y0
 				R02 = R0 * R0 ; R12 = R1 * R1
-				
+
 				sumdifs2 = dx2 + dy2
-				
+
 				sqrtshort = sqrt(-2d0 * (x1x0 - abs(x1)) * (sR**2 - sumdifs2) * dy2)
-				
+
 				ybracket = (R12 + sumdifs2) * dy2
 
 				x(1) = ((R12 - R02) * dx + sx * sumdifs2 &
@@ -70,30 +70,30 @@ module help
 
 				y(2) = (-R02 * dy2 + (x1 - x0) * sqrtshort + ybracket) &
 						/ (2d0 * sumdifs2 * y0)
-				
-			end subroutine circle_intersection
-			
-			
 
-		
-			
+			end subroutine circle_intersection
+
+
+
+
+
 			pure function vector_product(x,y) result(z)
 				implicit none
 				real(8), intent(in) :: x(3), y(3)
 				real(8) z(3)
-				
+
 				z(1) = x(2) * y(3) - x(3) * y(2)
 				z(2) = x(3) * y(1) - x(1) * y(3)
 				z(3) = x(1) * y(2) - x(2) * y(1)
-			
+
 			end function vector_product
-		
-	
-	
-		
+
+
+
+
 			! Linear interpolation. Returns a value of y at xout
 			! x must be in ascending order
-			! if xout < x(1) or xout > x(N) then 
+			! if xout < x(1) or xout > x(N) then
 			! yout = y(1) or yout = y(N) respectively
 			pure function LiNTERPOL(N, y, x, xout) result(yout)
 			  implicit none
@@ -101,20 +101,20 @@ module help
 			  real(8) yout, x1, x2
 			  integer i, i1, i2
 			  integer, intent(in) :: N
-			  
+
 			  if(xout < x(1)) then
 					yout = y(1)
 					return
 			  endif
-			  
+
 			  if(xout > x(N)) then
 					yout = y(N)
 					return
 			  endif
-			  
+
 			  i = 1
 			  i1 = 0
-			  do while(i1 == 0 .and. i .lt. N) 
+			  do while(i1 == 0 .and. i .lt. N)
 			    if(xout .lt. x(i+1) .and. xout .ge. x(i)) then
 			      i1 = i;       i2 = i+1;
 			      x1 = x(i1);   x2 = x(i2);
@@ -124,37 +124,37 @@ module help
 
 			  yout = y(i1) + (y(i2) - y(i1)) / (x2 - x1) * (xout - x1)
 			  return
-			  
-			end function LiNTERPOL	
-	
-	
-	
-			
+
+			end function LiNTERPOL
+
+
+
+
 			pure function norma3d(v)
 				implicit none
 				real(8), intent(in) :: v(3)
 				real(8) norma3d
-				
+
 					norma3d = sqrt(dot_product(v,v))
-					
+
 			end function norma3d
-			
-			
-			
+
+
+
 			pure function norma2d(v)
 				implicit none
 				real(8), intent(in) :: v(2)
 				real(8) norma2d
-				
+
 					norma2d = sqrt(dot_product(v,v))
-					
+
 			end function norma2d
-				
-	
-			
-			
-		! modified inverse tanget function 
-		! returns values in [0, 2pi]			
+
+
+
+
+		! modified inverse tanget function
+		! returns values in [0, 2pi]
 			pure function myatan(N, re0, im)
 				use const
 				implicit none
@@ -162,13 +162,13 @@ module help
 				integer, intent(in):: N
 				real(8), intent(in) :: re0(N), im(N)
 				real(8) myatan(N), re(N)
-				
+
 				re = re0
 
 			! avoid problems with zero re
 				do i = 1, N
-					if(re(i) < 1d-12 .and. re(i) > 0d0) re(i) = 1d-12 
-					if(re(i) > 1d-12 .and. re(i) < 0d0) re(i) = -1d-12 
+					if(re(i) < 1d-12 .and. re(i) > 0d0) re(i) = 1d-12
+					if(re(i) > 1d-12 .and. re(i) < 0d0) re(i) = -1d-12
 				enddo
 
 				myatan = atan(im / re)
@@ -179,13 +179,13 @@ module help
 				enddo
 
 			end function myatan
-			
-			
-			
-			
-			
-		! modified inverse tanget function 
-		! returns values in [0, 2pi]			
+
+
+
+
+
+		! modified inverse tanget function
+		! returns values in [0, 2pi]
 			pure function myatan1(re0, im)
 				use const
 				implicit none
@@ -195,8 +195,8 @@ module help
 				re = re0
 
 				! avoid problems with zero re
-				if(re < 1d-12 .and. re > 0d0) re = 1d-12 
-				if(re > 1d-12 .and. re < 0d0) re = -1d-12 
+				if(re < 1d-12 .and. re > 0d0) re = 1d-12
+				if(re > 1d-12 .and. re < 0d0) re = -1d-12
 
 				myatan1 = atan(im / re)
 
@@ -204,9 +204,9 @@ module help
 				if(re > 0d0 .and. im < 0d0) myatan1 = myatan1 + twopi
 
 			end function myatan1
-			
-			
-			
+
+
+
 			! Euler's rotation
 			pure subroutine eulrot(phiE, thetaE, psiE, xin, yin, zin, xout, yout, zout, inverse)
 				implicit none
@@ -215,7 +215,7 @@ module help
 				real(8), intent(in) :: phiE, thetaE, psiE, xin, yin, zin
 				real(8), intent(out) :: xout, yout, zout
 				real(8) cp, sp, ct, st, cps, sps
-				
+
 				cp = cos(phiE)
 				sp = sin(phiE)
 				ct = cos(thetaE)
@@ -224,12 +224,12 @@ module help
 				sps = sin(psiE)
 
 				if (.not. inverse) then			! if NOT INVERSE case
-				
+
 					xout= (cps*cp-ct*sp*sps)*xin + (cps*sp+ct*cp*sps)*yin + sps*st*zin
 					yout=(-sps*cp-ct*sp*cps)*xin + (-sps*sp+ct*cp*cps)*yin + cps*st*zin
-					zout=st*sp*xin - st*cp*yin + ct*zin	
+					zout=st*sp*xin - st*cp*yin + ct*zin
 
-				else 
+				else
 
 					xout=(cps*cp-ct*sp*sps)*xin + (-sps*cp-ct*sp*cps)*yin + st*sp*zin
 					yout=(cps*sp+ct*cp*sps)*xin + (-sps*sp+ct*cp*cps)*yin - st*cp*zin
@@ -258,30 +258,30 @@ module help
 				type(source_properties), intent(in) :: source
 				real(8), intent(out) :: dphi, dbeta, xi
 				real(8) Rsource(3)
-				
+
 				Rsource = source%rrM / source%r
-				
+
 				! dphi is an angle between a vector pointing to the source
 				! and a vector pointing to the spacecraft
 				dphi = acos(dot_product(Rsource, point%rvector) / point%r)
-				
+
 				! dbeta is an angle between proections of the same vectors
 				! in the longitudinal plane
 				dbeta = acos((Rsource(1) * point%rvector(1) &
 									+ Rsource(2) * point%rvector(2)) &
 									/ (norma2d(Rsource(1:2)) * norma2d(point%rvector(1:2))))
-				
+
 				! xi is an angle between the direction of source symmetry axis
 				! and the direction from the source position to the spacecraft
 				xi = acos(dot_product(source%symmetry_axis, point%rvector-source%rrM) &
 							/ norma3d(point%rvector-source%rrM))
-				
-			end subroutine ApuTrajectory	
-			
-			
-			
-			
-			
+
+			end subroutine ApuTrajectory
+
+
+
+
+
 
 
 			pure subroutine invert_matrix3(A, B)
@@ -304,7 +304,7 @@ module help
 				B(1,3) = detinv * (A(1,2) * A(2,3) - A(1,3) * A(2,2))
 				B(2,3) = - detinv * (A(1,1) * A(2,3) - A(1,3) * A(2,1))
 				B(3,3) = detinv * (A(1,1) * A(2,2) - A(1,2) * A(2,1))
-				
+
 			end subroutine invert_matrix3
 
 
@@ -323,7 +323,7 @@ module help
 				real(8) r(3), s(3), t1(3), t2(3)
 				real(8) A(3,3), B(3), Ainv(3,3), A0(3,3), tmp(3)
 				integer i
-				
+
 				s = vector_product(s1, s2)		! s is normal to both s1 and s2
 				if(norma3d(s) < 1d-3) then
 					! Lines are parallel to each other
@@ -332,7 +332,7 @@ module help
 					d = norma3d(vector_product(s1, M2 - M1))
 					return
 				endif
-				
+
 				t1 = vector_product(s1, s)				! t1 is normal to s and s1
 				t2 = vector_product(s2, s)				! t2 is normal to s and s2
 				! t1(1)*x + t1(2)*y + t1(3)*z = t1*M1 - equation of a plain (1)
@@ -352,10 +352,10 @@ module help
 				K2(1) = sum(Ainv(1,:) * B)
 				K2(2) = sum(Ainv(2,:) * B)
 				K2(3) = sum(Ainv(3,:) * B)
-				
+
 				A(1,:) = t2
 				B(1) = dot_product(t2, M2)
-				
+
 				A(2,:) = -(/s1(2), -s1(1), 0d0/)
 				B(2) = s1(1) * M1(2) - s1(2) * M1(1)
 				A(3,:) = -(/s1(3), 0d0, -s1(1)/)
@@ -366,27 +366,27 @@ module help
 				K1(1) = sum(Ainv(1,:) * B)
 				K1(2) = sum(Ainv(2,:) * B)
 				K1(3) = sum(Ainv(3,:) * B)
-				
+
 				! two plains parallel to vector s but not parallel to each other
 				! intersect defining the line parallel to s,
 				! the common perpendicular for lines 1 and 2
-				
+
 				d = norma3d(K1 - K2)
 
-							
+
 			end subroutine dist_between_2lines
 
 
 
-			
-			
+
+
 			! returns nodes and weights of the Gauss-Legendre quadrature formula
 			subroutine GaussLegendreQuadra(xi, wi, order)
 				use const
 				implicit none
-				integer, intent(in) :: order 
+				integer, intent(in) :: order
 				real, intent(out) :: xi(order), wi(order)
-				
+
 				if(order /= 5 .and. order /= 10 &
 							.and. order /= 20 .and. order /= 30 .and. order /= 40 &
 							.and. order /= 50) then
@@ -394,7 +394,7 @@ module help
 					write(*,*) 'check variables order_v and order_R'
 					stop
 				endif
-				
+
 				select case(order)
 					case(50)
 						 xi(1) = -0.9988664044;    wi(1) = 0.0029086226
@@ -502,10 +502,10 @@ module help
 						 xi(11) = -0.447033763;    wi(11) = 9.21225250E-02
 						 xi(12) = -0.352704734;    wi(12) = 9.63687375E-02
 						 xi(13) = -0.254636914;    wi(13) = 9.95934233E-02
-						 xi(14) = -0.153869912;    wi(14) = 0.101762392    
-						 xi(15) = -5.14718443E-02; wi(15) = 0.102852650    
-						 xi(16) = 5.14718443E-02;  wi(16) = 0.102852650    
-						 xi(17) = 0.153869912;     wi(17) = 0.101762392    
+						 xi(14) = -0.153869912;    wi(14) = 0.101762392
+						 xi(15) = -5.14718443E-02; wi(15) = 0.102852650
+						 xi(16) = 5.14718443E-02;  wi(16) = 0.102852650
+						 xi(17) = 0.153869912;     wi(17) = 0.101762392
 						 xi(18) = 0.254636914;     wi(18) = 9.95934233E-02
 						 xi(19) = 0.352704734;     wi(19) = 9.63687375E-02
 						 xi(20) = 0.447033763;     wi(20) = 9.21225250E-02
@@ -524,45 +524,45 @@ module help
 						xi(2) = -0.963971913;     wi(2) = 4.06014286E-02
 						xi(3) = -0.912234426;     wi(3) = 6.26720488E-02
 						xi(4) = -0.839116991;     wi(4) = 8.32767412E-02
-						xi(5) = -0.746331930;     wi(5) = 0.101930119    
-						xi(6) = -0.636053681;     wi(6) = 0.118194535    
-						xi(7) = -0.510867000;     wi(7) = 0.131688640    
-						xi(8) = -0.373706102;     wi(8) = 0.142096102    
-						xi(9) = -0.227785856;     wi(9) = 0.149172992    
-						xi(10) = -7.65265226E-02; wi(10) = 0.152753383    
-						xi(11) = 7.65265226E-02;  wi(11) = 0.152753383    
-						xi(12) = 0.227785856;     wi(12) = 0.149172992    
-						xi(13) = 0.373706102;     wi(13) = 0.142096102    
-						xi(14) = 0.510867000;     wi(14) = 0.131688640    
-						xi(15) = 0.636053681;     wi(15) = 0.118194535    
-						xi(16) = 0.746331930;     wi(16) = 0.101930119    
+						xi(5) = -0.746331930;     wi(5) = 0.101930119
+						xi(6) = -0.636053681;     wi(6) = 0.118194535
+						xi(7) = -0.510867000;     wi(7) = 0.131688640
+						xi(8) = -0.373706102;     wi(8) = 0.142096102
+						xi(9) = -0.227785856;     wi(9) = 0.149172992
+						xi(10) = -7.65265226E-02; wi(10) = 0.152753383
+						xi(11) = 7.65265226E-02;  wi(11) = 0.152753383
+						xi(12) = 0.227785856;     wi(12) = 0.149172992
+						xi(13) = 0.373706102;     wi(13) = 0.142096102
+						xi(14) = 0.510867000;     wi(14) = 0.131688640
+						xi(15) = 0.636053681;     wi(15) = 0.118194535
+						xi(16) = 0.746331930;     wi(16) = 0.101930119
 						xi(17) = 0.839116991;     wi(17) = 8.32767412E-02
 						xi(18) = 0.912234426;     wi(18) = 6.26720488E-02
 						xi(19) = 0.963971913;     wi(19) = 4.06014286E-02
 						xi(20) = 0.993128598;     wi(20) = 1.76140070E-02
 					case(10)
 						xi(1) = -0.973906517;     wi(1) = 6.66713417E-02
-						xi(2) = -0.865063369;     wi(2) = 0.149451345    
-						xi(3) = -0.679409564;     wi(3) = 0.219086364    
-						xi(4) = -0.433395386;     wi(4) = 0.269266725    
-						xi(5) = -0.148874342;     wi(5) = 0.295524240    
-						xi(6) = 0.148874342;      wi(6) = 0.295524240    
-						xi(7) = 0.433395386;      wi(7) = 0.269266725    
-						xi(8) = 0.679409564;      wi(8) = 0.219086364    
- 						xi(9) = 0.865063369;      wi(9) = 0.149451345    
+						xi(2) = -0.865063369;     wi(2) = 0.149451345
+						xi(3) = -0.679409564;     wi(3) = 0.219086364
+						xi(4) = -0.433395386;     wi(4) = 0.269266725
+						xi(5) = -0.148874342;     wi(5) = 0.295524240
+						xi(6) = 0.148874342;      wi(6) = 0.295524240
+						xi(7) = 0.433395386;      wi(7) = 0.269266725
+						xi(8) = 0.679409564;      wi(8) = 0.219086364
+ 						xi(9) = 0.865063369;      wi(9) = 0.149451345
 						xi(10) = 0.973906517;     wi(10) = 6.66713417E-02
 					case(5)
-						xi(1) = -0.906179845;    wi(1) = 0.236926883    
-						xi(2) = -0.538469315;    wi(2) = 0.478628665    
-						xi(3) = 0.00000000;      wi(3) = 0.568888903    
-						xi(4) = 0.538469315;     wi(4) = 0.478628665    
-						xi(5) = 0.906179845;     wi(5) = 0.236926883 
-				
+						xi(1) = -0.906179845;    wi(1) = 0.236926883
+						xi(2) = -0.538469315;    wi(2) = 0.478628665
+						xi(3) = 0.00000000;      wi(3) = 0.568888903
+						xi(4) = 0.538469315;     wi(4) = 0.478628665
+						xi(5) = 0.906179845;     wi(5) = 0.236926883
+
 				endselect
-			
-			
+
+
 			end subroutine GaussLegendreQuadra
-			
-			
+
+
 
 end module help

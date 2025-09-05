@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: integrator.f90
 ! Description: The subroutines that manage the numerical integration
@@ -50,11 +50,11 @@ module integrator
 			real xel(order_v_el), wel(order_v_el)
 			real xhy(order_v_hy), why(order_v_hy)
 			logical pole
-			
+
 			call ApuTrajectory(point, dphi, dbeta, angle, source)
 			! escape velosity at distance rr
 			vc = sqrt(2d0 * gm / point%r)
-			
+
 			amin = (point%r + source%r) / 4d0 &
 			    + 0.5d0 * sqrt((point%r**2 + source%r**2) &
 			    / 4d0 - point%r * source%r * cos(dphi) / 2d0)
@@ -69,14 +69,14 @@ module integrator
 			! assuming that the ejection velocity is limited by gas velocity
 			vmax = sqrt(source%ud%umax * source%ud%umax &
 			        + 2d0 * gm * (1d0 / point%r - 1d0 / source%r))
-			
+
 			pole = amin > amin2
 			if(.not. pole) vmin = vmin2
-			
+
 			density = 0.0
 			! if the maximal possible velocity is enough to get from rm to rr
 			if(vmax > vmin) then
-				
+
 				if(pole) then
 					call estimate_N_steps_pole_integration(Nprestep, &
 								source%zeta * rad2deg, point%r_scaled, &
@@ -84,7 +84,7 @@ module integrator
 					v_limits(1) = vmin + veps
 					v_limits(2) = (vmax - vmin) * prestep_relative_size + vmin
 					vinterval = (v_limits(2) - v_limits(1))
-					
+
 					call Integrand_number_density(f1, v_limits(1), amin, &
 					                             point, dphi, dbeta, source, tnow)
 					viprev = v_limits(1)
@@ -99,12 +99,12 @@ module integrator
 				else
 					v_limits(2) = vmin
 				endif
-				
-				if(vc > v_limits(2)) then			
+
+				if(vc > v_limits(2)) then
 					v_limits(1) = v_limits(2)
 					v_limits(2) = min(vc, vmax)
-					
-				! the particles on the elliptic orbits 
+
+				! the particles on the elliptic orbits
 					call GaussLegendreQuadra(xel, wel, order_v_el)
 					ldif = v_limits(2) - v_limits(1)
 					ldif = ldif * 0.5d0
@@ -116,7 +116,7 @@ module integrator
 						density(1) = density(1) + ldif * wel(i) * term
 					enddo
 				endif
-					
+
 				if(vc < vmax) then
 				! the particles on the escaping trajectories
 					call GaussLegendreQuadra(xhy, why, order_v_hy)
@@ -135,10 +135,10 @@ module integrator
 				! factor independent on velocity
 				density = density / point%r / source%r / sin(dphi)
 			endif
-			
+
 		end subroutine DUDI
-		
-		
+
+
 		! The subroutine manages the integration determining
 		! the parameters and the integration limits
 		! it returns an array of 8 real numbers:
@@ -169,11 +169,11 @@ module integrator
 			real xel(order_v_el), wel(order_v_el)
 			real xhy(order_v_hy), why(order_v_hy)
 			logical pole
-			
+
 			call ApuTrajectory(point, dphi, dbeta, angle, source)
 			! escape velosity at distance rr
 			vc = sqrt(2d0 * gm / point%r)
-			
+
 			amin = (point%r + source%r) / 4d0 &
 			    + 0.5d0 * sqrt((point%r**2 + source%r**2) &
 			    / 4d0 - point%r * source%r * cos(dphi) / 2d0)
@@ -188,14 +188,14 @@ module integrator
 			! assuming that the ejection velocity is limited by gas velocity
 			vmax = sqrt(source%ud%umax * source%ud%umax &
 			        + 2d0 * gm * (1d0 / point%r - 1d0 / source%r))
-			
+
 			pole = amin > amin2
 			if(.not. pole) vmin = vmin2
-			
+
 			integral = 0.0
 			! if the maximal possible velocity is enough to get from rm to rr
 			if(vmax > vmin) then
-				
+
 				if(pole) then
 					call estimate_N_steps_pole_integration(Nprestep, &
 								source%zeta * rad2deg, point%r_scaled, &
@@ -203,7 +203,7 @@ module integrator
 					v_limits(1) = vmin + veps
 					v_limits(2) = (vmax - vmin) * prestep_relative_size + vmin
 					vinterval = (v_limits(2) - v_limits(1))
-					
+
 					call Integrand_mean_flux(f1, v_limits(1), amin, &
 					                             point, dphi, dbeta, source, tnow)
 					viprev = v_limits(1)
@@ -218,11 +218,11 @@ module integrator
 				else
 					v_limits(2) = vmin
 				endif
-							
+
 				v_limits(1) = v_limits(2)
 				v_limits(2) = vmax
-				
-			! the particles on the elliptic orbits 
+
+			! the particles on the elliptic orbits
 				call GaussLegendreQuadra(xel, wel, order_v_el)
 				ldif = v_limits(2) - v_limits(1)
 				ldif = ldif * 0.5d0
@@ -233,19 +233,19 @@ module integrator
 								point, dphi, dbeta, source, tnow)
 					integral = integral + ldif * wel(i) * term
 				enddo
-				
+
 				! factor independent on velocity
 				integral = integral / point%r / source%r / sin(dphi)
 			endif
 			! dividing the flux by number density to obtain average velocities
 			if(integral(7) > 0.0) integral(1:3) = integral(1:3) / integral(7)
 			if(integral(8) > 0.0) integral(4:6) = integral(4:6) / integral(8)
-			
+
 		end subroutine DUDI_mean_velocity
 
-				
-		
-		
+
+
+
 		subroutine estimate_N_steps_pole_integration(Nprestep, z, r, xi, isjet)
 			implicit none
 			real(8), parameter :: ximin = 0.1745329d0		! 10 degree in radians
@@ -253,7 +253,7 @@ module integrator
 			integer, intent(out) :: Nprestep
 			real(8), intent(in) :: xi, r, z
 			logical, intent(in) :: isjet
-			
+
 			if(isjet) then
 				if(ximin < xi .and. xi < ximax) then
 					if(r < 2d0) then
@@ -275,13 +275,12 @@ module integrator
 			else
 				Nprestep = 15
 			endif
-			
+
 			return
-		
+
 		end subroutine estimate_N_steps_pole_integration
-		
 
-		
-    
+
+
+
  end module integrator
-

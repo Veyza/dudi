@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: twobody_fun.f90
 ! Description: The subroutines used to compute the integrand
@@ -39,14 +39,14 @@ module TwoBody_fun
 			real(8) cosphi, cosphim, cosdphi, sintheta
 			real(8) dphi1, dphi2, dphi3, dphi4, delta, numder
 			integer i
-			
+
 			sinal = sin(point%alpha) ; cosal = cos(point%alpha)
 			sinalM = sin(s%alphaM) ; cosalm = cos(s%alphaM)
 			sindphi = sin(dphi) ; cosdphi = cos(dphi)
 			sintheta = sin(theta)
-							
-			!	 angular momentum (eq 27)		
-			hh = point%r * v * sintheta		
+
+			!	 angular momentum (eq 27)
+			hh = point%r * v * sintheta
 				!  psi
 			psi = asin(hh / s%r / u)
 			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -72,7 +72,7 @@ module TwoBody_fun
 				psi = halfpi - 1d-5
 			endif
 			!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			
+
 			! lambda and lambdaM are to be found from a spherical triangle
 			! the direction and the length of arc along which a particle
 			! traveled from rM to r matters for exact geometry of
@@ -85,7 +85,7 @@ module TwoBody_fun
 				else
 					sinlambda = sinalM * sin(dbeta) / sindphi
 					coslambda = (cosal * cosdphi - cosalM) / sinal / sindphi
-				endif				
+				endif
 			else
 				if(point%beta - s%betaM < pi) then
 					sinlambda = sinalM * sin(dbeta) / sindphi
@@ -105,19 +105,19 @@ module TwoBody_fun
 				coslambdaM = - coslambdaM
 			endif
 			lambda = myatan1(coslambda, sinlambda)
-			
+
 			lambdaM = myatan1(coslambdaM, sinlambdaM)
-			
+
 			wpsi = acos(cos(psi) * cos(s%zeta) &
 					+ cos(lambdaM - s%eta) * sin(psi) * sin(s%zeta))
 
-			
+
 			wrr = point%r_scaled ; wvv = v / vesc
 
 			pp = 2d0 * wrr * wrr * wvv * wvv * sintheta**2
 			dpp = 2d0 * pp / tan(theta)
 			dee = (wvv * wvv - 1d0 / wrr) * dpp / e
-			
+
 			cosphim = (pp - 1d0) / e
 			cosphi = (pp / wrr - 1d0) / e
 
@@ -132,8 +132,8 @@ module TwoBody_fun
 				dphi2 = deltaphi(theta+delta, wrr, wvv)
 				dphi3 = deltaphi(theta-delta, wrr, wvv)
 				dphi4 = deltaphi(theta-2d0*delta, wrr, wvv)
-				
-				numder = (-dphi1 + 8d0 * dphi2 - 8d0 * dphi3 + dphi4) / 12d0 / delta 
+
+				numder = (-dphi1 + 8d0 * dphi2 - 8d0 * dphi3 + dphi4) / 12d0 / delta
 				numder = (dphi2 - dphi3) / 2d0 / delta
 				write(666,*) 'the derivative d\Delta\phi/d\theta was &
 								obtained numerically because the analytical &
@@ -145,9 +145,9 @@ module TwoBody_fun
 					write(*,*) 'CHECK FILE fort.666'
 					stop
 				endif
-			endif			
+			endif
 
-			
+
 		end subroutine Apu_u_angles_ddphidtheta
 
 
@@ -159,10 +159,10 @@ module TwoBody_fun
 			real(8), intent(in) :: theta
 			real(8), intent(in) :: wrr, wvv
 			real(8) deltaphi, hh, e, pp, cosphi, cosphim
-			
+
 			pp = 2d0 * wrr * wrr * wvv * wvv * sin(theta)**2
 			e = sqrt(1d0 + 2d0 * pp * (wvv * wvv - 1d0 / wrr))
-			
+
 			cosphim = (pp - 1d0) / e
 			if(abs(cosphim) > 1d0) cosphim = sign(1d0, cosphim)
 			cosphi = (pp / wrr - 1d0) / e
@@ -172,7 +172,7 @@ module TwoBody_fun
 			else
 				deltaphi = 2d0 * pi - acos(cosphi) - acos(cosphim)
 			endif
-		
+
 		end function deltaphi
 
 
@@ -221,13 +221,13 @@ module TwoBody_fun
 				if(uu / s%ud%umax > s%ui(GRN)) then
 					fac1 = velocity * s%Gu_precalc(GRN) / uu / uu
 				else
-					fac1 = LiNTERPOL(GRN, s%Gu_precalc, s%ui, uu) 
+					fac1 = LiNTERPOL(GRN, s%Gu_precalc, s%ui, uu)
 					fac1 = velocity * fac1 / uu / uu
 				endif
 			endif
-			
+
 			Integrand = 0d0
-			wpsi = halfpi	
+			wpsi = halfpi
 			do i = 1, 2
 				if(s%production_fun > 0) then
 					rate(i) = production_rate(tnow - deltat(i), s%production_rate, &
@@ -242,23 +242,23 @@ module TwoBody_fun
 					                             uu, psi(i), wpsi(i), &
 					                 lambdaM, lambda, ddphidtheta(i), &
 					                       sindphi, dphi_is_large(i))
-					
-			! the distribution of ejection angle is defined in coordinates (wpsi, wlambdaM) 
+
+			! the distribution of ejection angle is defined in coordinates (wpsi, wlambdaM)
 			! where wpsi is an angle between the jet main axis of symmetry and the direction of ejection
 			! wlambdaM is a longitude in the plane perpendicular to the jet's main axis
-			! However, the factor 1/cos(psi) comes from the Jacobian of transformation 
+			! However, the factor 1/cos(psi) comes from the Jacobian of transformation
 			! (alphaM, betaM, u, psi, lambdaM) -> (alpha, beta, v, theta, lambda)
 			! and here psi is an angle between the direction of ejection and the normal to surface
 					fac2 = ejection_direction_distribution(s%ejection_angle_distr, wpsi(i), &
 															psi(i), lambdaM, s%zeta, s%eta)
 					fac2 = fac2 / cos(psi(i))
-											
+
 					tmpIntegrand = fac1 * fac2 / abs(ddphidtheta(i)) * rate(i)
 					! to calculate the flux
 					if(flux) then
 						tmpIntegrand = tmpIntegrand * velocity * abs(cos(theta(i)))
 					endif
-					
+
 					Integrand = Integrand + tmpIntegrand
 					if(tmpIntegrand /= tmpIntegrand) then
 						write(*,*) 'NaN is obtained for an integrand value'
@@ -272,8 +272,8 @@ module TwoBody_fun
 				endif
 				tmpIntegrand = 0d0
 			enddo
-			
-		end subroutine Integrand_number_density	
+
+		end subroutine Integrand_number_density
 
 
 
@@ -329,12 +329,12 @@ module TwoBody_fun
 				if(uu / s%ud%umax > s%ui(GRN)) then
 					fac1 = velocity * s%Gu_precalc(GRN) / uu / uu
 				else
-					fac1 = LiNTERPOL(GRN, s%Gu_precalc, s%ui, uu) 
+					fac1 = LiNTERPOL(GRN, s%Gu_precalc, s%ui, uu)
 					fac1 = velocity * fac1 / uu / uu
 				endif
 			endif
 			Integrand = 0d0
-			wpsi = halfpi	
+			wpsi = halfpi
 			do i = 1, 2
 				if(s%production_fun > 0) then
 					rate(i) = production_rate(tnow - deltat(i), s%production_rate, &
@@ -349,17 +349,17 @@ module TwoBody_fun
 					                             uu, psi(i), wpsi(i), &
 					                 lambdaM, lambda, ddphidtheta(i), &
 					                       sindphi, dphi_is_large(i))
-					
-			! the distribution of ejection angle is defined in coordinates (wpsi, wlambdaM) 
+
+			! the distribution of ejection angle is defined in coordinates (wpsi, wlambdaM)
 			! where wpsi is an angle between the jet main axis of symmetry and the direction of ejection
 			! wlambdaM is a longitude in the plane perpendicular to the jet's main axis
-			! However, the factor 1/cos(psi) comes from the Jacobian of transformation 
+			! However, the factor 1/cos(psi) comes from the Jacobian of transformation
 			! (alphaM, betaM, u, psi, lambdaM) -> (alpha, beta, v, theta, lambda)
 			! and here psi is an angle between the direction of ejection and the normal to surface
 					fac2 = ejection_direction_distribution(s%ejection_angle_distr, wpsi(i), &
 															psi(i), lambdaM, s%zeta, s%eta)
 					fac2 = fac2 / cos(psi(i))
-					
+
 					tmpIntegrand = 0.0
 					! average upward and downward directions of fluxes
 					! are computed separately to save information
@@ -394,7 +394,7 @@ module TwoBody_fun
 						           .FALSE.)
 						tmpIntegrand(4:6) = vtmp * tmpIntegrand(8)
 					endif
-					
+
 					Integrand = Integrand + tmpIntegrand
 					tmp = sum(tmpIntegrand)
 					if(tmp /= tmp) then
@@ -412,11 +412,11 @@ module TwoBody_fun
 				endif
 				tmpIntegrand = 0d0
 			enddo
-			
+
 		end subroutine Integrand_mean_flux
 
-		
-		
+
+
 		! subroutine theta_geometry_hyperbola recieves vectors' absolute
 		! values and the angle between these vectors
 		! it's assumed that the point (0, 0, 0) is a focus of an hyperbola
@@ -450,55 +450,55 @@ module TwoBody_fun
 			logical solved
 			logical, intent(out) :: dphi_is_large(2)
 			logical, intent(in) :: timeDependence
-			
+
 			solved = .FALSE.
 			theta = -555d0
 			dphi_is_large = .FALSE.
-															
-			r = r0 / rm0 ; rmoon = rm0 / rm0; a = a0 / rm0							
+
+			r = r0 / rm0 ; rmoon = rm0 / rm0; a = a0 / rm0
 			! define x-axis in the same direction as r-vector
-			r2d(1) = r ; r2d(2) = 0d0					
-			
+			r2d(1) = r ; r2d(2) = 0d0
+
 			! we don't have enough information to define the sign of r
 			! vector in the right-handed coordinate system
 			! but the value of theta that we are looking for are the same
 			! in both cases
-			
+
 			rm2d(1) = rmoon * cos(phi) ; rm2d(2) = rmoon * sin(phi)
-			
+
 			! (x(1),y(1)) and (x(2),y(2)) are coordinates
 			! of 2 possible position of the hyperbola's second focus
 			call circle_intersection(rm2d(1), rm2d(2), 2d0 * a + rmoon, &
-										r2d(1), 2d0 * a + r, x, y)		
-				
+										r2d(1), 2d0 * a + r, x, y)
+
 			do i = 1, 2
 				! shift is coordinates of the ellipse's center
 				! in the CS centered at the focus
-				shift(1) = x(i) / 2d0 ; shift(2) = y(i)	/ 2d0		
-				
+				shift(1) = x(i) / 2d0 ; shift(2) = y(i)	/ 2d0
+
 				! coords of vector r in CS centered at center of the ellipse
-				r2d = r2d - shift	
-				! coords of vector rm in CS centered at center of the ellipse								
-				rm2d = rm2d - shift								
-				
+				r2d = r2d - shift
+				! coords of vector rm in CS centered at center of the ellipse
+				rm2d = rm2d - shift
+
 				! angle between major axis of the ellipse and the current x-axis
 				angle = atan(y(i) / x(i))
 				! vector r in the CS with its center at the center of the ellipse
-				! and the x-axis along major axis of the ellipse									
-				r2d = rot2d(r2d, -angle)	
+				! and the x-axis along major axis of the ellipse
+				r2d = rot2d(r2d, -angle)
 				! vector rm in the CS with its center at the center of the ellipse
-				! and the x-axis along major axis of the ellipse								
-				rm2d = rot2d(rm2d, -angle)	
+				! and the x-axis along major axis of the ellipse
+				rm2d = rot2d(rm2d, -angle)
 				! vector shift in the CS with its center at the center of the ellipse
-				! and the x-axis along major axis of the ellipse							
+				! and the x-axis along major axis of the ellipse
 				shift = rot2d(shift, -angle)
 				! the hyperbola solves our problem only if r and rm lay
 				! on the same branch and the trajectory doesn't intersect
 				! the moon's surface (the particle doesn't pass the pericenter
-				if(r2d(1) / rm2d(1) > 0d0 &								
-				.and. r2d(2) / rm2d(2) > 0d0) then					
-					c = 0.5d0 * sqrt(x(i)**2 + y(i)**2)						
-					b = sqrt(c**2 - a**2)									
+				if(r2d(1) / rm2d(1) > 0d0 &
+				.and. r2d(2) / rm2d(2) > 0d0) then
+					c = 0.5d0 * sqrt(x(i)**2 + y(i)**2)
+					b = sqrt(c**2 - a**2)
 					ee(i) = c / a
 					one_plus_e = 1d0 + ee(i)
 					one_minus_e = 1d0 - ee(i)
@@ -507,9 +507,9 @@ module TwoBody_fun
 					cosf1 = (aux - 1d0) / ee(i)
 					f1 = acos(cosf1)
 					f2 = f1 + phi
-					
+
 					theta(i) = halfpi - atan((ee(i) * sin(f2)) / (1d0 + ee(i) * cos(f2)))
-											
+
 					call control(theta(i), ee(i), phi, vv, r0, rm0, dphi_is_large(i), solved, discr)
 					if(timeDependence) then
 						ean = 2d0 * atanh(tan(f2/2d0) * sqrt(-one_minus_e / one_plus_e))
@@ -538,7 +538,7 @@ module TwoBody_fun
 							stop
 						endif
 					endif
-						
+
 				else
 					theta(i) = -444d0
 					ee(i) = -444d0
@@ -550,9 +550,9 @@ module TwoBody_fun
 				r = r0 / rm0 ; rmoon = rm0 / rm0; a = a0 / rm0
 				rm2d(1) = rmoon * cos(phi) ; rm2d(2) = rmoon * sin(phi)
 				r2d(1) = r ; r2d(2) = 0d0
-				
+
 			enddo
-		
+
 		end subroutine theta_geometry_hyperbola
 
 
@@ -565,7 +565,7 @@ module TwoBody_fun
 		! the subroutine returns theta that is the angle between
 		! radius-vector r and a tangent to the ellipse in the point r
 		! the choice between two possible values of this angle is made
-		! in the way that movement happens from point rm to the point r 
+		! in the way that movement happens from point rm to the point r
 		! In general case there are two possible ellipses
 		! => two possible values of theta are to be found
 		! Returns array of 2 vallues of theta.
@@ -588,27 +588,27 @@ module TwoBody_fun
 			logical solved
 			logical, intent(out) :: dphi_is_large(2)
 			logical, intent(in) :: timeDependence
-			
+
 			solved = .FALSE.
 			dphi_is_large = .FALSE.
 			theta = -888d0
-			
+
 			r = r0 / rm0  ; rmoon = rm0 / rm0; a = a0 / rm0
 			! define x-axis in the same direction as rmoonvector
-			r2d(1) = r; r2d(2) = 0d0					
+			r2d(1) = r; r2d(2) = 0d0
 			! we don't have enough information to define the sign of r
 			! vector in the right-handed coordinate system
 			! but the value of theta that we are looking for are the same
 			! in both cases
 			rm2d(1) = rmoon * cos(phi) ; rm2d(2) = rmoon * sin(phi)
-			
+
 			! (x(1),y(1)) and (x(2),y(2)) are coordinates of 2 possible
 			! position of the ellsipse's second focus
 			call circle_intersection(rm2d(1), rm2d(2), 2d0 * a - rmoon, &
-									r2d(1), 2d0 * a - r, x, y) 
+									r2d(1), 2d0 * a - r, x, y)
 			! distance between the foci of the ellipse
 			cc = sqrt(x**2 + y**2)
-			
+
 			do i = 1, 2
 				if(cc(i) == cc(i)) then
 					ee(i) = cc(i) / 2d0 / a
@@ -619,25 +619,25 @@ module TwoBody_fun
 					cosf1 = (-x(i) * rm2d(1) - y(i) * rm2d(2)) / rmoon / cc(i)
 					f1 = acos(cosf1)
 					f2 = f1 + phi
-					
+
 					if(r < rmoon) then
 						rtest = a * one_minus_e2 / (1d0 + ee(i) * cos(f2))
 						! if r and rm are both located after apocenter
-						if(abs(1d0 - rtest / r ) > 1d-6) then				
+						if(abs(1d0 - rtest / r ) > 1d-6) then
 							f2 = (twopi - f1) + phi
 							rtest = a * one_minus_e2 / (1d0 + ee(i) * cos(f2))
-							! rm is before apocenter, the case of large dphi encountered	
+							! rm is before apocenter, the case of large dphi encountered
 							! phi is the angle between vectors r and rm.
 							! it can be that between r and rm the particle
 							! traveled the arc of 2pi - phi
 							! if the direction of movement along the ellipse
 							! is chosen incorrect rtest /= r
-							if(abs(1d0 - rtest / r ) > 1d-6) then			
+							if(abs(1d0 - rtest / r ) > 1d-6) then
 								f2 = f1 + (2d0 * pi - phi)
 								dphi_is_large(i) = .TRUE.
 								rtest = a * one_minus_e2 / (1d0 + ee(i) * cos(f2))
 								! rm is after apocenter, the case of large dphi encountered
-								if(abs(1d0 - rtest / r ) > 1d-6) then		
+								if(abs(1d0 - rtest / r ) > 1d-6) then
 									f1 = twopi -f1
 									f2 = f1 + (2d0 * pi - phi)
 									dphi_is_large(i) = .TRUE.
@@ -647,7 +647,7 @@ module TwoBody_fun
 							endif
 						endif
 						if(f2 > twopi) f2 = f2 - twopi
-					else						
+					else
 						rtest = a * one_minus_e2 / (1d0 + ee(i) * cos(f2))
 						if(abs(1d0 - rtest / r ) > 1d-6) then
 							f2 = f1 + (2d0 * pi - phi)
@@ -655,13 +655,13 @@ module TwoBody_fun
 						endif
 					endif
 					! No ejection downward even if rM > r
-					if(f1 < pi - 1d-4) then			
+					if(f1 < pi - 1d-4) then
 						theta(i) = halfpi - atan((ee(i) * sin(f2)) &
 												/ (1d0 + ee(i) * cos(f2)))
-						
+
 						call control(theta(i), ee(i), phi, vv, r0, rm0, &
 									dphi_is_large(i), solved, discr)
-					
+
 						if(timeDependence) then
 							ean = 2d0 * atan(tan(f2/2d0) &
 									* sqrt(one_minus_e / one_plus_e))
@@ -677,7 +677,7 @@ module TwoBody_fun
 					else
 						theta = -777d0
 					endif
-											
+
 					if(.not. solved .and. theta(i) > 0d0) then
 						write(666,*) '   '
 						write(666,*) 'Theta was found with an insufficient accuracy of', &
@@ -705,16 +705,16 @@ module TwoBody_fun
 					ee(i) = -888d0
 					dphi_is_large(i) = .FALSE.
 				endif
-									
+
 			enddo
-		
-		
+
+
 		end subroutine theta_geometry_ellipse
 
 
-		
 
-		
+
+
 		! subroutine control tests if the obtained value of theta is correct
 		! the criterion is: using  the obtained value of theta
 		! one gets the same value of dphi which was used to calculate the theta
@@ -740,7 +740,7 @@ module TwoBody_fun
 			logical, intent(out) :: solved
 			real(8), intent(out) :: discr
 			logical, intent(in) :: dphi_is_large
-			
+
 			Ekep = vv * vv / 2d0 - gm / r0
 			hh = r0 * vv * sin(theta)
 			hh2 = hh * hh
@@ -780,7 +780,7 @@ module TwoBody_fun
 					stop
 				endif
 			endif
-			
+
 			if(cospm > 1d0) then
 				cospm = 1d0
 				write(666,*) 'cos(phiM) > 1 obtained, corrections applied'
@@ -809,7 +809,7 @@ module TwoBody_fun
 			else
 				dphi = (2d0 * pi - phi1) - phi1m
 			endif
-			
+
 			if(dphi_is_large) then
 				discr = abs(2d0 * pi - dphi - phi) / abs(phi)
 				solved = discr < eps
@@ -817,10 +817,10 @@ module TwoBody_fun
 				discr = abs(dphi - phi) / abs(phi)
 				solved = discr < eps
 			endif
-			
+
 		end subroutine control
-			
-			
+
+
 
 
 

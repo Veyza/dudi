@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: europa_example.f90
 ! Description: The program computes the surface deposition of dust for the points
@@ -27,7 +27,7 @@ program europa_example
 	use gu
 	use dataoutmod
 	USE OMP_LIB
-	
+
 	implicit none
 	real(8), parameter :: r1 = 0.2d0
 	real(8), parameter :: r2 = 20d0
@@ -43,7 +43,7 @@ program europa_example
 	real(8) mass_shallow, mass_steep, m1, m2
 	type(source_properties) source(Ns)
 	type(position_in_space) point(nt)
-	
+
 	call get_europa_input(Ns, source, nt, point, dphi)
 
 	call mass_production(m1, source(1)%sd, r1, r2)
@@ -52,14 +52,14 @@ program europa_example
 
 	mass_steep = source(1)%production_rate * m2
 	mass_shallow = source(1)%production_rate * m1
-	
+
 	write(*,*) '   '
 	write(*,'(A84,e10.3,x,A2)') 'with the shallow size distribution the total &
 								mass produced in a second', mass_shallow, 'kg'
 	write(*,'(A84,e10.3,x,A2)') 'with the steep size distribution the total &
 								mass produced in a second  ', mass_steep, 'kg'
 	write(*,*) '   '
-								
+
 	do i_s = 1, Ns
 		!$OMP PARALLEL PRIVATE(i) &
 		!$OMP SHARED(i_s, point, source, massflux)
@@ -72,5 +72,5 @@ program europa_example
 		call surface_deposition_out(i_s, massflux(:,1), nt, dphi)
 	enddo
 
-	
+
 end

@@ -1,12 +1,12 @@
-! This file is a part of the Fortran-90 implementation 
+! This file is a part of the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: enceladus_example.f90
 ! Description: The program calculates the number density of the dust from the Enceladus plume
@@ -22,7 +22,7 @@ program enceladus_example
 	use inputdata
 	use dataoutmod
 	USE OMP_LIB
-	
+
 	implicit none
 	! number of sources
 	integer, parameter :: Ns = 1
@@ -35,12 +35,12 @@ program enceladus_example
 	type(source_properties) source(Ns)
 	type(position_in_space) point(nt)
 	character(len = 44) :: fname = './input_data_files/Enceladus_jet.dat'
-	
+
 	call read_sources_params(source, Ns, fname)
 	call read_Cassini_E2(point, ttab, nt)
-	
+
 	density = 0d0
-	
+
 	do i_s = 1, Ns
 		!$OMP PARALLEL PRIVATE(i) &
 		!$OMP SHARED(i_s, point, source, tmp_res)
@@ -53,9 +53,9 @@ program enceladus_example
 		! add to the result the density of the dust from each source
 		density = density + tmp_res
 	enddo
-	
+
 	call cassini_flyby_out(density, ttab, bg, nt)
-	
-	
-	
+
+
+
 end

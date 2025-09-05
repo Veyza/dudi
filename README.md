@@ -75,10 +75,10 @@ simulation settings:
 == 4. Specifying Functions Describing the Dust Ejection
 
 Customize dust ejection characteristics in `src/distributions_fun.f90`. This file
-includes functions that define the size, speed, and direction distribution of 
-dust ejection, and the dust production rate. Each function utilizes Fortran's 
-`select case` operator, where a selector specifies a different 
-distribution to compute. Several distributions are already implemented and are 
+includes functions that define the size, speed, and direction distribution of
+dust ejection, and the dust production rate. Each function utilizes Fortran's
+`select case` operator, where a selector specifies a different
+distribution to compute. Several distributions are already implemented and are
 used in the example applications.
 
 * `size_distribution(R, sd, fR)`:
@@ -89,7 +89,7 @@ used in the example applications.
  -- Write your own distribution at`case(4)` or further.
 
 * `ejection_speed_distribution(ud, u, R, fu)`:
-    - `ud` (type(ejection_speed_properties)): Structure containing parameters 
+    - `ud` (type(ejection_speed_properties)): Structure containing parameters
       of the ejection speed distribution, defined as follows:
         * `ud%ud_shape` (integer): Selector for the ejection speed PDF.
         * `ud%umin` (real(8)): Minimum ejection speed (m/s).
@@ -132,31 +132,31 @@ Both `source` and `point` structures include multiple precomputed quantities use
 at various stages of the calculations. These structures do not have all independent
 values, requiring careful setup and validation.
 
-The `point` is a structure of a derived type `position_in_space` which defines the 
+The `point` is a structure of a derived type `position_in_space` which defines the
 point in space where the density is calculated.
 
 *Components of the `position_in_space` structure:*
-- `point%r` (real(8)): Radial distance of the point from the center of the moon 
+- `point%r` (real(8)): Radial distance of the point from the center of the moon
    (meters).
-- `point%r_scaled` (real(8)): Radial distance scaled to the moon's radius. 
+- `point%r_scaled` (real(8)): Radial distance scaled to the moon's radius.
    This is calculated as:
    point%r_scaled = point%r / rm
    where `rm` is the radius of the moon set in module const..f90.
-- `point%alpha` (real(8)): Polar angle in the moon's centered coordinate system 
+- `point%alpha` (real(8)): Polar angle in the moon's centered coordinate system
    (radians).
-- `point%beta` (real(8)): Eastern longitude in the moon's centered coordinate 
+- `point%beta` (real(8)): Eastern longitude in the moon's centered coordinate
    system (radians).
-- `point%rvector` (real(8) 3D-vector): Cartesian coordinates of the point 
+- `point%rvector` (real(8) 3D-vector): Cartesian coordinates of the point
    in the moon-centered coordinate system, can be calculated using:
    point%rvector(1) = point%r * sin(point%alpha) * cos(point%beta)
    point%rvector(2) = point%r * sin(point%alpha) * sin(point%beta)
    point%rvector(3) = point%r * cos(point%alpha)
-- `point%compute` (logical): Indicates whether to calculate density at this 
-   point. Useful for excluding unnecessary areas from computations, enhancing 
+- `point%compute` (logical): Indicates whether to calculate density at this
+   point. Useful for excluding unnecessary areas from computations, enhancing
    efficiency.
 
 
-The `source` is a structure of a derived type `source_properties` which contains 
+The `source` is a structure of a derived type `source_properties` which contains
 parameters describing the dust ejection.
 
 *Components of the `source_properties` structure:*
@@ -164,26 +164,26 @@ parameters describing the dust ejection.
    (meters).
 - `source%alphaM` (real(8)): Polar angle of the point source (radians).
 - `source%betaM` (real(8)): Eastern longitude of the point source (radians).
-- `source%rrM` (real(8) 3D-vector): Cartesian coordinates of the point source 
+- `source%rrM` (real(8) 3D-vector): Cartesian coordinates of the point source
    in the moon-centered coordinate system. Calculated as:
    source%rrM(1) = source%r * sin(source%alphaM) * cos(source%betaM)
    source%rrM(2) = source%r * sin(source%alphaM) * sin(source%betaM)
    source%rrM(3) = source%r * cos(source%alphaM)
-- `source%zeta` (real(8)): Zenith angle of the axis around which ejection 
+- `source%zeta` (real(8)): Zenith angle of the axis around which ejection
    is symmetrical (radians).
-- `source%eta` (real(8)): Azimuth of the axis 
+- `source%eta` (real(8)): Azimuth of the axis
    (counted from the local North, clockwise) (radians).
-- `source%symmetry_axis` (real(8) 3D-vector): Unit vector in moon-centered 
-   coordinate system pointing to the direction of the ejection symmetry axis. 
-   module input_data contains the subroutine jet_direction so that 
+- `source%symmetry_axis` (real(8) 3D-vector): Unit vector in moon-centered
+   coordinate system pointing to the direction of the ejection symmetry axis.
+   module input_data contains the subroutine jet_direction so that
    the following line of the code:
-  
+
      call jet_direction(source%alphaM, source%betaM, source%zeta, source%eta, &
                          source%rrM, source%symmetry_axis)
 
    writes the correct values into the source%symmetry_axis
 
-- `source%ejection_angle_distr` (integer): Selector parameter for different 
+- `source%ejection_angle_distr` (integer): Selector parameter for different
   types of ejection angle distributions.
 - `source%ud` (type(ejection_speed_properties)): Structure containing parameters
    of the ejection speed distribution, including:
@@ -191,30 +191,30 @@ parameters describing the dust ejection.
    - `umin` (real(8)): Minimum possible ejection speed (m/s).
    - `umax` (real(8)): Maximum possible ejection speed (m/s).
    - `source%sd` (integer): Selector parameter for different size distributions.
-- `source%ui` (real(8) array of GRN elements): Interpolation grid 
+- `source%ui` (real(8) array of GRN elements): Interpolation grid
    for `Gu(Rmin,Rmax)`.
-- `source%Gu_precalc` (real(8) array of GRN elements): Precalculated values 
+- `source%Gu_precalc` (real(8) array of GRN elements): Precalculated values
    of `Gu(Rmin,Rmax)`
-   module gu contains the subroutine Gu_integral 
+   module gu contains the subroutine Gu_integral
    so that the following line of code
-  
+
 call Gu_integral(source%ui, source%Gu_precalc, source%sd, source%ud, rmin, rmax)
 
    writes the correct values into source%ui and source%Gu_precalc.
 - `source%production_fun` (integer): Parameter defining the function used as the
    time-dependent dust production rate.
-- `source%production_rate` (real(8)): The dust production rate in case 
-   of stationary ejection, used as a parameter for the function in 
+- `source%production_rate` (real(8)): The dust production rate in case
+   of stationary ejection, used as a parameter for the function in
    non-stationary cases.
-- `source%is_jet` (logical): True if the ejection is concentrated. Recommended 
+- `source%is_jet` (logical): True if the ejection is concentrated. Recommended
    to be set when `source%omega < 0.1`.
 
 
 
 == 6. Applying the DUDI Subroutine
 
-The `DUDI` subroutine, located in `src/integrator.f90`, performs the numerical 
-integration required to compute dust density. This subroutine must be called 
+The `DUDI` subroutine, located in `src/integrator.f90`, performs the numerical
+integration required to compute dust density. This subroutine must be called
 from a main program, which manages the input and output of the data.
 
 A template for such a main program, `examples/main_program.f90`, is provided within the
@@ -230,7 +230,7 @@ subroutine from the `integrator` module at each point. The resulting density at
 each point is the aggregate of densities from all sources.
 
 OpenMP is utilized to accelerate the calculations, leveraging the independence
-of calculations for each source-point pair. Ultimately, a function from 
+of calculations for each source-point pair. Ultimately, a function from
 the `dataout` module is called to write the results to a file.
 
 
@@ -271,7 +271,7 @@ not necessarily at all steps.
 
 Furthermore, if the number of warnings in `fort.666` exceeds the limit set by
 `maxNofWarnings` in the `src/const.f90` module, the program will stop and print a
-warning message to the command line. 
+warning message to the command line.
 
 
 
@@ -280,14 +280,14 @@ warning message to the command line.
 A makefile is provided for easy compilation using the gfortran compiler.
 
 - To compile the program, enter the following command in the command line:
-                   
+
                    make
 This command produces an executable dudi
 
 - The command:
 
                    make clean
-                   
+
 removes all files *.o, *.mod, and *dudi (including the executable produced by
 make-command)
 
@@ -302,7 +302,7 @@ detailed instructions on how to run the example code.
 DUDI includes several examples to demonstrate its capabilities. Each example
 uses specific parameters and input files.
 
-*Example 1: The Number Density Profile 
+*Example 1: The Number Density Profile
 of the E2 Flyby of the Cassini Spacecraft at Enceladus*
   - Main Program: `examples/enceladus_example.f90`
     - Performs a loop over 100 points along the Cassini spacecraft trajectory.
@@ -349,7 +349,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       four scenarios.
   - Parameter Settings in `const..f90`:
     * `moon_mass = 4.8d+22`  // Europa's mass in kg
-  
+
  The plot shown in the paper (Ershova & Schmidt, 2021) was generated with an
  erroneous value of rm = 3.12e+6, Europa's mean diameter (instead of radius)
  in meters. We retain  this value here to allow reproduction of Fig. 13 from
@@ -357,7 +357,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
  illustrative and did not lead to scientifically significant conclusions.
  Therefore, we do not consider it necessary to publish an erratum to address
  this issue.
- 
+
     * `rm = 3.12d+6`         // Europa's mean diameter in meters
     * `rho = 920d0`          // Dust grains density in kg/m3 (assuming water
                              // ice composition)
@@ -389,8 +389,8 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       the terminal.
     - If Python3, NumPy, and Matplotlib are installed, a plot will be produced
       and saved as `mass_deposition.png` in the `./results` directory.
-      
-      
+
+
 *Example 3: The Images of a Fictive Volcano Erupted on Io*
   - Main Program: `examples/io_example.f90`
     - Utilizes additional modules including `image_construction..f90`.
@@ -414,7 +414,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
     * `GRN = 3`            // Minimal value for GRN due to uniform distribution
     * `order_R = 10`       // Order of integration Gu(Rmin,Rmax) over R
     * `order_v_el = 5`     // Small quadrature order for short velocity interval
-    * `order_v_hy = 5`     // All particles are on elliptic trajectories, this 
+    * `order_v_hy = 5`     // All particles are on elliptic trajectories, this
                               parameter is not important
   - Source and Location Settings:
     - No input files used.
@@ -432,13 +432,13 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       are produced with the time after the start of ejection noted in the
       bottom-right corner. These images are named `volcano_1.png` to
       `volcano_9.png` and stored in the `results` directory.
-     
-     
-      
+
+
+
 == 11. Possible Issues
 
-If you encounter a "Segmentation fault" when running a program compiled with 
-the `-openmp` key (as specified in our Makefile), it may be due to the stack 
+If you encounter a "Segmentation fault" when running a program compiled with
+the `-openmp` key (as specified in our Makefile), it may be due to the stack
 size limit.
 To address this:
 
@@ -467,7 +467,7 @@ To address this:
 
 - **Ejection Velocity Correction:**
   Fixed an issue in `integrator..f90` where the integration was
-  incorrectly handled when minimum ejection velocity exceeded the moon's 
+  incorrectly handled when minimum ejection velocity exceeded the moon's
   escape velocity.
 
 - **Io Example Optimization:**
@@ -480,32 +480,32 @@ To address this:
 
 - **Subroutine `Gu_integral` enhancements:**
   This subroutine evaluates the function G_u^p(R_min, R_max) (see Eq. 14 of
-  Ershova & Schmidt, 2021) for a grid of u-values. In previous versions, 
-  `Gu_integral` used integration limits predefined in the module const and 
+  Ershova & Schmidt, 2021) for a grid of u-values. In previous versions,
+  `Gu_integral` used integration limits predefined in the module const and
   always returned an array of evaluated integrals.
-  
-  Now, `Gu_integral` accepts the integration limits, `rlim1` and `rlim2`, as 
-  input variables. Additionally, if `rlim1 = rlim2`, `Gu_integral` returns the 
-  product of the size distribution and ejection direction distribution, 
-  evaluated at `rlim1` and the grid of u-values. This enhancement allows for 
-  the calculation of the differential number density (i.e., without integration 
-  over R in Eq. 20). The evaluated value corresponds to 
+
+  Now, `Gu_integral` accepts the integration limits, `rlim1` and `rlim2`, as
+  input variables. Additionally, if `rlim1 = rlim2`, `Gu_integral` returns the
+  product of the size distribution and ejection direction distribution,
+  evaluated at `rlim1` and the grid of u-values. This enhancement allows for
+  the calculation of the differential number density (i.e., without integration
+  over R in Eq. 20). The evaluated value corresponds to
   n(r, \alpha, \beta, R) instead of n(r, \alpha, \beta, R_min < R < R_max).
-  
+
 - **Source file extension changed to .f90:**
-  This change allows the Intel compiler to be used for DUDI compilation 
+  This change allows the Intel compiler to be used for DUDI compilation
   without any additional consequences.
 
 
 
 === Version 1.2.0
 
-  A feature has been added to compute the average velocity vector of dust grains 
+  A feature has been added to compute the average velocity vector of dust grains
   at a given point and time.
 
 - **New Subroutine `DUDI_mean_velocity`:**
-  The subroutine `DUDI_mean_velocity` has been added to the module 
-  `integrator.f90`. It computes the average velocity vector of dust grains at 
+  The subroutine `DUDI_mean_velocity` has been added to the module
+  `integrator.f90`. It computes the average velocity vector of dust grains at
   a given point and time.
 
   **Input:**
@@ -519,7 +519,7 @@ To address this:
     4. The number density of dust grains moving downward.
 
   **New Subroutine `Integrand_mean_flux`:**
-  - The subroutine `DUDI_mean_velocity` calls a newly introduced subroutine 
+  - The subroutine `DUDI_mean_velocity` calls a newly introduced subroutine
     `Integrand_mean_flux` from the module `twobody_fun.f90`.
 
   - A detailed description of the algorithm can be found in the file
@@ -527,5 +527,5 @@ To address this:
 
 
 === Version 1.2.1
-  - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.  
+  - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
   - Updated Makefile and .gitignore accordingly

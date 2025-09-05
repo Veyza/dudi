@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: io_example.f90
 ! Description: The program constructs 4 images of a fictive volcano eruption on Io,
@@ -38,7 +38,7 @@ program io_example
 	real(8) moments(4)
 	! moments of time at that the images are constructed
 	call get_volcano_params(sources, Ns)
-	
+
 	tnow = 0d0
 	do m = 1, 9
 		tnow = tnow + 200d0
@@ -46,13 +46,13 @@ program io_example
 		do i_s = 1, Ns
 			density = 0.0
 			tmp_res = 0.0
-				
+
 			! form the integration grid for this specific plume
 			call line_of_sight(points, sources(i_s))
-				
+
 			do iii = -Vpix, Vpix
 			do i = -Hpix, Hpix
-			
+
 			!$OMP PARALLEL PRIVATE(ii) &
 			!$OMP SHARED(nn, i, iii, sources, points)
 			!$OMP DO
@@ -74,7 +74,7 @@ program io_example
 
 			enddo	! i = -Hpix, Hpix
 			enddo	! iii = -Vpix, Vpix
-			
+
 			! bound and unbound from the i_s source together
 			density = tmp_res(1,:,:,:) + tmp_res(2,:,:,:)
 			tmp_res = 0d0
@@ -94,6 +94,6 @@ program io_example
 
 		call result_image_out(image, m)
 	enddo
-	
-	 
+
+
 end

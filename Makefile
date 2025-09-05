@@ -1,4 +1,4 @@
-# This file is a part of DUDI, the Fortran-95 implementation 
+# This file is a part of DUDI, the Fortran-95 implementation
 # of the two-body model for dust dynamics
 # Version 1.2.1
 # License: GPL-3.0
@@ -159,4 +159,3 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
-

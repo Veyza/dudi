@@ -1,12 +1,12 @@
-! This file is a part of DUDI, the Fortran-90 implementation 
+! This file is a part of DUDI, the Fortran-90 implementation
 ! of the two-body model for dust dynamics
 ! Version 1.2.1
-! This is free software. You can use and redistribute it 
+! This is free software. You can use and redistribute it
 ! under the terms of the GNU General Public License (http://www.gnu.org/licenses/)
 ! If you do, please cite the following paper
-! Anastasiia Ershova and Jürgen Schmidt, 
+! Anastasiia Ershova and Jürgen Schmidt,
 ! Two-body model for the spatial distribution of dust ejected from
-! an atmosphereless body, 2021, A&A, 650, A186 
+! an atmosphereless body, 2021, A&A, 650, A186
 
 ! File: distributions_fun.f90
 ! Description: The functions describing the ejection process and auxilary
@@ -18,8 +18,8 @@
 module distributions_fun
 	implicit none
 		contains
-		
-		
+
+
 			! The axisymmetric distribution of ejection direction
 			! distribution_shape is the parameter used to select
 			! the expression for the PDF
@@ -45,7 +45,7 @@ module distributions_fun
 				real(8) fpsi, Jpsi
 				integer, intent(in) :: distribution_shape
 				real(8), intent(in) :: psi, wpsi, lambdaM, zeta, eta
-				
+
 				select case(distribution_shape)
 					case(1)
 					! pseudo Gaussian distribution of polar angle, uniform distribution of azimuth
@@ -86,13 +86,13 @@ module distributions_fun
 					Jpsi = Jacobian_tilt(psi, lambdaM, zeta, eta)
 					fpsi = fpsi * Jpsi
 				endif
-				
+
 				fpsi = fpsi * sin(wpsi)
-					
+
 			end function ejection_direction_distribution
 
-			
-						
+
+
 			! Jacobian of coordinate transformation from vertical CS
 			! to the CS with z-axis coinciding with the jet axis of symmetry
 			! zeta and A are respectively zenith angle ang azimuth
@@ -105,7 +105,7 @@ module distributions_fun
 				real(8), intent(in) :: psi, lambdaM, zeta, A
 				real(8) sinpsi, cospsi, sinzeta, coszeta
 				real(8) J
-				
+
 				if(psi < 0.12d0 .and. zeta < 0.12d0) then
 					J = psi / sqrt(psi*psi + zeta*zeta &
 					               - 2d0 * psi * zeta * cos(lambdaM - A))
@@ -119,10 +119,10 @@ module distributions_fun
 						- 8d0 * cos(2d0 * (lambdaM - A)) * sinpsi * sinpsi * sinzeta * sinzeta &
 						- 32d0 * cos(lambdaM - A) * sinpsi * cospsi * sinzeta * coszeta)
 				endif
-				
+
 			end function Jacobian_tilt
-			
-			
+
+
 			! This function represents the ejection speed distribution
 			! (possibly time-dependent)
 			! ud is  the parameter used to select the expression for the distribution
@@ -136,7 +136,7 @@ module distributions_fun
 				real(8) urel, Rrel, fu
 				type(ejection_speed_properties) ud
 				real(8) R, u
-								
+
 				select case(ud%ud_shape)
 					case(1)
 						Rrel = R / Rc
@@ -149,12 +149,12 @@ module distributions_fun
 					! HERE IS THE PLACE FOR WRITING YOUR OWN PDF
 						fu = 0d0
 				endselect
-			
+
 			end function ejection_speed_distribution
-			
-			
-			
-			
+
+
+
+
 			! This function represents the size distribution of the dust particles.
 			! It can be used also to obtain the mean radius, cross section
 			! or volume of the dust particles.
@@ -173,7 +173,7 @@ module distributions_fun
 				real(8), intent(in) :: R
 				integer, intent(in) :: sd
 				real(8) fR, C_size_distr
-				
+
 				select case(sd)
 					case(1)
 						fR = exp(-(log(R) - mu)**2 / 2d0 / sigma**2) / R
@@ -204,11 +204,11 @@ module distributions_fun
 						fR = 0d0
 				endselect
 				fR =  fR / C_size_distr
-				
-				
+
+
 			end function size_distribution
-			
-			
+
+
 			! This function represents the factor gamma(t) in Formula 43
 			! t is the moment of ejection
 			! gamma0 is a parameter which can be used in the definition of
@@ -220,7 +220,7 @@ module distributions_fun
 				real(8) tmax
 				integer ratefun
 				real(8) t, gamma0, gammarate
-				
+
 				select case(ratefun)
 					case(1)
 						gammarate = 0d0
@@ -235,8 +235,8 @@ module distributions_fun
 						! HERE IS THE PLACE TO WRITE YOUR OWN FUNCTION FOR THE PRODUCTION RATE
 						gammarate = 0d0
 				endselect
-				
+
 			end function production_rate
-			
+
 
 end module distributions_fun
