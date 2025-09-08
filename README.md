@@ -526,10 +526,11 @@ To address this:
     **`DUDI_average_velocity_vectors.pdf´** available in this repository.
 
 
+=== Version 1.2.1
 
   - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
   - Updated Makefile and .gitignore accordingly
-  
-=== Version 1.2.2
-  - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
 
+=== Version 1.2.2
+
+  - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
