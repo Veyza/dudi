@@ -442,9 +442,9 @@ module TwoBody_fun
             real(8), intent(in) :: r0, rm0, a0, phi,  vv
             real(8), intent(out) :: ee(2), theta(2), deltat(2)
             real(8) r, rmoon, a
-            real(8) c, x(2), y(2), xm, ym, b
-            real(8) shift(2), r2d(2), rm2d(2), angle, tangent(2), tmp(2)
-            real(8) cosf1, eanm, ean, psi, f1, f2, discr
+            real(8) c, x(2), y(2), b
+            real(8) shift(2), r2d(2), rm2d(2), angle
+            real(8) cosf1, eanm, ean, f1, f2, discr
             real(8) one_plus_e, one_minus_e, one_minus_e2, aux, tmp1, tmp2
             integer i
             logical solved
@@ -485,13 +485,13 @@ module TwoBody_fun
                 angle = atan(y(i) / x(i))
                 ! vector r in the CS with its center at the center of the ellipse
                 ! and the x-axis along major axis of the ellipse
-                r2d = rot2d(r2d, -angle)
+                call rot2d_inplace(r2d, -angle)
                 ! vector rm in the CS with its center at the center of the ellipse
                 ! and the x-axis along major axis of the ellipse
-                rm2d = rot2d(rm2d, -angle)
+                call rot2d_inplace(rm2d, -angle)
                 ! vector shift in the CS with its center at the center of the ellipse
                 ! and the x-axis along major axis of the ellipse
-                shift = rot2d(shift, -angle)
+                call rot2d_inplace(shift, -angle)
                 ! the hyperbola solves our problem only if r and rm lay
                 ! on the same branch and the trajectory doesn't intersect
                 ! the moon's surface (the particle doesn't pass the pericenter
@@ -580,10 +580,9 @@ module TwoBody_fun
             real(8), intent(out) :: ee(2), theta(2), deltat(2)
             real(8) r, rmoon, a, discr
             real(8) cc(2), x(2), y(2)
-            real(8) r2d(2), rm2d(2), tmp(2), tmp1, tmp2
-            real(8) E1(1), f1, f2, sinf1, cosf1, ean, rtest
+            real(8) r2d(2), rm2d(2), tmp1, tmp2
+            real(8) f1, f2, cosf1, ean, rtest
             real(8) one_plus_e, one_minus_e, one_minus_e2, eanm
-            real(8) aux
             integer i
             logical solved
             logical, intent(out) :: dphi_is_large(2)
@@ -735,7 +734,7 @@ module TwoBody_fun
             use const
             implicit none
             real(8), parameter :: eps = 1d-4
-            real(8) hh, hh2, ee1, cosp, cospm, phi1, phi1m, dphi, Ekep, darccosdr
+            real(8) hh, hh2, ee1, cosp, cospm, phi1, phi1m, dphi, Ekep
             real(8), intent(in) :: vv, phi, ee, r0, rm0, theta
             logical, intent(out) :: solved
             real(8), intent(out) :: discr
