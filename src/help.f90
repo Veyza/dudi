@@ -114,24 +114,24 @@ module help
         integer i, i1
         integer :: i2
         integer, intent(in) :: N
-        
+
         x1 = 1d0
         x2 = 1d0
         i2 = -1
-        
+
         if(xout < x(1)) then
           yout = y(1)
           return
         endif
-        
+
         if(xout > x(N)) then
           yout = y(N)
           return
         endif
-        
+
         i = 1
         i1 = 0
-        do while(i1 == 0 .and. i .lt. N) 
+        do while(i1 == 0 .and. i .lt. N)
           if(xout .lt. x(i+1) .and. xout .ge. x(i)) then
             i1 = i;       i2 = i+1;
             x1 = x(i1);   x2 = x(i2);
@@ -141,8 +141,8 @@ module help
 
         yout = y(i1) + (y(i2) - y(i1)) / (x2 - x1) * (xout - x1)
         return
-        
-      end function LiNTERPOL  
+
+      end function LiNTERPOL
 
 
 
@@ -376,7 +376,7 @@ module help
 
                 A(1,:) = t2
                 B(1) = dot_product(t2, M2)
-                
+
                 A(2,1) = -s1(2)
                 A(2,2) = s1(1)
                 A(2,3) = 0d0

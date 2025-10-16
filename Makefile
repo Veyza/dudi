@@ -1,6 +1,6 @@
 # This file is a part of DUDI, the Fortran-95 implementation
 # of the two-body model for dust dynamics
-# Version 1.2.2
+# Version 1.2.3
 # License: GPL-3.0
 
 # =========================
@@ -163,7 +163,7 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
-	
+
 # Strict warnings sweep: clean + rebuild (compile only)
 clean-warnings:
 	$(MAKE) clean

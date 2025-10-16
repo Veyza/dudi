@@ -452,9 +452,9 @@ To address this:
 == 12. Changes in the Latest Version
 
 === Version 1.2.3
-  - Codebase cleaned of unused variables and unsafe real comparisons; fixed 
+  - Codebase cleaned of unused variables and unsafe real comparisons; fixed
     implicit conversions.
-  - Kept standard Fortran-95. Added src/comparison_utils.f90 to centralize 
+  - Kept standard Fortran-95. Added src/comparison_utils.f90 to centralize
     numeric checks:
       - is_nan_r8(x) – NaN detection (F95-friendly).
       - is_finite_r8(x) – finite vs. Inf/NaN.
@@ -462,9 +462,9 @@ To address this:
       - nearly_equal_r8(a,b[, rtol, atol]) – relative/absolute tolerance equality.
   - Makefile: new clean-warnings target to rebuild with strict warning flags for
     code hygiene.
-  - Note: comparison_utils.f90 may still emit compare-reals warnings in strict mode; 
+  - Note: comparison_utils.f90 may still emit compare-reals warnings in strict mode;
     these are intentional and safe
-  
+
 === Version 1.2.2
 
   - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
@@ -473,7 +473,7 @@ To address this:
 
   - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
   - Updated Makefile and .gitignore accordingly
-  
+
 === Version 1.2.0
 
   A feature has been added to compute the average velocity vector of dust grains
@@ -545,4 +545,3 @@ To address this:
 - **Io Example Optimization:**
   Multidimensional arrays are reshaped and nested loops reordered in the Io
   example, enhancing performance.
-
