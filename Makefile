@@ -15,8 +15,11 @@
 
 # -------- Compiler settings --------
 FC      ?= gfortran
-#FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
-FFLAGS ?= -O3 -fimplicit-none -Wno-tabs -Wno-unused-variable
+FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
+# strict flags
+STRICT_WARNINGS = -O0 -g -fimplicit-none -Wall -Wextra -Wconversion -Wsurprising \
+                  -Warray-temporaries -Wcharacter-truncation -Wreal-q-constant \
+                  -Wtarget-lifetime -Wimplicit-interface
 LDFLAGS ?=
 PYTHON  ?= python3
 
@@ -43,6 +46,7 @@ RESDIR := results
 # -------- Core sources (ordered: providers before users) --------
 CORE_SOURCES := \
   $(SRCDIR)/const.f90 \
+  $(SRCDIR)/comparison_utils.f90 \
   $(SRCDIR)/define_types.f90 \
   $(SRCDIR)/help.f90 \
   $(SRCDIR)/distributions_fun.f90 \
@@ -159,3 +163,8 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
+	
+# Strict warnings sweep: clean + rebuild (compile only)
+clean-warnings:
+	$(MAKE) clean
+	$(MAKE) -B all FFLAGS='$(STRICT_WARNINGS)'
