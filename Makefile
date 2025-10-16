@@ -16,6 +16,10 @@
 # -------- Compiler settings --------
 FC      ?= gfortran
 FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
+# strict flags
+STRICT_WARNINGS = -O0 -g -fimplicit-none -Wall -Wextra -Wconversion -Wsurprising \
+                  -Warray-temporaries -Wcharacter-truncation -Wreal-q-constant \
+                  -Wtarget-lifetime -Wimplicit-interface
 LDFLAGS ?=
 PYTHON  ?= python3
 
@@ -158,3 +162,8 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
+	
+# Strict warnings sweep: clean + rebuild (compile only)
+clean-warnings:
+	$(MAKE) clean
+	$(MAKE) -B all FFLAGS='$(STRICT_WARNINGS)'
