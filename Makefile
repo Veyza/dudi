@@ -46,6 +46,7 @@ RESDIR := results
 # -------- Core sources (ordered: providers before users) --------
 CORE_SOURCES := \
   $(SRCDIR)/const.f90 \
+  $(SRCDIR)/comparison_utils.f90 \
   $(SRCDIR)/define_types.f90 \
   $(SRCDIR)/help.f90 \
   $(SRCDIR)/distributions_fun.f90 \

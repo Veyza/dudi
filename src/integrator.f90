@@ -31,6 +31,7 @@ module integrator
         ! 2 -- the number density of grains on unbound (hyperbolic) orbits
         subroutine DUDI(density, point, source, tnow)
             use const
+            use comparison_utils
             use define_types
             use help
             use TwoBody_fun
@@ -60,7 +61,7 @@ module integrator
                 / 4d0 - point%r * source%r * cos(dphi) / 2d0)
 
             amin2 = (2d0 / source%r - source%ud%umin**2 / gm)**(-1)
-            if(amin2 /= amin2) amin2 = 0d0
+            if(is_nan_r8(amin2)) amin2 = 0d0
             ! minimal velocity possible at given position (defines minimal energy
             ! or "size" of the orbit on which a particle can go from rm to rr
             vmin = sqrt(gm * (2d0 / point%r - 1d0 / amin))
@@ -150,6 +151,7 @@ module integrator
         ! 8 -- the number density of the dust grains moving downward
         subroutine DUDI_mean_velocity(integral, point, source, tnow)
             use const
+            use comparison_utils
             use define_types
             use help
             use TwoBody_fun
@@ -167,7 +169,6 @@ module integrator
             real(8) ldif, lsum, term(8), vi, f1(8), f2(8), vinterval, viprev
             real(8) angle, dphi, dbeta
             real xel(order_v_el), wel(order_v_el)
-            real xhy(order_v_hy), why(order_v_hy)
             logical pole
 
             call ApuTrajectory(point, dphi, dbeta, angle, source)
@@ -179,7 +180,7 @@ module integrator
                 / 4d0 - point%r * source%r * cos(dphi) / 2d0)
 
             amin2 = (2d0 / source%r - source%ud%umin**2 / gm)**(-1)
-            if(amin2 /= amin2) amin2 = 0d0
+            if(is_nan_r8(amin2)) amin2 = 0d0
             ! minimal velocity possible at given position (defines minimal energy
             ! or "size" of the orbit on which a particle can go from rm to rr
             vmin = sqrt(gm * (2d0 / point%r - 1d0 / amin))
@@ -222,7 +223,7 @@ module integrator
                 v_limits(1) = v_limits(2)
                 v_limits(2) = vmax
 
-            ! the particles on the elliptic orbits
+            ! the particles on the elliptic  and hyperbolic orbits together
                 call GaussLegendreQuadra(xel, wel, order_v_el)
                 ldif = v_limits(2) - v_limits(1)
                 ldif = ldif * 0.5d0

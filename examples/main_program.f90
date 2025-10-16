@@ -30,7 +30,7 @@ program main_program
     integer, parameter :: nt = 1
     real(8), parameter :: tnow = 600d0
     integer i_s, i
-    real density(nt,2), tmp_res(nt,2)
+    real density(nt,2), tmp_res(nt,2), tmpdens(2)
     type(source_properties) source(Ns)
     type(position_in_space) point(nt)
 
@@ -41,11 +41,12 @@ program main_program
 
     do i_s = 1, Ns
 
-        !$OMP PARALLEL PRIVATE(i) &
+        !$OMP PARALLEL PRIVATE(i, tmpdens) &
         !$OMP SHARED(i_s, point, source, tmp_res)
         !$OMP DO
         do i = 1, nt
-            call DUDI(tmp_res(i,:), point(i), source(i_s), tnow)
+            tmpdens = tmp_res(i,:)
+            call DUDI(tmpdens, point(i), source(i_s), tnow)
         enddo
         !$OMP END DO
         !$OMP END PARALLEL

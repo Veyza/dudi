@@ -31,13 +31,13 @@ module image_construction
             use define_types
             use help
             implicit none
-            integer i, ii, iii, nn
-            real(8) euler_rot(3), xout, yout, zout
+            integer i, ii, iii
             type(position_in_space), intent(out) :: points(-ni:ni,-Hpix:Hpix,-Vpix:Vpix)
             type(source_properties), intent(in) :: source
             real(8) Hcamscale, Vcamscale        ! rad / pixel in horisontal and vertical direction
-            real(8) trmat(3,3), pixdir(3), pixdircam(3), distance, K1(3), K2(3), scpos(3)
-            real(8) r0, arctmp, arcrm, mooncenterdir(3), tmp, xcam(3), ycam(3), zcam(3)
+            real(8) pixdir(3), pixdircam(3), distance, K1(3), K2(3), scpos(3)
+            real(8) r0, arctmp, arcrm, mooncenterdir(3), xcam(3), ycam(3), zcam(3)
+            real(8) vtmp(3)
 
             Hcamscale = Hrad / dble(Hpix)
             Vcamscale = Vrad / dble(Vpix)
@@ -50,12 +50,15 @@ module image_construction
             ycam = (/-1d0 / sqrt2d0, 1d0 / sqrt2d0, 0d0/)
             zcam = (/-1d0 / sqrt2d0, -1d0 / sqrt2d0, 0d0/)
             ! distance from Cassini to the "center of the plume", meters
-            r0 = norma3d(scpos-source%rrM)
+            vtmp = scpos-source%rrM
+            r0 = norma3d(vtmp)
 
             ! moon angular radius as appears from the point of observation
             arcrm = rm / norma3d(scpos)
             ! direction towards moon center in camera CS
-            mooncenterdir = (/-scpos(3)/rm, 0d0, scpos(1) * sqrt2d0 / rm /)
+            mooncenterdir(1) = -scpos(3)/rm
+            mooncenterdir(2) = 0d0
+            mooncenterdir(3) = scpos(1) * sqrt2d0 / rm
             mooncenterdir = mooncenterdir / norma3d(mooncenterdir)
 
 
@@ -82,9 +85,12 @@ module image_construction
                     if(arctmp >= arcrm .and. i /= 0 .and. ii /= 0) then
 
                         ! pixdir is pixdircam in the moon-centered CS
-                        pixdir(1) = sum(pixdircam * (/xcam(1), ycam(1), zcam(1)/))
-                        pixdir(2) = sum(pixdircam * (/xcam(2), ycam(2), zcam(2)/))
-                        pixdir(3) = sum(pixdircam * (/xcam(3), ycam(3), zcam(3)/))
+                        vtmp(1) = xcam(1); vtmp(2) = ycam(1); vtmp(3) = zcam(1)
+                        pixdir(1) = sum(pixdircam * vtmp)
+                        vtmp(1) = xcam(2); vtmp(2) = ycam(2); vtmp(3) = zcam(2)
+                        pixdir(2) = sum(pixdircam * vtmp)
+                        vtmp(1) = xcam(3); vtmp(2) = ycam(3); vtmp(3) = zcam(3)
+                        pixdir(3) = sum(pixdircam * vtmp)
                         call dist_between_2lines(distance, K1, K2, scpos, pixdir, &
                                                  source%rrM, source%symmetry_axis)
 
@@ -158,7 +164,6 @@ module image_construction
             integer i
             character(len = 55) fname
             character(len = 20) outformat
-            character(len = 12) namesetup
             character(len = 2) tmp1, tmp2
             character(len = 1) tmp0
 

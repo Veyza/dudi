@@ -23,6 +23,7 @@ module TwoBody_fun
                         u, psi, wpsi, lambdaM, lambda, ddphidtheta, &
                         sindphi, dphi_is_large)
             use const
+            use comparison_utils
             use define_types
             use help
             implicit none
@@ -38,7 +39,6 @@ module TwoBody_fun
             real(8) dee, pp, dpp, wrr, wvv, hh
             real(8) cosphi, cosphim, cosdphi, sintheta
             real(8) dphi1, dphi2, dphi3, dphi4, delta, numder
-            integer i
 
             sinal = sin(point%alpha) ; cosal = cos(point%alpha)
             sinalM = sin(s%alphaM) ; cosalm = cos(s%alphaM)
@@ -50,8 +50,8 @@ module TwoBody_fun
                 !  psi
             psi = asin(hh / s%r / u)
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            if(psi /= psi .or. abs(psi-halfpi) < 1d-8) then
-                if(psi /= psi) then
+            if(is_nan_r8(psi) .or. is_zero_r8(abs(psi-halfpi), 1d-8)) then
+                if(is_nan_r8(psi)) then
                     write(666,*) 'Apu << sin(psi) =', hh / s%r / u, 'corrections applied'
                     N_of_warnings = N_of_warnings + 1
                     if(N_of_warnings > maxNofWarnings) then
@@ -126,7 +126,7 @@ module TwoBody_fun
                 - (2d0 * sintheta**2 * (-2d0 + 2d0 * wrr * wvv**2 + 1d0 / sintheta**2))
 
             ddphidtheta = ddphidtheta * wvv * wvv * wrr / e / e
-            if(ddphidtheta /= ddphidtheta) then
+            if(is_nan_r8(ddphidtheta)) then
                 delta = 1d-3
                 dphi1 = deltaphi(theta+2d0*delta, wrr, wvv)
                 dphi2 = deltaphi(theta+delta, wrr, wvv)
@@ -158,7 +158,7 @@ module TwoBody_fun
             implicit none
             real(8), intent(in) :: theta
             real(8), intent(in) :: wrr, wvv
-            real(8) deltaphi, hh, e, pp, cosphi, cosphim
+            real(8) deltaphi, e, pp, cosphi, cosphim
 
             pp = 2d0 * wrr * wrr * wvv * wvv * sin(theta)**2
             e = sqrt(1d0 + 2d0 * pp * (wvv * wvv - 1d0 / wrr))
@@ -182,6 +182,7 @@ module TwoBody_fun
         subroutine Integrand_number_density(Integrand, velocity, amin, &
                                             point, dphi, dbeta, s, tnow)
             use const
+            use comparison_utils
             use define_types
             use help
             use distributions_fun
@@ -190,11 +191,11 @@ module TwoBody_fun
             real(8), intent(in) :: velocity, dphi, dbeta, amin, tnow
             type(source_properties), intent(in) :: s
             type(position_in_space), intent(in) :: point
-            real(8) lambdaM, sinlambdaM, coslambdaM, lambda
-            real(8) uu, Ekep, ee(2), psi(2), wpsi(2), semi_major_axis
+            real(8) lambdaM, lambda
+            real(8) uu, ee(2), psi(2), wpsi(2), semi_major_axis
             real(8), intent(out) :: Integrand
-            real(8) theta(2), ddphidtheta(2), tmp, deltat(2)
-            real(8) fac1, fac2, Jpsi, tmpIntegrand, rate(2), cf, alt
+            real(8) theta(2), ddphidtheta(2), deltat(2)
+            real(8) fac1, fac2, tmpIntegrand, rate(2)
             real(8) sindphi
             logical dphi_is_large(2)
 
@@ -260,7 +261,7 @@ module TwoBody_fun
                     endif
 
                     Integrand = Integrand + tmpIntegrand
-                    if(tmpIntegrand /= tmpIntegrand) then
+                    if(is_nan_r8(tmpIntegrand)) then
                         write(*,*) 'NaN is obtained for an integrand value'
                         write(*,*) 'factor related to ejection speed distribution: fac1 =', fac1
                         write(*,*) 'factor related to ejection direction distribution: fac2 =', fac2
@@ -289,6 +290,7 @@ module TwoBody_fun
         subroutine Integrand_mean_flux(Integrand, velocity, amin, &
                                             point, dphi, dbeta, s, tnow)
             use const
+            use comparison_utils
             use define_types
             use help
             use distributions_fun
@@ -297,11 +299,11 @@ module TwoBody_fun
             real(8), intent(in) :: velocity, dphi, dbeta, amin, tnow
             type(source_properties), intent(in) :: s
             type(position_in_space), intent(in) :: point
-            real(8) lambdaM, sinlambdaM, coslambdaM, lambda
-            real(8) uu, Ekep, ee(2), psi(2), wpsi(2), semi_major_axis
+            real(8) lambdaM, lambda
+            real(8) uu, ee(2), psi(2), wpsi(2), semi_major_axis
             real(8), intent(out) :: Integrand(8)
             real(8) theta(2), ddphidtheta(2), tmp, deltat(2)
-            real(8) fac1, fac2, Jpsi, tmpIntegrand(8), rate(2), cf, alt
+            real(8) fac1, fac2, tmpIntegrand(8), rate(2)
             real(8) sindphi, vtmp(3)
             logical dphi_is_large(2)
             real(8) up_vvec(3), down_vvec(3)
@@ -367,8 +369,10 @@ module TwoBody_fun
                         ! number density
                         tmpIntegrand(7) = fac1 * fac2 / abs(ddphidtheta(i)) * rate(i)
                         ! velocity vector in the local horizontal coordinate system
-                        up_vvec = velocity &
-                        * (/sin(theta(i)) * cos(lambda), -sin(theta(i)) * sin(lambda), cos(theta(i))/)
+                        vtmp(1) = sin(theta(i)) * cos(lambda)
+                        vtmp(2) = -sin(theta(i)) * sin(lambda)
+                        vtmp(3) = cos(theta(i))
+                        up_vvec = velocity * vtmp
                         ! velocity vector in the coordinate system where
                         ! the source coordinates are defined
                         call eulrot(-halfpi, -point%alpha, -(point%beta+halfpi), &
@@ -382,8 +386,10 @@ module TwoBody_fun
                         ! number density
                         tmpIntegrand(8) = fac1 * fac2 / abs(ddphidtheta(i)) * rate(i)
                         ! velocity vector in the local horizontal coordinate system
-                        down_vvec = velocity &
-                        * (/sin(theta(i)) * cos(lambda), -sin(theta(i)) * sin(lambda), cos(theta(i))/)
+                        vtmp(1) = sin(theta(i)) * cos(lambda)
+                        vtmp(2) = -sin(theta(i)) * sin(lambda)
+                        vtmp(3) = cos(theta(i))
+                        down_vvec = velocity * vtmp
                         ! velocity vector in the coordinate system where
                         ! the source coordinates are defined
                         call eulrot(-halfpi, -point%alpha, -(point%beta+halfpi), &
@@ -397,7 +403,7 @@ module TwoBody_fun
 
                     Integrand = Integrand + tmpIntegrand
                     tmp = sum(tmpIntegrand)
-                    if(tmp /= tmp) then
+                    if(is_nan_r8(tmp)) then
                         write(*,*) 'NaN is obtained for an integrand value', tmpIntegrand
                         write(*,*) 'factor related to ejection speed distribution: fac1 =', fac1
                         write(*,*) 'factor related to ejection direction distribution: fac2 =', fac2
@@ -575,6 +581,7 @@ module TwoBody_fun
                                 ee, theta, deltat, dphi_is_large, timeDependence)
             use help
             use const
+            use comparison_utils
             implicit none
             real(8), intent(in) :: r0, rm0, a0, phi,  vv
             real(8), intent(out) :: ee(2), theta(2), deltat(2)
@@ -609,7 +616,7 @@ module TwoBody_fun
             cc = sqrt(x**2 + y**2)
 
             do i = 1, 2
-                if(cc(i) == cc(i)) then
+                if(.not. is_nan_r8(cc(i))) then
                     ee(i) = cc(i) / 2d0 / a
 
                     one_plus_e = 1d0 + ee(i)

@@ -54,7 +54,6 @@ module help
                 real(8), intent(out) :: x(2), y(2)
                 real(8) sR, dx, sx, dx2, dy2, R02, R12, x1x0
                 real(8) sumdifs2, sqrtshort, ybracket
-                real(8) tmp(2), eps, eps1, eps0
 
                 sR = R0 + R1
                 dx = x0 - x1 ; sx = x0 + x1
@@ -228,7 +227,6 @@ module help
             ! Euler's rotation
             pure subroutine eulrot(phiE, thetaE, psiE, xin, yin, zin, xout, yout, zout, inverse)
                 implicit none
-                integer i
                 logical, intent(in) :: inverse
                 real(8), intent(in) :: phiE, thetaE, psiE, xin, yin, zin
                 real(8), intent(out) :: xout, yout, zout
@@ -271,11 +269,10 @@ module help
                 use const
                 use define_types
                 implicit none
-                integer i
                 type(position_in_space), intent(in) :: point
                 type(source_properties), intent(in) :: source
                 real(8), intent(out) :: dphi, dbeta, xi
-                real(8) Rsource(3)
+                real(8) Rsource(3), vtmp(3)
 
                 Rsource = source%rrM / source%r
 
@@ -291,8 +288,9 @@ module help
 
                 ! xi is an angle between the direction of source symmetry axis
                 ! and the direction from the source position to the spacecraft
-                xi = acos(dot_product(source%symmetry_axis, point%rvector-source%rrM) &
-                            / norma3d(point%rvector-source%rrM))
+                vtmp = point%rvector-source%rrM
+                xi = acos(dot_product(source%symmetry_axis, vtmp) &
+                            / norma3d(vtmp))
 
             end subroutine ApuTrajectory
 
@@ -338,16 +336,17 @@ module help
                 implicit none
                 real(8), intent(out) :: d, K1(3), K2(3)
                 real(8), intent(in) :: M1(3), s1(3), M2(3), s2(3)
-                real(8) r(3), s(3), t1(3), t2(3)
-                real(8) A(3,3), B(3), Ainv(3,3), A0(3,3), tmp(3)
-                integer i
+                real(8) s(3), t1(3), t2(3), vtmp(3), vtmp0(3)
+                real(8) A(3,3), B(3), Ainv(3,3)
 
                 s = vector_product(s1, s2)        ! s is normal to both s1 and s2
                 if(norma3d(s) < 1d-3) then
                     ! Lines are parallel to each other
                     K2 = M2
-                    K1 = M1 + s1 * norma3d(M2 - M1)
-                    d = norma3d(vector_product(s1, M2 - M1))
+                    vtmp = M2 - M1
+                    K1 = M1 + s1 * norma3d(vtmp)
+                    vtmp0 = vector_product(s1, vtmp)
+                    d = norma3d(vtmp0)
                     return
                 endif
 
@@ -358,10 +357,14 @@ module help
                 A(1,:) = t1
                 B(1) = dot_product(t1, M1)
                 ! s2(2)*x - s2(1)*y = s2(2)*M2(1) - s2(1)*M2(2)  (2)
-                A(2,:) = (/s2(2), -s2(1), 0d0/)
+                A(2,1) = s2(2)
+                A(2,2) = -s2(1)
+                A(2,3) = 0d0
                 B(2) = -(s2(1) * M2(2) - s2(2) * M2(1))
                 ! s2(3)*x - s2(3)*y = s2(3)*M2(1) - s2(1)*M2(3)  (3)
-                A(3,:) = (/s2(3), 0d0, -s2(1)/)
+                A(3,1) = s2(3)
+                A(3,2) = 0d0
+                A(3,3) = -s2(1)
                 B(3) = -(s2(1) * M2(3) - s2(3) * M2(1))
                 ! together (2) and (3)  define the line 2 (s2, M2)
                 ! K2 is the point where line 2 intersects the plain containing
@@ -373,10 +376,14 @@ module help
 
                 A(1,:) = t2
                 B(1) = dot_product(t2, M2)
-
-                A(2,:) = -(/s1(2), -s1(1), 0d0/)
+                
+                A(2,1) = -s1(2)
+                A(2,2) = s1(1)
+                A(2,3) = 0d0
                 B(2) = s1(1) * M1(2) - s1(2) * M1(1)
-                A(3,:) = -(/s1(3), 0d0, -s1(1)/)
+                A(3,1) = -s1(3)
+                A(3,2) = 0d0
+                A(3,3) = s1(1)
                 B(3) = s1(1) * M1(3) - s1(3) * M1(1)
                 ! K1 is the point where line 1 intersects the plain containing
                 ! line 1 and parallel to common perpendicular of lines 1 and 2 (vector s)
@@ -388,8 +395,8 @@ module help
                 ! two plains parallel to vector s but not parallel to each other
                 ! intersect defining the line parallel to s,
                 ! the common perpendicular for lines 1 and 2
-
-                d = norma3d(K1 - K2)
+                vtmp = K1 - K2
+                d = norma3d(vtmp)
 
 
             end subroutine dist_between_2lines

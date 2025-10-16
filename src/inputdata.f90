@@ -256,6 +256,7 @@ module inputdata
             ! the jet's zenith angle (zeta) and azimuth (eta) are known
             subroutine jet_direction(betaM, zeta, eta, rrM, jetdir)
                 use const
+                use comparison_utils
                 use help
                 real(8), intent(in) :: betaM, zeta, eta, rrM(3)
                 real(8), intent(out) :: jetdir(3)
@@ -264,7 +265,7 @@ module inputdata
 
                 rtmp = rrM / rm
                 tmpang = 3d0 * halfpi-betaM
-                if(zeta /= 0d0) then
+                if(.not. is_zero_r8(zeta)) then
                     call eulrot(0d0, 0d0, tmpang, rtmp(1), rtmp(2), rtmp(3), &
                                 xout, yout, zout, .FALSE.)
                     rtmp(1) = xout ; rtmp(2) = yout ; rtmp(3) = zout

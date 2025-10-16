@@ -30,13 +30,13 @@ module distributions_fun
             function ejection_direction_distribution(distribution_shape, &
                                 wpsi, psi, lambdaM, zeta, eta) result(fpsi)
                 use const
+                use comparison_utils
                 implicit none
-                integer N, i
                 real(8), parameter :: normconst1 = 7.5960829056967811d-3
                 real(8), parameter :: normconst3 = 8.5760756217641998d-1
                 real(8), parameter :: psimax0 = 0d0
                 real(8), parameter :: psimax45 = 0.7853982d0
-                real(8), parameter :: omega3 = 0.05235988d0
+!~                 real(8), parameter :: omega3 = 0.05235988d0
                 real(8), parameter :: omega5 = 0.08726646d0
                 real(8), parameter :: omega10 = 0.1745329d0
                 real(8), parameter :: omega45 = 0.7853982d0
@@ -82,7 +82,7 @@ module distributions_fun
                     ! HERE IS THE PLACE FOR WRITING YOUR OWN PDF
                     fpsi = 0d0
                 endselect
-                if(zeta /= 0d0) then
+                if(.not. is_zero_r8(zeta)) then
                     Jpsi = Jacobian_tilt(psi, lambdaM, zeta, eta)
                     fpsi = fpsi * Jpsi
                 endif
