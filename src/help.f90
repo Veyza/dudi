@@ -91,41 +91,48 @@ module help
 
 
 
-			! Linear interpolation. Returns a value of y at xout
-			! x must be in ascending order
-			! if xout < x(1) or xout > x(N) then
-			! yout = y(1) or yout = y(N) respectively
-			pure function LiNTERPOL(N, y, x, xout) result(yout)
-			  implicit none
-			  real(8), intent(in) ::  xout, y(N), x(N)
-			  real(8) yout, x1, x2
-			  integer i, i1, i2
-			  integer, intent(in) :: N
+      ! Linear interpolation. Returns a value of y at xout
+      ! x must be in ascending order
+      ! if xout < x(1) or xout > x(N) then
+      ! yout = y(1) or yout = y(N) respectively
+      pure function LiNTERPOL(N, y, x, xout) result(yout)
+        implicit none
+        real(8), intent(in) ::  xout, y(N), x(N)
+        real(8) yout
+        real(8) :: x1
+        real(8) :: x2
+        integer i, i1
+        integer :: i2
+        integer, intent(in) :: N
+        
+        x1 = 1d0
+        x2 = 1d0
+        i2 = -1
+        
+        if(xout < x(1)) then
+          yout = y(1)
+          return
+        endif
+        
+        if(xout > x(N)) then
+          yout = y(N)
+          return
+        endif
+        
+        i = 1
+        i1 = 0
+        do while(i1 == 0 .and. i .lt. N) 
+          if(xout .lt. x(i+1) .and. xout .ge. x(i)) then
+            i1 = i;       i2 = i+1;
+            x1 = x(i1);   x2 = x(i2);
+          endif
+          i = i + 1
+        enddo
 
-			  if(xout < x(1)) then
-					yout = y(1)
-					return
-			  endif
-
-			  if(xout > x(N)) then
-					yout = y(N)
-					return
-			  endif
-
-			  i = 1
-			  i1 = 0
-			  do while(i1 == 0 .and. i .lt. N)
-			    if(xout .lt. x(i+1) .and. xout .ge. x(i)) then
-			      i1 = i;       i2 = i+1;
-			      x1 = x(i1);   x2 = x(i2);
-			    endif
-			    i = i + 1
-			  enddo
-
-			  yout = y(i1) + (y(i2) - y(i1)) / (x2 - x1) * (xout - x1)
-			  return
-
-			end function LiNTERPOL
+        yout = y(i1) + (y(i2) - y(i1)) / (x2 - x1) * (xout - x1)
+        return
+        
+      end function LiNTERPOL  
 
 
 

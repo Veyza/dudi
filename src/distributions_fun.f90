@@ -45,6 +45,8 @@ module distributions_fun
 				real(8) fpsi, Jpsi
 				integer, intent(in) :: distribution_shape
 				real(8), intent(in) :: psi, wpsi, lambdaM, zeta, eta
+				
+				fpsi = -1d0
 
 				select case(distribution_shape)
 					case(1)
@@ -136,6 +138,8 @@ module distributions_fun
 				real(8) urel, Rrel, fu
 				type(ejection_speed_properties) ud
 				real(8) R, u
+				
+				fu = -1d0
 
 				select case(ud%ud_shape)
 					case(1)
@@ -173,6 +177,9 @@ module distributions_fun
 				real(8), intent(in) :: R
 				integer, intent(in) :: sd
 				real(8) fR, C_size_distr
+				
+				fR = -1d0
+				C_size_distr = 1d0
 
 				select case(sd)
 					case(1)
@@ -217,9 +224,11 @@ module distributions_fun
 			! ratefun is the parameter used to choose the expression for the gammarate
 			function production_rate(t, gamma0, ratefun) result(gammarate)
 				implicit none
-				real(8) tmax
+				real(8) :: tmax = -1d0
 				integer ratefun
 				real(8) t, gamma0, gammarate
+				
+				gammarate = -1d0
 
 				select case(ratefun)
 					case(1)

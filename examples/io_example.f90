@@ -34,7 +34,7 @@ program io_example
 	real tmp_res(2, -ni:ni, -Hpix:Hpix, -Vpix:Vpix)
 	type(position_in_space) points(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
 	type(source_properties) :: sources(Ns)
-	real, parameter :: bg = 1d-15
+	real, parameter :: bg = 1e-15
 	real(8) moments(4)
 	! moments of time at that the images are constructed
 	call get_volcano_params(sources, Ns)

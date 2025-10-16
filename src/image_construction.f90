@@ -124,33 +124,27 @@ module image_construction
 	! at the uniformal grid (distance between the grid nodes = sampdist)
 	! with some missing values denoted by negative numbers
 	! the subroutine integrates over the 3rd dimenssion using Euler's folmula
-		subroutine Integral_over_LoS(dens0, image)
-			use const
-			implicit none
-			real, intent(in) :: dens0(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
-			real dens(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
-			real, intent(out) :: image(-Hpix:Hpix, -Vpix:Vpix)
-			integer i, ii, k
-			real tmpTr
+        subroutine Integral_over_LoS(dens0, image)
+          use const
+          implicit none
+          real, intent(in)  :: dens0(-ni:ni, -Hpix:Hpix, -Vpix:Vpix)
+          real, intent(out) :: image(-Hpix:Hpix, -Vpix:Vpix)
+          integer :: i, ii, k
+          real    :: tmpTr
 
-			image = 0d0
-			dens = dens0
-			! double loop
-			! over all the pixels
-			! exclude the cross in the middle of the "image"
-			do ii = -Vpix, Vpix
-			do i = -Hpix, Hpix
-				if(i /= 0 .and. ii /= 0) then
-					tmpTr = 0d0
-					do k = -ni, ni-1
-						tmpTr = tmpTr + dens(k,i,ii) + dens(k+1,i,ii)
-					enddo
-					image(i,ii) = sampdist_large * 0.5d0 * tmpTr
-				endif
-			enddo
-			enddo
-
-		end subroutine Integral_over_LoS
+          image = 0.0
+          do ii = -Vpix, Vpix
+            do i = -Hpix, Hpix
+              if (i /= 0 .and. ii /= 0) then
+                tmpTr = 0.0
+                do k = -ni, ni-1
+                  tmpTr = tmpTr + dens0(k,i,ii) + dens0(k+1,i,ii)
+                end do
+                image(i,ii) = real(sampdist_large * 0.5d0 * tmpTr)
+              end if
+            end do
+          end do
+        end subroutine
 
 
 

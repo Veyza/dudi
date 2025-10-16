@@ -135,9 +135,9 @@ module TwoBody_fun
 
 				numder = (-dphi1 + 8d0 * dphi2 - 8d0 * dphi3 + dphi4) / 12d0 / delta
 				numder = (dphi2 - dphi3) / 2d0 / delta
-				write(666,*) 'the derivative d\Delta\phi/d\theta was &
-								obtained numerically because the analytical &
-								expression contains numerically difficult parts'
+				write(666,*) 'the derivative d\Delta\phi/d\theta was ', &
+								'obtained numerically because the analytical ', &
+								'expression contains numerically difficult parts'
 				ddphidtheta = numder
 				N_of_warnings = N_of_warnings + 1
 				if(N_of_warnings > maxNofWarnings) then

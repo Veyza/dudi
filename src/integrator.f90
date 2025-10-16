@@ -92,7 +92,7 @@ module integrator
 						vi = (dble(i-1) / dble(Nprestep))**trpower * vinterval + v_limits(1)
 						call Integrand_number_density(f2, vi, amin, &
 						                           point, dphi, dbeta, source, tnow)
-						density(1) = density(1) + (vi - viprev) * 0.5d0 * (f1 + f2)
+						density(1) = density(1) + real((vi - viprev) * 0.5d0 * (f1 + f2))
 						f1 = f2
 						viprev = vi
 					enddo
@@ -113,7 +113,7 @@ module integrator
 					do i = 1, order_v_el
 						call Integrand_number_density(term, ldif * xel(i) + lsum, amin, &
 									point, dphi, dbeta, source, tnow)
-						density(1) = density(1) + ldif * wel(i) * term
+						density(1) = density(1) + real(ldif * wel(i) * term)
 					enddo
 				endif
 
@@ -129,11 +129,11 @@ module integrator
 					do i = 1, order_v_hy
 						call Integrand_number_density(term, ldif * xhy(i) + lsum, amin, &
 									point, dphi, dbeta, source, tnow)
-						density(2) = density(2) + ldif * why(i) * term
+						density(2) = density(2) + real(ldif * why(i) * term)
 					enddo
 				endif
 				! factor independent on velocity
-				density = density / point%r / source%r / sin(dphi)
+				density = density / real(point%r * source%r * sin(dphi))
 			endif
 
 		end subroutine DUDI
@@ -211,7 +211,7 @@ module integrator
 						vi = (dble(i-1) / dble(Nprestep))**trpower * vinterval + v_limits(1)
 						call Integrand_mean_flux(f2, vi, amin, &
 						                           point, dphi, dbeta, source, tnow)
-						integral = integral + (vi - viprev) * 0.5d0 * (f1 + f2)
+						integral = integral + real((vi - viprev) * 0.5d0 * (f1 + f2))
 						f1 = f2
 						viprev = vi
 					enddo
@@ -231,11 +231,11 @@ module integrator
 				do i = 1, order_v_el
 					call Integrand_mean_flux(term, ldif * xel(i) + lsum, amin, &
 								point, dphi, dbeta, source, tnow)
-					integral = integral + ldif * wel(i) * term
+					integral = integral + real(ldif * wel(i) * term)
 				enddo
 
 				! factor independent on velocity
-				integral = integral / point%r / source%r / sin(dphi)
+				integral = integral / real(point%r * source%r * sin(dphi))
 			endif
 			! dividing the flux by number density to obtain average velocities
 			if(integral(7) > 0.0) integral(1:3) = integral(1:3) / integral(7)

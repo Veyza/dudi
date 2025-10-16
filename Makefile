@@ -15,8 +15,7 @@
 
 # -------- Compiler settings --------
 FC      ?= gfortran
-#FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
-FFLAGS ?= -O3 -fimplicit-none -Wno-tabs -Wno-unused-variable
+FFLAGS  ?= -O3 -fimplicit-none -Wall -Wno-tabs -Wno-unused-variable
 LDFLAGS ?=
 PYTHON  ?= python3
 
