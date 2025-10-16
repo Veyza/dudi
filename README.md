@@ -451,53 +451,29 @@ To address this:
 
 == 12. Changes in the Latest Version
 
-=== Version 1.0.1
+=== Version 1.2.3
+  - Codebase cleaned of unused variables and unsafe real comparisons; fixed 
+    implicit conversions.
+  - Kept standard Fortran-95. Added src/comparison_utils.f90 to centralize 
+    numeric checks:
+      - is_nan_r8(x) – NaN detection (F95-friendly).
+      - is_finite_r8(x) – finite vs. Inf/NaN.
+      - is_zero_r8(x[, atol]) – zero-with-tolerance.
+      - nearly_equal_r8(a,b[, rtol, atol]) – relative/absolute tolerance equality.
+  - Makefile: new clean-warnings target to rebuild with strict warning flags for
+    code hygiene.
+  - Note: comparison_utils.f90 may still emit compare-reals warnings in strict mode; 
+    these are intentional and safe
+  
+=== Version 1.2.2
 
-- **Warning Management:**
-  DUDI now tracks warnings logged to `fort.666`. If the count exceeds the
-  `maxNofWarnings` set in `const..f90`, the program will terminate and alert
-  the user via the command line. This prevents the creation of large warning
-  files due to parameter errors.
+  - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
 
-- **Update to `size_distribution`:**
-  The `size_distribution` function in `distributions_fun..f90` no longer
-  uses the "p" parameter from `const..f90`. It now returns only the PDF for
-  the specified grain radius. Required calculations based on "p" are handled
-  by functions in `gu..f90`.
+=== Version 1.2.1
 
-- **Ejection Velocity Correction:**
-  Fixed an issue in `integrator..f90` where the integration was
-  incorrectly handled when minimum ejection velocity exceeded the moon's
-  escape velocity.
-
-- **Io Example Optimization:**
-  Multidimensional arrays are reshaped and nested loops reordered in the Io
-  example, enhancing performance.
-
-
-
-=== Version 1.1.0
-
-- **Subroutine `Gu_integral` enhancements:**
-  This subroutine evaluates the function G_u^p(R_min, R_max) (see Eq. 14 of
-  Ershova & Schmidt, 2021) for a grid of u-values. In previous versions,
-  `Gu_integral` used integration limits predefined in the module const and
-  always returned an array of evaluated integrals.
-
-  Now, `Gu_integral` accepts the integration limits, `rlim1` and `rlim2`, as
-  input variables. Additionally, if `rlim1 = rlim2`, `Gu_integral` returns the
-  product of the size distribution and ejection direction distribution,
-  evaluated at `rlim1` and the grid of u-values. This enhancement allows for
-  the calculation of the differential number density (i.e., without integration
-  over R in Eq. 20). The evaluated value corresponds to
-  n(r, \alpha, \beta, R) instead of n(r, \alpha, \beta, R_min < R < R_max).
-
-- **Source file extension changed to .f90:**
-  This change allows the Intel compiler to be used for DUDI compilation
-  without any additional consequences.
-
-
-
+  - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
+  - Updated Makefile and .gitignore accordingly
+  
 === Version 1.2.0
 
   A feature has been added to compute the average velocity vector of dust grains
@@ -526,11 +502,47 @@ To address this:
     **`DUDI_average_velocity_vectors.pdf´** available in this repository.
 
 
-=== Version 1.2.1
+=== Version 1.1.0
 
-  - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
-  - Updated Makefile and .gitignore accordingly
+- **Subroutine `Gu_integral` enhancements:**
+  This subroutine evaluates the function G_u^p(R_min, R_max) (see Eq. 14 of
+  Ershova & Schmidt, 2021) for a grid of u-values. In previous versions,
+  `Gu_integral` used integration limits predefined in the module const and
+  always returned an array of evaluated integrals.
 
-=== Version 1.2.2
+  Now, `Gu_integral` accepts the integration limits, `rlim1` and `rlim2`, as
+  input variables. Additionally, if `rlim1 = rlim2`, `Gu_integral` returns the
+  product of the size distribution and ejection direction distribution,
+  evaluated at `rlim1` and the grid of u-values. This enhancement allows for
+  the calculation of the differential number density (i.e., without integration
+  over R in Eq. 20). The evaluated value corresponds to
+  n(r, \alpha, \beta, R) instead of n(r, \alpha, \beta, R_min < R < R_max).
 
-  - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
+- **Source file extension changed to .f90:**
+  This change allows the Intel compiler to be used for DUDI compilation
+  without any additional consequences.
+
+
+=== Version 1.0.1
+
+- **Warning Management:**
+  DUDI now tracks warnings logged to `fort.666`. If the count exceeds the
+  `maxNofWarnings` set in `const..f90`, the program will terminate and alert
+  the user via the command line. This prevents the creation of large warning
+  files due to parameter errors.
+
+- **Update to `size_distribution`:**
+  The `size_distribution` function in `distributions_fun..f90` no longer
+  uses the "p" parameter from `const..f90`. It now returns only the PDF for
+  the specified grain radius. Required calculations based on "p" are handled
+  by functions in `gu..f90`.
+
+- **Ejection Velocity Correction:**
+  Fixed an issue in `integrator..f90` where the integration was
+  incorrectly handled when minimum ejection velocity exceeded the moon's
+  escape velocity.
+
+- **Io Example Optimization:**
+  Multidimensional arrays are reshaped and nested loops reordered in the Io
+  example, enhancing performance.
+
