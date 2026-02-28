@@ -1,7 +1,11 @@
 name: CI
 on:
   push:
+    branches-ignore:
+      - Enceladus_plume_2024model
   pull_request:
+    branches-ignore:
+      - Enceladus_plume_2024model
 
 jobs:
   run-pipelines:
