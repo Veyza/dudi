@@ -7,10 +7,7 @@
 #  DUDI explicit targets
 # =========================
 # Usage:
-#   make [dudi]
-#   make enceladus | europa | io        # build *_dudi, run it, then plot
-#   make enceladus_dudi | europa_dudi | io_dudi   # build-only
-#   make run-dudi | run-enceladus_dudi | run-europa_dudi | run-io_dudi
+#   make flyby_profile
 #   make list | make clean | make distclean
 
 # -------- Compiler settings --------
@@ -49,6 +46,7 @@ CORE_SOURCES := \
   $(SRCDIR)/comparison_utils.f90 \
   $(SRCDIR)/define_types.f90 \
   $(SRCDIR)/help.f90 \
+  $(SRCDIR)/bgmod.f90 \
   $(SRCDIR)/distributions_fun.f90 \
   $(SRCDIR)/gu.f90 \
   $(SRCDIR)/twobody_fun.f90 \
@@ -57,48 +55,25 @@ CORE_SOURCES := \
   $(SRCDIR)/integrator.f90 \
   $(SRCDIR)/image_construction.f90
 
-# -------- Example/main program sources --------
-MAIN_SRC            ?= $(EXDIR)/main_program.f90
-ENCELADUS_SRC       ?= $(EXDIR)/enceladus_example.f90
-EUROPA_SRC          ?= $(EXDIR)/europa_example.f90
-IO_SRC              ?= $(EXDIR)/io_example.f90
-
-# ---- Plot scripts ----
-ENCELADUS_PYSCRIPT ?= scripts/e2plot.py
-EUROPA_PYSCRIPT    ?= scripts/deposition.py
-IO_PYSCRIPT        ?= scripts/volcano_image.py
+# -------- Program sources --------
+FLYBY_PROFILE_SRC   ?= $(SRCDIR)/flyby_profile.f90
 
 # -------- Phony targets --------
-.PHONY: all help list clean distclean \
-        dudi enceladus europa io enceladus_dudi europa_dudi io_dudi \
-        run-dudi run-enceladus_dudi run-europa_dudi run-io_dudi
+.PHONY: all help list clean distclean flyby_profile
 
-# Default: build the library demo binary
-all: dudi
+# Default: build flyby_profile
+all: flyby_profile
 
 help:
-	@echo "Build-only binaries:"
-	@echo "  make dudi | enceladus_dudi | europa_dudi | io_dudi"
+	@echo "Build:"
+	@echo "  make flyby_profile"
 	@echo ""
-	@echo "Pipelines (build -> run -> plot):"
-	@echo "  make enceladus | europa | io"
-	@echo ""
-	@echo "Run-only helpers:"
-	@echo "  make run-dudi | run-enceladus_dudi | run-europa_dudi | run-io_dudi"
-	@echo ""
-	@echo "Override plot scripts/Python if needed:"
-	@echo "  ENCELADUS_PYSCRIPT=$(ENCELADUS_PYSCRIPT)"
-	@echo "  EUROPA_PYSCRIPT=$(EUROPA_PYSCRIPT)"
-	@echo "  IO_PYSCRIPT=$(IO_PYSCRIPT)"
-	@echo "  PYTHON=$(PYTHON)"
+	@echo "Other:"
+	@echo "  make list | make clean | make distclean"
 
 list:
 	@echo "Core src:          $(CORE_SOURCES)"
-	@echo "MAIN_SRC:          $(MAIN_SRC)"
-	@echo "ENCELADUS_SRC:     $(ENCELADUS_SRC)"
-	@echo "EUROPA_SRC:        $(EUROPA_SRC)"
-	@echo "IO_SRC:            $(IO_SRC)"
-	@echo "Plot scripts: enc=$(ENCELADUS_PYSCRIPT)  eur=$(EUROPA_PYSCRIPT)  io=$(IO_PYSCRIPT)"
+	@echo "FLYBY_PROFILE_SRC: $(FLYBY_PROFILE_SRC)"
 
 # Ensure dirs exist
 $(MODDIR) $(BINDIR) $(RESDIR):
@@ -108,52 +83,9 @@ $(MODDIR) $(BINDIR) $(RESDIR):
 #  Build rules (explicit only)
 # -----------------------------
 
-# dudi (library demo)
-$(BINDIR)/dudi: $(CORE_SOURCES) $(MAIN_SRC) | $(BINDIR) $(MODDIR)
-	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(MAIN_SRC) -o $@ $(LDFLAGS)
-dudi: $(BINDIR)/dudi
-
-# *_dudi binaries (build-only)
-$(BINDIR)/enceladus_dudi: $(CORE_SOURCES) $(ENCELADUS_SRC) | $(BINDIR) $(MODDIR)
-	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(ENCELADUS_SRC) -o $@ $(LDFLAGS)
-enceladus_dudi: $(BINDIR)/enceladus_dudi
-
-$(BINDIR)/europa_dudi: $(CORE_SOURCES) $(EUROPA_SRC) | $(BINDIR) $(MODDIR)
-	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(EUROPA_SRC) -o $@ $(LDFLAGS)
-europa_dudi: $(BINDIR)/europa_dudi
-
-$(BINDIR)/io_dudi: $(CORE_SOURCES) $(IO_SRC) | $(BINDIR) $(MODDIR)
-	$(FC) $(FFLAGS) -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(IO_SRC) -o $@ $(LDFLAGS)
-io_dudi: $(BINDIR)/io_dudi
-
-# -----------------------------
-#  Pipelines: build -> run -> plot
-# -----------------------------
-enceladus: $(BINDIR)/enceladus_dudi | $(RESDIR)
-	@echo ">>> Running enceladus_dudi"
-	$(BINDIR)/enceladus_dudi
-	@echo ">>> Plotting with: $(PYTHON) $(ENCELADUS_PYSCRIPT)"
-	$(PYTHON) $(ENCELADUS_PYSCRIPT)
-
-europa: $(BINDIR)/europa_dudi | $(RESDIR)
-	@echo ">>> Running europa_dudi"
-	$(BINDIR)/europa_dudi
-	@echo ">>> Plotting with: $(PYTHON) $(EUROPA_PYSCRIPT)"
-	$(PYTHON) $(EUROPA_PYSCRIPT)
-
-io: $(BINDIR)/io_dudi | $(RESDIR)
-	@echo ">>> Running io_dudi"
-	$(BINDIR)/io_dudi
-	@echo ">>> Plotting with: $(PYTHON) $(IO_PYSCRIPT)"
-	$(PYTHON) $(IO_PYSCRIPT)
-
-# -----------------------------
-#  Run helpers (binary only)
-# -----------------------------
-run-dudi:           $(BINDIR)/dudi           ; $(BINDIR)/dudi
-run-enceladus_dudi: $(BINDIR)/enceladus_dudi ; $(BINDIR)/enceladus_dudi
-run-europa_dudi:    $(BINDIR)/europa_dudi    ; $(BINDIR)/europa_dudi
-run-io_dudi:        $(BINDIR)/io_dudi        ; $(BINDIR)/io_dudi
+$(BINDIR)/flyby_profile: $(CORE_SOURCES) $(FLYBY_PROFILE_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -fopenmp -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(FLYBY_PROFILE_SRC) -o $@ $(LDFLAGS) -fopenmp
+flyby_profile: $(BINDIR)/flyby_profile
 
 # -----------------------------
 #  Cleaning
@@ -163,8 +95,8 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
-	
+
 # Strict warnings sweep: clean + rebuild (compile only)
 clean-warnings:
 	$(MAKE) clean
-	$(MAKE) -B all FFLAGS='$(STRICT_WARNINGS)'
+	$(MAKE) -B flyby_profile FFLAGS='$(STRICT_WARNINGS)'
