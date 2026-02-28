@@ -8,6 +8,7 @@
 # =========================
 # Usage:
 #   make flyby_profile
+#   make run-flyby       # run flyby_profile with params 5, 17, 7.1, 7.2, 7.3, 21.1, 21.2, 21.3
 #   make list | make clean | make distclean
 
 # -------- Compiler settings --------
@@ -56,10 +57,10 @@ CORE_SOURCES := \
   $(SRCDIR)/image_construction.f90
 
 # -------- Program sources --------
-FLYBY_PROFILE_SRC   ?= $(SRCDIR)/flyby_profile.f90
+FLYBY_PROFILE_SRC   ?= $(EXDIR)/flyby_profile.f90
 
 # -------- Phony targets --------
-.PHONY: all help list clean distclean flyby_profile
+.PHONY: all help list clean distclean flyby_profile run-flyby
 
 # Default: build flyby_profile
 all: flyby_profile
@@ -67,6 +68,9 @@ all: flyby_profile
 help:
 	@echo "Build:"
 	@echo "  make flyby_profile"
+	@echo ""
+	@echo "Run:"
+	@echo "  make run-flyby   # run flyby_profile with params 5, 17, 7.1, 7.2, 7.3, 21.1, 21.2, 21.3"
 	@echo ""
 	@echo "Other:"
 	@echo "  make list | make clean | make distclean"
@@ -86,6 +90,18 @@ $(MODDIR) $(BINDIR) $(RESDIR):
 $(BINDIR)/flyby_profile: $(CORE_SOURCES) $(FLYBY_PROFILE_SRC) | $(BINDIR) $(MODDIR)
 	$(FC) $(FFLAGS) -fopenmp -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(FLYBY_PROFILE_SRC) -o $@ $(LDFLAGS) -fopenmp
 flyby_profile: $(BINDIR)/flyby_profile
+
+run-flyby: $(BINDIR)/flyby_profile | $(RESDIR)
+	$(BINDIR)/flyby_profile 5
+	$(BINDIR)/flyby_profile 5.2
+	$(BINDIR)/flyby_profile 17
+	$(BINDIR)/flyby_profile 17.17
+	$(BINDIR)/flyby_profile 7.1
+	$(BINDIR)/flyby_profile 7.2
+	$(BINDIR)/flyby_profile 7.3
+	$(BINDIR)/flyby_profile 21.1
+	$(BINDIR)/flyby_profile 21.2
+	$(BINDIR)/flyby_profile 21.3
 
 # -----------------------------
 #  Cleaning
