@@ -90,6 +90,77 @@ module dataoutmod
 			end subroutine result_out
 
 
+			subroutine spt_flux_out(point, t1, t2, t3, nt, outfile)
+				use const
+				use define_types
+				implicit none
+				integer, intent(in) :: nt
+				type(position_in_space), intent(in) :: point(nt)
+				real, intent(in) :: t1(nt), t2(nt), t3(nt)
+				real res
+			real(8) lat, lon
+				character(*), intent(in) :: outfile
+				integer i
+
+				open(333, file = outfile, status = 'replace')
+					do i = 1, nt
+						res = t1(i) + t2(i) + t3(i)
+						lat = (halfpi - point(i)%alpha) * rad2deg
+						lon = point(i)%beta * rad2deg
+						write(333,*) lat, lon, res
+					enddo
+				close(333)
+
+
+			end subroutine spt_flux_out
+
+			subroutine vertical_slicematrix_out(resmat, nt, fnum)
+				real, intent(in) :: resmat(nt, nt)
+				integer, intent(in) :: nt
+				real, intent(in) :: fnum
+				integer i
+
+				if(fnum == 0.1) then
+					open(111, file = './results/dens_in_0_plane_dust.dat', status = 'replace')
+				endif
+				if(fnum == 0.2) then
+					open(111, file = './results/dens_in_0_plane_gas.dat', status = 'replace')
+				endif
+					do i = 1, nt
+						write(111,*) resmat(i,:)
+					enddo
+				close(111)
+
+
+			end subroutine vertical_slicematrix_out
+
+
+
+			subroutine composition_matrix_out(t1, t2, t3, nt, fnum)
+				real, intent(in) :: t1(nt, nt), t2(nt, nt), t3(nt,nt)
+				integer, intent(in) :: nt
+				real, intent(in) :: fnum
+				integer i
+
+				if(fnum == 0.4) then
+					open(111, file = './results/type1_0_plane_close.dat', status = 'replace')
+						do i = 1, nt
+							write(111,*) t1(i,:)
+						enddo
+					close(111)
+					open(121, file = './results/type2_0_plane_close.dat', status = 'replace')
+						do i = 1, nt
+							write(121,*) t2(i,:)
+						enddo
+					close(121)
+					open(131, file = './results/type3_0_plane_close.dat', status = 'replace')
+						do i = 1, nt
+							write(131,*) t3(i,:)
+						enddo
+					close(131)
+				endif
+			end subroutine composition_matrix_out
+
 
 			subroutine cassini_flyby_out(type1, type2, type3, ttab, nt, fname)
 				implicit none

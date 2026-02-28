@@ -111,7 +111,171 @@ module inputdata
 
 			end subroutine get_diffuse_sources
 
+			subroutine read_sources_params(sources, Ns, fname, rmin, rmax, rminsalt, rmaxsalt, varfact)
+				use const
+				use define_types
+				implicit none
+				integer, intent(in) :: Ns
+				type(source_properties), intent(out) :: sources(Ns)
+				character(*), intent(in) :: fname
+				real(8), intent(in) :: rmin, rmax, rminsalt, rmaxsalt, varfact
+				integer Njets
+				Njets = (Ns - 160) / 3
+				call get_jets(sources(1:Njets), Njets, fname, 1, varfact, rmin, rmax)
+				call get_diffuse_sources(sources(Njets+1:Ns), Ns - Njets, &
+				                        './input_data_files/diffuse_sources.dat', varfact, rminsalt, rmaxsalt)
+			end subroutine read_sources_params
 
+			subroutine get_gas_plume(sources, Ns, fname, rmin, rmax, sdnorm)
+				use const
+				use define_types
+				implicit none
+				integer, intent(in) :: Ns
+				type(source_properties), intent(out) :: sources(Ns)
+				character(*), intent(in) :: fname
+				real(8), intent(in) :: rmin, rmax
+				real(8), intent(out) :: sdnorm(3)
+				integer Njets
+				sdnorm = 1d0
+				Njets = (Ns - 160) / 3
+				call get_jets(sources(1:Njets), Njets, fname, &
+				             1, 1d0, rmin, rmax)
+				call get_diffuse_sources(sources(Njets+1:Ns), Ns - Njets, &
+				                        './input_data_files/diffuse_sources.dat', 1d0, rmin, rmax)
+			end subroutine get_gas_plume
+
+			subroutine vert_sect(points, nt)
+				use const
+				use help
+				use define_types
+				implicit none
+				integer, intent(in) :: nt
+				type(position_in_space), intent(out) :: points(nt, nt)
+				integer i, ii
+				real(8) xtmp(3), ytmp(3), lon
+				real(8), parameter :: cellsize = 2d3
+
+				lon = 45d0 * deg2rad
+
+				xtmp = (/cos(lon), sin(lon), 0d0/) * cellsize
+				ytmp = (/0d0, 0d0, 1d0/) * cellsize
+
+				do i = 1, nt
+				do ii = 1, nt
+					points(i,ii)%rvector = (nt/2-i) * xtmp - (/0d0, 0d0, 210d3/) - (ii) * ytmp
+					points(i,ii)%r = norma3d(points(i,ii)%rvector)
+					points(i,ii)%alpha = acos(points(i,ii)%rvector(3) / points(i,ii)%r)
+					points(i,ii)%beta = myatan1(points(i,ii)%rvector(1), points(i,ii)%rvector(2))
+					points(i,ii)%r_scaled = points(i,ii)%r / rm
+					points(i,ii)%compute = points(i,ii)%r_scaled >= 1d0
+				enddo
+				enddo
+
+			end subroutine vert_sect
+
+
+			subroutine get_flyby_plane(points, nt, r1, r2, fnum)
+				use const
+				use help
+				use define_types
+				implicit none
+				integer, intent(in) :: nt
+				type(position_in_space), intent(out) :: points(nt, nt)
+				real, intent(in) :: fnum
+				real(8), intent(in) :: r1(3), r2(3)
+				integer i, ii
+				real(8) xtmp(3), ytmp(3), ntmp(3)
+				real(8) cellsize
+
+				if(fnum == 0.2 .or. fnum == 0.1 .or. fnum == 0.4) then
+					cellsize = 1d3
+					! vector normal to the plane containing r1 and r2
+					ntmp = -vector_product(r1, r2)
+					ntmp = ntmp / norma3d(ntmp)
+					! projection of the polar axis to the plane containing r1 and r2
+					ytmp = (/0d0, 0d0, 1d0/) - dot_product((/0d0, 0d0, 1d0/), ntmp) * ntmp
+					ytmp = -ytmp / norma3d(ytmp) * cellsize
+					xtmp = vector_product(ytmp, ntmp)
+					do i = 1, nt
+					do ii = 1, nt
+						points(i,ii)%rvector = (nt/2-i-0.5) * xtmp + ytmp/cellsize*222.0d3 &
+						+ (ii) * ytmp + ntmp * 0d0
+						points(i,ii)%r = norma3d(points(i,ii)%rvector)
+						points(i,ii)%alpha = acos(points(i,ii)%rvector(3) / points(i,ii)%r)
+						points(i,ii)%beta = myatan1(points(i,ii)%rvector(1), points(i,ii)%rvector(2))
+						points(i,ii)%r_scaled = points(i,ii)%r / rm
+						points(i,ii)%compute = points(i,ii)%r_scaled >= 1d0
+					enddo
+					enddo
+				endif
+
+
+			end subroutine get_flyby_plane
+
+
+
+
+			subroutine get_surface_points(points, nt, griddist, latdist, maxalphaM, minalphaM)
+				use const
+				use help
+				use define_types
+				implicit none
+				real(8), intent(in) :: griddist, latdist, maxalphaM, minalphaM
+				integer, intent(in) :: nt
+				type(position_in_space), intent(out) :: points(nt)
+				real(8) mincos, maxcos, difcos
+				real(8) tmp, tmp2
+				integer i, ii, iii, itmp
+
+!~ 				mincos = cos(maxalphaM)
+!~ 				maxcos = cos(minalphaM)
+!~ 				difcos = maxcos - mincos
+!~ 				i = 1
+!~ 				do i = 1, nt
+!~ 					tmp = rand(0)
+!~ 					points(i)%alpha = acos(mincos + tmp * difcos)
+!~ 					tmp2 = rand(0)
+!~ 					points(i)%beta = tmp2 * twopi
+!~ 				enddo
+
+				points(1)%alpha = 179d0 * deg2rad
+				points(1)%beta = 0d0
+				iii = 2
+				write(*,*) 'n lat circles =', int((maxalphaM - minalphaM) * rm / griddist) + 1
+				write(*,*) 'nn =', nt, points(nt)%alpha
+				do i = 1, int((maxalphaM - minalphaM) * rm / griddist) + 1
+					itmp = int(twopi * sin(latdist * i) * rm / griddist) + 1
+!~ 					write(*,*) i, itmp, iii
+					do ii = 1, itmp
+						points(iii)%alpha = pi - latdist * i
+						points(iii)%beta = ii * twopi / itmp
+						iii = iii + 1
+					enddo
+				enddo
+!~ 						write(*,*) iii
+!~ 						stop
+
+				do i = 1, nt
+					points(i)%rvector(3) = cos(points(i)%alpha)
+					points(i)%rvector(1) = sin(points(i)%alpha) * cos(points(i)%beta)
+					points(i)%rvector(2) = sin(points(i)%alpha) * sin(points(i)%beta)
+					points(i)%rvector = points(i)%rvector * (rm + 100d3)
+					points(i)%r = norma3d(points(i)%rvector)
+					points(i)%r_scaled = points(i)%r / rm
+					points(i)%compute = .TRUE.
+				enddo
+
+			end subroutine get_surface_points
+
+
+
+			subroutine get_flyby_data(fnum, flybytr, outfile, rmin, rmax, rminsalt, rmaxsalt, varfact)
+				real, intent(in) :: fnum
+				character(*), intent(out) :: flybytr, outfile
+				real(8), intent(out) :: rmin, rmax, rminsalt, rmaxsalt, varfact
+				call define_flyby_params(fnum, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
+				outfile = flybytr
+			end subroutine get_flyby_data
 
 			subroutine define_flyby_params(fnum, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
 				use const
@@ -121,6 +285,14 @@ module inputdata
 				real(8), intent(out) :: rmin, rmax, rminsalt, rmaxsalt, varfact
 				real(8) fR
 
+				if(fnum == 0.1 .or. fnum == 0.2 .or. fnum == 0.4) then
+					flybytr = './input_data_files/vertical_plane.dat'
+					rmin = 0.1d0
+					rmax = Rg_upperlim
+					rminsalt = 0.1d0
+					rmaxsalt = Rg_upperlim
+					varfact = 1d0
+				endif
 				if(fnum == 5.0) then
 					flybytr = './input_data_files/Cassini_E5_flyby.dat'
 					rmin = 0.2d0
