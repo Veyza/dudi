@@ -66,9 +66,13 @@ program plume_vert_slice
 		endif
 		! type1: salt-poor dust from jets (sd=1)
 		call get_jets(jets, Njets, './input_data_files/vertical_jets.dat', 1, varfact, rmin, rmax)
+		production_salt_poor = 0d0
 		do i = 1, Njets
 			production_salt_poor = production_salt_poor + jets(i)%production_rate
 		enddo
+		call mass_production(mass, 1, 0.1d0, Rg_upperlim)
+		mass_salt_poor = mass * production_salt_poor * varfact
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
@@ -92,12 +96,20 @@ program plume_vert_slice
 		! type3: salt-rich dust from jets (sd=3) + diffuse sources
 		call get_jets(jets, Njets, './input_data_files/vertical_jets.dat', 3, varfact, rminsalt, rmaxsalt)
 		call get_diffuse_sources(difsources, Ndsources, './input_data_files/diffuse_sources.dat', varfact, rminsalt, rmaxsalt)
+
 		do i = 1, Njets
 			production_salt_rich_jets = production_salt_rich_jets + jets(i)%production_rate
 		enddo
+		production_salt_rich = production_salt_rich_jets
 		do i = 1, Ndsources
 			production_salt_rich = production_salt_rich + difsources(i)%production_rate
 		enddo
+		call mass_production(mass, 3, rmin, Rg_upperlim)
+		mass_salt_rich = mass * production_salt_rich * varfact
+		write(*,*) mass
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich', mass_salt_rich, '[kg/s]'
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
+			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
@@ -139,9 +151,13 @@ program plume_vert_slice
 		endif
 		! type1: salt-poor dust from jets (sd=1)
 		call get_jets(jets, Njets, './input_data_files/vertical_jets.dat', 1, varfact, rmin, rmax)
+		production_salt_poor = 0d0
 		do i = 1, Njets
 			production_salt_poor = production_salt_poor + jets(i)%production_rate
 		enddo
+		call mass_production(mass, 1, 0.1d0, Rg_upperlim)
+		mass_salt_poor = mass * production_salt_poor * varfact
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
@@ -164,9 +180,16 @@ program plume_vert_slice
 		do i = 1, Njets
 			production_salt_rich_jets = production_salt_rich_jets + jets(i)%production_rate
 		enddo
+		production_salt_rich = production_salt_rich_jets
 		do i = 1, Ndsources
 			production_salt_rich = production_salt_rich + difsources(i)%production_rate
 		enddo
+		call mass_production(mass, 3, rmin, Rg_upperlim)
+		mass_salt_rich = mass * production_salt_rich * varfact
+		write(*,*) mass
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich', mass_salt_rich, '[kg/s]'
+		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
+			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
@@ -214,6 +237,9 @@ program plume_vert_slice
 		do i = 1, Ndsources
 			production_salt_rich = production_salt_rich + difsources(i)%production_rate
 		enddo
+		write(*,*) 'production rate of gas'
+		write(*,*) 'jets', production_salt_poor * H2Omass, 'kg/s'
+		write(*,*) 'diffuse sources', production_salt_rich * H2Omass, 'kg/s'
 		do i_s = 1, Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
@@ -246,28 +272,6 @@ program plume_vert_slice
 			!$OMP END PARALLEL
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
-	endif
-
-	! production rate summary
-	write(*,'(4(e10.4, x) f8.4)') production_salt_poor, production_salt_rich, &
-		production_salt_rich_jets, production_salt_rich - production_salt_rich_jets
-
-	if(fnum == 0.1 .or. fnum == 0.4) then
-		call mass_production(mass, 1, 0.1d0, Rg_upperlim)
-		mass_salt_poor = mass * production_salt_poor * varfact
-		call mass_production(mass, 3, rmin, Rg_upperlim)
-		mass_salt_rich = mass * production_salt_rich * varfact
-		write(*,*) mass
-		write(*,*) 'mass salt poor', mass_salt_poor
-		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
-		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich', mass_salt_rich, '[kg/s]'
-		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
-			mass * production_salt_rich_jets * varfact, '[kg/s]'
-	endif
-	if(fnum == 0.2) then
-		write(*,*) 'production rate of gas'
-		write(*,*) 'jets', production_salt_poor * H2Omass, 'kg/s'
-		write(*,*) 'diffuse sources', production_salt_rich * H2Omass, 'kg/s'
 	endif
 
 	type1 = type1 * real(varfact, kind=kind(type1))
