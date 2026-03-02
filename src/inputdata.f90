@@ -111,22 +111,28 @@ module inputdata
 
 			end subroutine get_diffuse_sources
 
-			subroutine read_sources_params(sources, Ns, fname, rmin, rmax, rminsalt, rmaxsalt, varfact)
+
+			! gas jets: 100 jets with gas-specific sd, ud, and production rate
+			subroutine get_gas_jets(jets, Njets, fname, rmin, rmax)
 				use const
 				use define_types
 				implicit none
-				integer, intent(in) :: Ns
-				type(source_properties), intent(out) :: sources(Ns)
+				integer, intent(in) :: Njets
+				type(source_properties), intent(out) :: jets(Njets)
 				character(*), intent(in) :: fname
-				real(8), intent(in) :: rmin, rmax, rminsalt, rmaxsalt, varfact
-				integer Njets
-				Njets = (Ns - 160) / 3
-				call get_jets(sources(1:Njets), Njets, fname, 1, varfact, rmin, rmax)
-				call get_diffuse_sources(sources(Njets+1:Ns), Ns - Njets, &
-				                        './input_data_files/diffuse_sources.dat', varfact, rminsalt, rmaxsalt)
-			end subroutine read_sources_params
+				real(8), intent(in) :: rmin, rmax
+				integer i
+				call get_jets(jets, Njets, fname, 1, 1d0, rmin, rmax)
+				do i = 1, Njets
+					jets(i)%ud%ud_shape = 0
+					jets(i)%ud%umin = jets(i)%ud%umax - 20d0
+					jets(i)%sd = 0
+					jets(i)%production_rate = 1.492537d27
+				enddo
+			end subroutine get_gas_jets
 
-			subroutine get_gas_plume(sources, Ns, fname, rmin, rmax, sdnorm)
+			! gas diffuse sources: 160 sources with gas-specific sd, ud, and production rate
+			subroutine get_gas_diffuse_sources(sources, Ns, fname, rmin, rmax)
 				use const
 				use define_types
 				implicit none
@@ -134,15 +140,15 @@ module inputdata
 				type(source_properties), intent(out) :: sources(Ns)
 				character(*), intent(in) :: fname
 				real(8), intent(in) :: rmin, rmax
-				real(8), intent(out) :: sdnorm(3)
-				integer Njets
-				sdnorm = 1d0
-				Njets = (Ns - 160) / 3
-				call get_jets(sources(1:Njets), Njets, fname, &
-				             1, 1d0, rmin, rmax)
-				call get_diffuse_sources(sources(Njets+1:Ns), Ns - Njets, &
-				                        './input_data_files/diffuse_sources.dat', 1d0, rmin, rmax)
-			end subroutine get_gas_plume
+				integer i
+				call get_diffuse_sources(sources, Ns, fname, 1d0, rmin, rmax)
+				do i = 1, Ns
+					sources(i)%ud%ud_shape = 0
+					sources(i)%ud%umin = sources(i)%ud%umax - 20d0
+					sources(i)%sd = 0
+					sources(i)%production_rate = 0.9323583d26
+				enddo
+			end subroutine get_gas_diffuse_sources
 
 			subroutine vert_sect(points, nt)
 				use const
@@ -227,17 +233,6 @@ module inputdata
 				real(8) tmp, tmp2
 				integer i, ii, iii, itmp
 
-!~ 				mincos = cos(maxalphaM)
-!~ 				maxcos = cos(minalphaM)
-!~ 				difcos = maxcos - mincos
-!~ 				i = 1
-!~ 				do i = 1, nt
-!~ 					tmp = rand(0)
-!~ 					points(i)%alpha = acos(mincos + tmp * difcos)
-!~ 					tmp2 = rand(0)
-!~ 					points(i)%beta = tmp2 * twopi
-!~ 				enddo
-
 				points(1)%alpha = 179d0 * deg2rad
 				points(1)%beta = 0d0
 				iii = 2
@@ -252,8 +247,6 @@ module inputdata
 						iii = iii + 1
 					enddo
 				enddo
-!~ 						write(*,*) iii
-!~ 						stop
 
 				do i = 1, nt
 					points(i)%rvector(3) = cos(points(i)%alpha)
@@ -268,14 +261,6 @@ module inputdata
 			end subroutine get_surface_points
 
 
-
-			subroutine get_flyby_data(fnum, flybytr, outfile, rmin, rmax, rminsalt, rmaxsalt, varfact)
-				real, intent(in) :: fnum
-				character(*), intent(out) :: flybytr, outfile
-				real(8), intent(out) :: rmin, rmax, rminsalt, rmaxsalt, varfact
-				call define_flyby_params(fnum, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
-				outfile = flybytr
-			end subroutine get_flyby_data
 
 			subroutine define_flyby_params(fnum, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
 				use const

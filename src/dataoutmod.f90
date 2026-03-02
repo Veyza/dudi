@@ -136,26 +136,21 @@ module dataoutmod
 
 
 
-			subroutine composition_matrix_out(t1, t2, t3, nt, fnum)
-				real, intent(in) :: t1(nt, nt), t2(nt, nt), t3(nt,nt)
+			subroutine composition_matrix_out(salt_poor, salt_rich, nt, fnum)
+				real, intent(in) :: salt_poor(nt, nt), salt_rich(nt, nt)
 				integer, intent(in) :: nt
 				real, intent(in) :: fnum
 				integer i
 
 				if(fnum == 0.4) then
-					open(111, file = './results/type1_0_plane_close.dat', status = 'replace')
+					open(111, file = './results/salt_poor_0_plane_close.dat', status = 'replace')
 						do i = 1, nt
-							write(111,*) t1(i,:)
+							write(111,*) salt_poor(i,:)
 						enddo
 					close(111)
-					open(121, file = './results/type2_0_plane_close.dat', status = 'replace')
+					open(131, file = './results/salt_rich_0_plane_close.dat', status = 'replace')
 						do i = 1, nt
-							write(121,*) t2(i,:)
-						enddo
-					close(121)
-					open(131, file = './results/type3_0_plane_close.dat', status = 'replace')
-						do i = 1, nt
-							write(131,*) t3(i,:)
+							write(131,*) salt_rich(i,:)
 						enddo
 					close(131)
 				endif
