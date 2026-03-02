@@ -51,24 +51,6 @@ module TwoBody_fun
             psi = asin(hh / s%r / u)
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if(is_nan_r8(psi) .or. is_zero_r8(abs(psi-halfpi), 1d-8)) then
-                if(is_nan_r8(psi)) then
-                    write(666,*) 'Apu << sin(psi) =', hh / s%r / u, 'corrections applied'
-                    N_of_warnings = N_of_warnings + 1
-                    if(N_of_warnings > maxNofWarnings) then
-                        write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                        write(*,*) 'CHECK FILE fort.666'
-                        stop
-                    endif
-                endif
-                if(abs(psi-halfpi) < 1d-8) then
-                    write(666,*) 'psi is close to pi/2, corrections applied'
-                    N_of_warnings = N_of_warnings + 1
-                    if(N_of_warnings > maxNofWarnings) then
-                        write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                        write(*,*) 'CHECK FILE fort.666'
-                        stop
-                    endif
-                endif
                 psi = halfpi - 1d-5
             endif
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -135,16 +117,16 @@ module TwoBody_fun
 
                 numder = (-dphi1 + 8d0 * dphi2 - 8d0 * dphi3 + dphi4) / 12d0 / delta
                 numder = (dphi2 - dphi3) / 2d0 / delta
-                write(666,*) 'the derivative d\Delta\phi/d\theta was ', &
-                                'obtained numerically because the analytical ', &
-                                'expression contains numerically difficult parts'
                 ddphidtheta = numder
-                N_of_warnings = N_of_warnings + 1
-                if(N_of_warnings > maxNofWarnings) then
-                    write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                    write(*,*) 'CHECK FILE fort.666'
-                    stop
-                endif
+                ! write(666,*) 'the derivative d\Delta\phi/d\theta was ', &
+                !                 'obtained numerically because the analytical ', &
+                !                 'expression contains numerically difficult parts'
+                ! N_of_warnings = N_of_warnings + 1
+                ! if(N_of_warnings > maxNofWarnings) then
+                !     write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
+                !     write(*,*) 'CHECK FILE fort.666'
+                !     stop
+                ! endif
             endif
 
 
@@ -684,7 +666,7 @@ module TwoBody_fun
                         theta = -777d0
                     endif
 
-                    if(.not. solved .and. theta(i) > 0d0) then
+                    if(.not. solved .and. theta(i) > 0d0 .and. (1d0 - ee(i)) > 1d-5) then
                         write(666,*) '   '
                         write(666,*) 'Theta was found with an insufficient accuracy of', &
                                         discr, 'from the geometry of ellipse'
@@ -740,7 +722,7 @@ module TwoBody_fun
         subroutine control(theta, ee, phi, vv, r0, rm0, dphi_is_large, solved, discr)
             use const
             implicit none
-            real(8), parameter :: eps = 1d-4
+            real(8), parameter :: eps = 1d-3
             real(8) hh, hh2, ee1, cosp, cospm, phi1, phi1m, dphi, Ekep
             real(8), intent(in) :: vv, phi, ee, r0, rm0, theta
             logical, intent(out) :: solved
@@ -768,44 +750,16 @@ module TwoBody_fun
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             if(cosp > 1d0) then
                 cosp = 1d0
-                write(666,*) 'cos(phi) > 1 obtained, corrections applied'
-                N_of_warnings = N_of_warnings + 1
-                if(N_of_warnings > maxNofWarnings) then
-                    write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                    write(*,*) 'CHECK FILE fort.666'
-                    stop
-                endif
             endif
             if(cosp < -1d0) then
                 cosp = -1d0
-                write(666,*) 'cos(phi) < -1 obtained, corrections applied'
-                N_of_warnings = N_of_warnings + 1
-                if(N_of_warnings > maxNofWarnings) then
-                    write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                    write(*,*) 'CHECK FILE fort.666'
-                    stop
-                endif
             endif
 
             if(cospm > 1d0) then
                 cospm = 1d0
-                write(666,*) 'cos(phiM) > 1 obtained, corrections applied'
-                N_of_warnings = N_of_warnings + 1
-                if(N_of_warnings > maxNofWarnings) then
-                    write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                    write(*,*) 'CHECK FILE fort.666'
-                    stop
-                endif
             endif
             if(cospm < -1d0) then
                 cospm = -1d0
-                write(666,*) 'cos(phiM) < -1 obtained, corrections applied'
-                N_of_warnings = N_of_warnings + 1
-                if(N_of_warnings > maxNofWarnings) then
-                    write(*,*) 'THERE WERE TOO MANY WARNINGS --', N_of_warnings
-                    write(*,*) 'CHECK FILE fort.666'
-                    stop
-                endif
             endif
             !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             phi1 = acos(cosp)
