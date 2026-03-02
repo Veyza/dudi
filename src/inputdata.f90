@@ -180,7 +180,7 @@ module inputdata
 			end subroutine vert_sect
 
 
-			subroutine get_flyby_plane(points, nt, r1, r2, fnum)
+			subroutine get_flyby_plane(points, nt, r1, r2, fnum, cellsize)
 				use const
 				use help
 				use define_types
@@ -188,13 +188,11 @@ module inputdata
 				integer, intent(in) :: nt
 				type(position_in_space), intent(out) :: points(nt, nt)
 				real, intent(in) :: fnum
-				real(8), intent(in) :: r1(3), r2(3)
+				real(8), intent(in) :: r1(3), r2(3), cellsize
 				integer i, ii
 				real(8) xtmp(3), ytmp(3), ntmp(3)
-				real(8) cellsize
 
 				if(fnum == 0.2 .or. fnum == 0.1 .or. fnum == 0.4) then
-					cellsize = 1d3
 					! vector normal to the plane containing r1 and r2
 					ntmp = -vector_product(r1, r2)
 					ntmp = ntmp / norma3d(ntmp)

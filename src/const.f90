@@ -59,8 +59,8 @@ module const
 		! order of Gaussian quadrature for integration
 		! of n(r, alpha, beta, v, theta, lambda) over velocity (v)
 		! separately for bound and unbound particles
-		integer, parameter :: order_v_el = 20
-		integer, parameter :: order_v_hy = 20
+		integer, parameter :: order_v_el = 10
+		integer, parameter :: order_v_hy = 10
 
 		integer :: N_of_warnings = 0				! warnings counter
 		integer, parameter :: maxNofWarnings = 1000	! maximum number of

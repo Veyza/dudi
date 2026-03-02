@@ -114,17 +114,29 @@ module dataoutmod
 
 			end subroutine spt_flux_out
 
-			subroutine vertical_slicematrix_out(resmat, nt, fnum)
+			subroutine vertical_slicematrix_out(resmat, nt, fnum, cellsize)
 				real, intent(in) :: resmat(nt, nt)
 				integer, intent(in) :: nt
 				real, intent(in) :: fnum
+				real(8), intent(in) :: cellsize
 				integer i
+				character(len = 80) fname
 
 				if(fnum == 0.1) then
-					open(111, file = './results/dens_in_0_plane_dust.dat', status = 'replace')
+					if(cellsize < 2.9d3) then
+						fname = './results/dens_in_0_plane_dust_close.dat'
+					else
+						fname = './results/dens_in_0_plane_dust.dat'
+					endif
+					open(111, file = fname, status = 'replace')
 				endif
 				if(fnum == 0.2) then
-					open(111, file = './results/dens_in_0_plane_gas.dat', status = 'replace')
+					if(cellsize < 2.9d3) then
+						fname = './results/dens_in_0_plane_gas_close.dat'
+					else
+						fname = './results/dens_in_0_plane_gas.dat'
+					endif
+					open(111, file = fname, status = 'replace')
 				endif
 					do i = 1, nt
 						write(111,*) resmat(i,:)
@@ -136,19 +148,28 @@ module dataoutmod
 
 
 
-			subroutine composition_matrix_out(salt_poor, salt_rich, nt, fnum)
+			subroutine composition_matrix_out(salt_poor, salt_rich, nt, fnum, cellsize)
 				real, intent(in) :: salt_poor(nt, nt), salt_rich(nt, nt)
 				integer, intent(in) :: nt
 				real, intent(in) :: fnum
+				real(8), intent(in) :: cellsize
 				integer i
+				character(len = 80) fname_poor, fname_rich
 
 				if(fnum == 0.4) then
-					open(111, file = './results/salt_poor_0_plane_close.dat', status = 'replace')
+					if(cellsize < 2.9d3) then
+						fname_poor = './results/salt_poor_0_plane_close.dat'
+						fname_rich = './results/salt_rich_0_plane_close.dat'
+					else
+						fname_poor = './results/salt_poor_0_plane.dat'
+						fname_rich = './results/salt_rich_0_plane.dat'
+					endif
+					open(111, file = fname_poor, status = 'replace')
 						do i = 1, nt
 							write(111,*) salt_poor(i,:)
 						enddo
 					close(111)
-					open(131, file = './results/salt_rich_0_plane_close.dat', status = 'replace')
+					open(131, file = fname_rich, status = 'replace')
 						do i = 1, nt
 							write(131,*) salt_rich(i,:)
 						enddo

@@ -21,6 +21,7 @@ program plume_vert_slice
 	! number of points in the plane
 	integer, parameter :: nt = 300
 	real(8), parameter :: tnow = 0d0
+	real(8), parameter :: cellsize = 3d3
 	integer i_s, i, ii
 	real, allocatable, dimension(:,:) :: type1, type3
 	real, allocatable, dimension(:,:,:) :: tmp_res
@@ -50,7 +51,7 @@ program plume_vert_slice
 	beta2 = 225d0 * deg2rad
 	call get_flyby_plane(point, nt, &
 	(/sin(alphatmp) * cos(beta1), sin(alphatmp) * sin(beta1), cos(alphatmp)/), &
-	(/sin(alphatmp2) * cos(beta2), sin(alphatmp2) * sin(beta2), cos(alphatmp2)/), fnum)
+	(/sin(alphatmp2) * cos(beta2), sin(alphatmp2) * sin(beta2), cos(alphatmp2)/), fnum, cellsize)
 
 	type1 = 0d0
 	type3 = 0d0
@@ -74,7 +75,7 @@ program plume_vert_slice
 		mass_salt_poor = mass * production_salt_poor * varfact
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
-			write(*,*) 'jet', i_s
+			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -112,7 +113,7 @@ program plume_vert_slice
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
 			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
-			write(*,*) 'jet', i_s
+			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -129,7 +130,7 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
-			write(*,*) 'diffuse source', i_s
+			write(*,*) 'diffuse source', i_s, '/', Ndsources
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
@@ -162,7 +163,7 @@ program plume_vert_slice
 		mass_salt_poor = mass * production_salt_poor * varfact
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
-			write(*,*) 'jet', i_s
+			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -195,7 +196,7 @@ program plume_vert_slice
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
 			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
-			write(*,*) 'jet', i_s
+			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -212,7 +213,7 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
-			write(*,*) 'diffuse source', i_s
+			write(*,*) 'diffuse source', i_s, '/', Ndsources
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
@@ -247,7 +248,7 @@ program plume_vert_slice
 		write(*,*) 'jets', production_salt_poor * H2Omass, 'kg/s'
 		write(*,*) 'diffuse sources', production_salt_rich * H2Omass, 'kg/s'
 		do i_s = 1, Njets
-			write(*,*) 'jet', i_s
+			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -264,7 +265,7 @@ program plume_vert_slice
 			type1 = type1 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
-			write(*,*) 'diffuse source', i_s
+			write(*,*) 'diffuse source', i_s, '/', Ndsources
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
@@ -286,11 +287,11 @@ program plume_vert_slice
 	type3 = type3 * real(varfact, kind=kind(type1))
 
 	if(fnum == 0.2) then
-		call vertical_slicematrix_out((type1+type3) * H2Omass, nt, fnum)
+		call vertical_slicematrix_out((type1+type3) * H2Omass, nt, fnum, cellsize)
 	else if(fnum == 0.1) then
-		call vertical_slicematrix_out(type1+type3, nt, fnum)
+		call vertical_slicematrix_out(type1+type3, nt, fnum, cellsize)
 	else if(fnum == 0.4) then
-		call composition_matrix_out(type1, type3, nt, fnum)
+		call composition_matrix_out(type1, type3, nt, fnum, cellsize)
 	endif
 
 	deallocate(type1, type3, tmp_res, point)
