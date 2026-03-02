@@ -74,6 +74,7 @@ program plume_vert_slice
 		mass_salt_poor = mass * production_salt_poor * varfact
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
+			write(*,*) 'jet', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -111,6 +112,7 @@ program plume_vert_slice
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
 			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
+			write(*,*) 'jet', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -127,6 +129,7 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
+			write(*,*) 'diffuse source', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
@@ -159,6 +162,7 @@ program plume_vert_slice
 		mass_salt_poor = mass * production_salt_poor * varfact
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-poor', mass_salt_poor, '[kg/s]'
 		do i_s = 1, Njets
+			write(*,*) 'jet', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -191,6 +195,7 @@ program plume_vert_slice
 		write(*,'(A35, 2x, f10.3, 2x, A6)') 'overall mass of salt-rich in jets', &
 			mass * production_salt_rich_jets * varfact, '[kg/s]'
 		do i_s = 1, Njets
+			write(*,*) 'jet', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -207,6 +212,7 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
+			write(*,*) 'diffuse source', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
@@ -241,6 +247,7 @@ program plume_vert_slice
 		write(*,*) 'jets', production_salt_poor * H2Omass, 'kg/s'
 		write(*,*) 'diffuse sources', production_salt_rich * H2Omass, 'kg/s'
 		do i_s = 1, Njets
+			write(*,*) 'jet', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, jets, tmp_res)
 			!$OMP DO
@@ -257,6 +264,7 @@ program plume_vert_slice
 			type1 = type1 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 		do i_s = 1, Ndsources
+			write(*,*) 'diffuse source', i_s
 			!$OMP PARALLEL PRIVATE(i) &
 			!$OMP SHARED(i_s, point, difsources, tmp_res)
 			!$OMP DO
