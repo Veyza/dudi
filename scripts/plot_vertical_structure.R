@@ -1,167 +1,218 @@
-composition_in_plane <- function(fnum, close = F){
-	library(RColorBrewer)
-	library(fields)
-	library("viridis")
-	library(latex2exp)
-	library(plotrix)
-	fnames <- character(2)
-	if(close){
-		fnames[1] <- "./results/salt_poor_0_plane_close.dat"
-        fnames[2] <- "./results/salt_rich_0_plane_close.dat"
-	}else{
-		fnames[1] <- "./results/salt_poor_0_plane.dat"
-        fnames[2] <- "./results/salt_rich_0_plane.dat"
-	}
+# Shared helper: draw a filled-contour plot on a rectangular grid
+.plot_plane <- function(z, x_range, y_range, levels, cols,
+                        filename, main, key_labels = NULL,
+                        xlab = "km", ylab = "km", draw_circle = FALSE) {
+  nx <- nrow(z); ny <- ncol(z)
+  x_seq <- seq(x_range[1], x_range[2], length.out = nx)
+  y_seq <- seq(y_range[1], y_range[2], length.out = ny)
 
-	t1 <- as.matrix(read.table(fnames[1]))
-	t3 <- as.matrix(read.table(fnames[2]))
-	r3 <- matrix(0, nrow = nrow(t1), ncol = ncol(t1))
+  png(filename, width = 900, height = 800)
+  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5), cex.axis = 2)
 
+  graphics::filled.contour(
+    x = x_seq, y = y_seq, z = z,
+    levels = levels,
+    col    = cols,
+    plot.title = {
+      par(cex.main = 2.5, cex.lab = 2.5)
+      title(main = main, xlab = xlab, ylab = ylab)
+    },
+    plot.axes = {
+      axis(1); axis(2)
+      if (draw_circle) {
+        symbols(x = -3, y = 0, circles = 252, inches = FALSE, add = TRUE,
+                bg = "darkgrey", fg = "darkgrey")
+      }
+    },
+    key.axes  = {
+      if (!is.null(key_labels)) {
+        axis(4, at = levels, labels = key_labels, cex.axis = 1.5)
+      } else {
+        axis(4, cex.axis = 1.5)
+      }
+    }
+  )
 
-    nn <- length(t1[1,])
+  dev.off()
+}
 
-	s <- t1 + t3
+## 1) Composition: salt_rich / (salt_rich + salt_poor) -----------------------
 
-	for(i in seq_along(t1[1,])){
-		for(ii in seq_along(t3[,1])){
-			if(s[ii,i] > 1e-22){
-				r3[ii,i] <- t3[ii,i] / s[ii,i] * 100
-			}else{
-				r3[ii,i] <- 0.0
-			}
-		}
-	}
-	print(max(r3))
-	if(close){
-		r3 <- r3[,15:150]
-	}
+composition_in_plane <- function(close = FALSE) {
+  # Plot salt-rich fraction in the E0 vertical plane
 
-	magma <- viridis::magma(256)
-	mako  <- viridis::mako(256)
+  library(RColorBrewer)
 
-	#lev <- sort(c(2e-8, 1e-8, 8e-9, 6.5e-9, 5e-9, 3e-9, 2e-9, 1e-9, 5e-10, 1e-10, 1e-11, 1e-12, 1e-13)) * 1e-1
-	deg = 1.0 / 3.0
+  if (close) {
+    salt_poor_file <- "./results/salt_poor_0_plane_close.dat"
+    salt_rich_file <- "./results/salt_rich_0_plane_close.dat"
+    x_range <- c(-150, 150); y_range <- c(237, 372)
+    out_file <- "./results/type3_proportion_close.png"
+  } else {
+    salt_poor_file <- "./results/salt_poor_0_plane.dat"
+    salt_rich_file <- "./results/salt_rich_0_plane.dat"
+    x_range <- c(-450, 450); y_range <- c(0, 900)
+    out_file <- "./results/type3_proportion.png"
+  }
 
-	if(fnum == 0){
-		if(close){
-			lev2 <- c(0, 10, 20, 25, 27, 30, 33, 36, 40, 45, 50, 55, 60, 65, 75)
-			lev3 <- c(5, 10, 17, c(3:9)*10)
-			indlev <- c(1, 2, 3, 4, 5, 7)
-		}else{
-			lev2 <- c(0, 10, 20, 25, 27, 30, 33, 36, 40, 45, 50, 55, 60, 65, 75)
-			lev3 <- c(1:14)*5
-			indlev <- c(1, 2, 3, 5, 7, 9, 11)
-		}
+  sp <- as.matrix(read.table(salt_poor_file))
+  sr <- as.matrix(read.table(salt_rich_file))
+  s_total <- sp + sr
 
-	}
-	if(fnum == 0){
-		if(close){
-			x <- c(-150, 150)
-			y <- c(237,372)
-		}else{
-			x <- c(-450, 450)
-			y <- c(0,900)
-		}
+  frac <- matrix(0, nrow = nrow(sp), ncol = ncol(sp))
+  mask <- s_total > 1e-22
+  frac[mask] <- sr[mask] / s_total[mask] * 100.0
 
+  if (close) {
+    lev <- c(5, 10, 17, seq(30, 90, by = 10))
+  } else {
+    lev <- seq(5, 75, by = 5)
+  }
+  nbin <- length(lev) - 1
+  cols <- colorRampPalette(RColorBrewer::brewer.pal(9, "YlOrRd"))(nbin)
 
-	#png(paste0("type3_proportion_E", paste0(as.character(fnum), ".png")), width = 900, height = 800)
-	if(close){
-		png("./results/type3_proportion_close.png", width = 900, height = 600)
-	}else{
-		png("./results/type3_proportion.png", width = 900, height = 800)
-	}
+  .plot_plane(
+    z           = frac,
+    x_range     = x_range,
+    y_range     = y_range,
+    levels      = lev,
+    cols        = cols,
+    filename    = out_file,
+    main        = "salt-rich dust fraction",
+    key_labels  = lev,
+    xlab        = "km",
+    ylab        = "km",
+    draw_circle = TRUE
+  )
+}
 
-		#mtitle <- paste0("type III percentage in E", paste0(as.character(fnum), " flyby plane"))
-		mtitle = " "
-		par(oma = c(2.0, 3.0, 2.0, 3), mar=c(4, 5, 6, 3))
-		par(cex.axis = 2)
-		graphics::filled.contour(x = seq(x[1], x[2], length.out = nrow(r3)), y = seq(from = y[1], to = y[2], length.out = ncol(r3)), r3, col = magma, levels = lev3,
-	               plot.title = {par(cex.main=2.5, cex.lab = 2.5); title(main = mtitle,
-	                                  xlab = "", ylab = " ")},
-	               key.title = {par(cex.main=2)},
-	               plot.axes = {axis(1); axis(2);
-	               	#draw.circle(-1.5, y[2]*0.374, radius = 252, col = "lightgrey", border = "darkgrey");
-	                if(fnum == 5 | fnum == 17){
-	                	lines(xfl, yfl, lty = "longdash", lwd = 3, col = "grey");
-	                	for(i in seq_along(tmarks)){
-		            		points(tticks, pch = 3, cex = 3, col = "grey")
-		            		if(fnum == 5){
-		            			text(tticks[i,1]-40, tticks[i,2]-40, tmarks[i], cex = 2.5, col = "grey")
-		            		}
-		            		if(fnum == 17){
-		            			text(tticks[i,1], tticks[i,2]-35, tmarks[i], cex = 2.5, col = "grey")
-		            		}
-	            	}
-	                }
-	            contour(x = seq(x[1], x[2], length.out = nrow(r3)), y = seq(from = y[1], to = y[2], length.out = ncol(r3)),
-			               z = r3,
-			               zlim = range(r3, finite = TRUE),
-			               levels = lev3[indlev],
-			               labels = paste(c(as.character(lev3[indlev])), "%"),
-			               drawlabels = ! close,
-			               method = "flattest",
-			               lwd = 2, col = "white", labcex = 1.8,
-							add = T);
-	            if(close){
-	            	draw.circle(1, 120, radius = 192.5, col = "azure4", border = "azure4");
-	            	text(59, 362, paste(as.character(lev3[1]), "%"), col = "white", cex = 1.8)
-					text(-117, 310, paste(as.character(lev3[2]), "%"), col = "white", cex = 1.8)
-					text(125, 260, paste(as.character(lev3[3]), "%"), col = "white", cex = 1.8)
-            	}else{
-            		draw.circle(-1.5, -12, radius = 257, col = "azure4", border = "azure4");
-            	}
+## 2) Number density: salt_poor + salt_rich ----------------------------------
 
-	            }
-	               #key.axes = axis(side = 4, cex.axis = 2, at = lev, labels = as.character(lev^(1.0/deg)))
-	               #key.axes = axis(side = 4, cex.axis = 2, at = lev, labels = as.character(lev))
+number_density_in_plane <- function(close = FALSE) {
+  # Plot total number density in the E0 vertical plane
 
-	         	)
-		mtext("km from equatorial plane", side = 2, outer = TRUE, line = 0, cex = 2.5)
-		mtext("km from polar axis projection         ", side = 1, outer = TRUE, line = 0, cex = 2.5)
-		mtext("salt-rich dust proportion    ", side = 3, outer = TRUE, line = -1.5, cex = 3.5)
-		mtext("Alexandria                       Damascus        ", side = 3, outer = TRUE, line = -4.7, cex = 2)
-		#mtext("                                                                                                             %", side = 3, outer = T, line = -5.5, cex = 1.8)
-		if(close){
-			arrows(-45, 375, -150, 375, xpd = TRUE, angle = 15)
-			arrows(5, 375, 100, 375, xpd = TRUE, angle = 15)
-		}else{
-			arrows(-150, 915, -370, 915, xpd = TRUE, angle = 15)
-			arrows(0, 915, 220, 915, xpd = TRUE, angle = 15)
-		}
+  library(RColorBrewer)
 
-	dev.off()
+  if (close) {
+    salt_poor_file <- "./results/salt_poor_0_plane_close.dat"
+    salt_rich_file <- "./results/salt_rich_0_plane_close.dat"
+    x_range <- c(-150, 150); y_range <- c(237, 372)
+    out_file <- "./results/number_density_E0_close.png"
+  } else {
+    salt_poor_file <- "./results/salt_poor_0_plane.dat"
+    salt_rich_file <- "./results/salt_rich_0_plane.dat"
+    x_range <- c(-450, 450); y_range <- c(0, 900)
+    out_file <- "./results/number_density_E0.png"
+  }
 
-	}
+  sp <- as.matrix(read.table(salt_poor_file))
+  sr <- as.matrix(read.table(salt_rich_file))
+  s  <- sp + sr
 
-	lev0 <- c(0.1, 0.3, 1, 10, 100, 200, 300, 500, 1000, 2000, 3000, 4000)
-	png(paste0("number_density_E", paste0(as.character(fnum), ".png")), width = 900, height = 800)
-		par(oma = c(2.0, 3.0, 0.0, 0.5), mar=c(4, 5, 4, 1.5))
-		par(cex.axis = 2)
-		graphics::filled.contour(x = seq(from = x[1], to = x[2], length.out = nrow(s)), y = seq(from = y[1], to = y[2], length.out = ncol(s)), s, col = mako, levels = lev0,
-	               plot.title = {par(cex.main=2.5, cex.lab = 2.5);title(main = paste0("number density in E", paste0(as.character(fnum), " flyby plane")),
-	                                  xlab = "km", ylab = " ")},
-	               key.title = {par(cex.main=2)},
-	               plot.axes = {axis(1); axis(2); cex.axes = 2;
-	               	#draw.circle(-1.5, y[2]*0.374, radius = 252, col = "lightgrey", border = "grey");
-	               	draw.circle(-1.5, -0, radius = 252, col = "lightgrey", border = "darkgrey");
-	               	if(fnum == 5 | fnum == 17){
-	                	lines(xfl, yfl, lty = "longdash", lwd = 3, col = "grey");
-	                	for(i in seq_along(tmarks)){
-		            		points(tticks, pch = 3, cex = 3, col = "grey")
-		            		if(fnum == 5){
-		            			text(tticks[i,1]-40, tticks[i,2]-40, tmarks[i], cex = 2.5, col = "grey")
-		            		}
-		            		if(fnum == 17){
-		            			text(tticks[i,1], tticks[i,2]-35, tmarks[i], cex = 2.5, col = "grey")
-		            		}
-	            	}
-	                }
-	               }
-	               #key.axes = axis(side = 4, cex.axis = 2, at = lev, labels = as.character(lev^(1.0/deg)))
-	               #key.axes = axis(side = 4, cex.axis = 2, at = lev, labels = as.character(lev))
+  # Your preferred levels; plotted on log10 scale, labels in linear units
+  lev_lin <- c(0.01, 0.1, 0.3, 1, 10, 100, 200, 300, 500,
+               1000, 2000, 3000, 4000)
+  min_lev <- min(lev_lin)
 
-	         	)
-		mtext("km", side = 2, outer = TRUE, line = 0, cex = 2.5)
+  s_pos <- pmax(s, min_lev * 1e-2)
+  z     <- log10(s_pos)
+  lev   <- log10(lev_lin)
 
-	dev.off()
+  nbin <- length(lev) - 1
+  cols <- rev(colorRampPalette(RColorBrewer::brewer.pal(9, "YlGnBu"))(nbin))
+
+  .plot_plane(
+    z           = z,
+    x_range     = x_range,
+    y_range     = y_range,
+    levels      = lev,
+    cols        = cols,
+    filename    = out_file,
+    main        = "number density in E0 flyby plane",
+    key_labels  = lev_lin,
+    xlab        = "km",
+    ylab        = "km",
+    draw_circle = TRUE
+  )
+}
+
+## 3) Dust-to-gas ratio: dust / gas ------------------------------------------
+
+dust2gas_in_plane <- function(close = FALSE) {
+  # Plot dust/gas ratio using vertical_structure outputs:
+  # dust: fnum = 0.1 (dens_in_0_plane_dust*)
+  # gas : fnum = 0.2 (dens_in_0_plane_gas*)
+
+  library(RColorBrewer)
+
+  if (close) {
+    dust_file <- "./results/dens_in_0_plane_dust_close.dat"
+    gas_file  <- "./results/dens_in_0_plane_gas_close.dat"
+    x_range <- c(-150, 150); y_range <- c(237, 372)
+    out_file <- "./results/dust2gas_E0_close.png"
+  } else {
+    dust_file <- "./results/dens_in_0_plane_dust.dat"
+    gas_file  <- "./results/dens_in_0_plane_gas.dat"
+    x_range <- c(-450, 450); y_range <- c(0, 900)
+    out_file <- "./results/dust2gas_E0.png"
+  }
+
+  dust <- as.matrix(read.table(dust_file))
+  gas  <- as.matrix(read.table(gas_file))
+
+  # ratio only where gas > 0, NA elsewhere
+  ratio <- matrix(NA_real_, nrow = nrow(dust), ncol = ncol(dust))
+  mask  <- gas > 1e-22
+  ratio[mask] <- dust[mask] / gas[mask]
+
+  # User‑specified dust/gas levels (linear units)
+  lev_lin <- c(4e-4, 0.00081, 0.0018, 0.0039, 0.008,
+               0.014, 0.023, 0.036, 0.055, 0.08,
+               0.11, 0.145, 0.19, 0.25, 0.5, 0.8, 1.0)
+  min_lev <- min(lev_lin)
+
+  # Log10 for plotting, clip very small positive values
+  ratio_pos <- pmax(ratio, min_lev * 1e-2, na.rm = FALSE)
+  z   <- log10(ratio_pos)
+  lev <- log10(lev_lin)
+
+  # Build grid
+  nx <- nrow(z); ny <- ncol(z)
+  x_seq <- seq(x_range[1], x_range[2], length.out = nx)
+  y_seq <- seq(y_range[1], y_range[2], length.out = ny)
+
+  # Inverted discrete palette (high ratio = light, low ratio = dark)
+  nbin <- length(lev) - 1
+  cols <- rev(colorRampPalette(RColorBrewer::brewer.pal(11, "PuOr"))(nbin))
+
+  png(out_file, width = 900, height = 800)
+  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5), cex.axis = 2)
+
+  # Light‑grey background where gas = 0 (NA in z)
+  plot.new()
+  plot.window(xlim = x_range, ylim = y_range)
+  rect(x_range[1], y_range[1], x_range[2], y_range[2],
+       col = "lightgrey", border = NA)
+
+  # Filled contours for ratio (only where z is finite)
+  graphics::filled.contour(
+    x = x_seq, y = y_seq, z = z,
+    levels = lev,
+    col    = cols,
+    plot.title = {
+      par(cex.main = 2.5, cex.lab = 2.5)
+      title(main = "dust / gas ratio in E0 flyby plane",
+            xlab = "km", ylab = "km")
+    },
+    plot.axes = {
+      axis(1); axis(2)
+      symbols(x = 0, y = 0, circles = 252, inches = FALSE, add = TRUE,
+              bg = "darkgrey", fg = "darkgrey")
+    },
+    key.axes = {
+      axis(4, at = lev, labels = lev_lin, cex.axis = 1.5)
+    }
+  )
+
+  dev.off()
 }
