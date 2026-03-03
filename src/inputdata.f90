@@ -127,7 +127,7 @@ module inputdata
 					jets(i)%ud%ud_shape = 0
 					jets(i)%ud%umin = jets(i)%ud%umax - 20d0
 					jets(i)%sd = 0
-					jets(i)%production_rate = 1.492537d27
+					jets(i)%production_rate = 1.000667d26
 				enddo
 			end subroutine get_gas_jets
 
@@ -146,7 +146,7 @@ module inputdata
 					sources(i)%ud%ud_shape = 0
 					sources(i)%ud%umin = sources(i)%ud%umax - 20d0
 					sources(i)%sd = 0
-					sources(i)%production_rate = 0.9323583d26
+					sources(i)%production_rate = 6.25417d24
 				enddo
 			end subroutine get_gas_diffuse_sources
 
@@ -202,8 +202,14 @@ module inputdata
 					xtmp = vector_product(ytmp, ntmp)
 					do i = 1, nt
 					do ii = 1, nt
-						points(i,ii)%rvector = (nt/2-i-0.5) * xtmp + ytmp/cellsize*222.0d3 &
-						+ (ii) * ytmp + ntmp * 0d0
+						if(cellsize < 2.9d3) then
+							points(i,ii)%rvector = (nt/2-i-0.5) * xtmp + ytmp/cellsize*222.0d3 &
+							+ (ii) * ytmp + ntmp * 0d0
+						else
+							points(i,ii)%rvector = (nt/2-i-0.5) * xtmp &
+							+ (ii) * ytmp + ntmp * 0d0
+						endif
+
 						points(i,ii)%r = norma3d(points(i,ii)%rvector)
 						points(i,ii)%alpha = acos(points(i,ii)%rvector(3) / points(i,ii)%r)
 						points(i,ii)%beta = myatan1(points(i,ii)%rvector(1), points(i,ii)%rvector(2))
