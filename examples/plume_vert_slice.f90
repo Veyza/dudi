@@ -13,8 +13,6 @@ program plume_vert_slice
 	! number of sources (same as flyby_profile)
 	integer, parameter :: Njets = 100
 	integer, parameter :: Ndsources = 160
-	real(8), parameter :: griddist = 2d3
-	real(8), parameter :: latdist = asin(griddist/rm)
 	real(8), parameter :: maxalphaM = pi
 	real(8), parameter :: minalphaM = 155d0 * deg2rad
 	real, parameter :: H2Omass = 2.998e-26
