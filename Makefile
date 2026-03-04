@@ -57,11 +57,12 @@ CORE_SOURCES := \
   $(SRCDIR)/image_construction.f90
 
 # -------- Program sources --------
-FLYBY_PROFILE_SRC       ?= $(EXDIR)/flyby_profile.f90
-VERTICAL_STRUCTURE_SRC  ?= $(EXDIR)/plume_vert_slice.f90
+FLYBY_PROFILE_SRC        ?= $(EXDIR)/flyby_profile.f90
+VERTICAL_STRUCTURE_SRC   ?= $(EXDIR)/plume_vert_slice.f90
+HORIZONTAL_STRUCTURE_SRC ?= $(EXDIR)/plume_horizontal_structure.f90
 
 # -------- Phony targets --------
-.PHONY: all help list clean distclean flyby_profile run-flyby vertical_structure
+.PHONY: all help list clean distclean flyby_profile run-flyby vertical_structure horizontal_structure
 
 # Default: build flyby_profile
 all: flyby_profile
@@ -70,6 +71,7 @@ help:
 	@echo "Build:"
 	@echo "  make flyby_profile"
 	@echo "  make vertical_structure"
+	@echo "  make horizontal_structure"
 	@echo ""
 	@echo "Run:"
 	@echo "  make run-flyby   # run flyby_profile with params 5, 17, 7.1, 7.2, 7.3, 21.1, 21.2, 21.3"
@@ -81,6 +83,7 @@ list:
 	@echo "Core src:               $(CORE_SOURCES)"
 	@echo "FLYBY_PROFILE_SRC:      $(FLYBY_PROFILE_SRC)"
 	@echo "VERTICAL_STRUCTURE_SRC: $(VERTICAL_STRUCTURE_SRC)"
+	@echo "HORIZONTAL_STRUCTURE_SRC: $(HORIZONTAL_STRUCTURE_SRC)"
 
 # Ensure dirs exist
 $(MODDIR) $(BINDIR) $(RESDIR):
@@ -97,6 +100,10 @@ flyby_profile: $(BINDIR)/flyby_profile
 $(BINDIR)/vertical_structure: $(CORE_SOURCES) $(VERTICAL_STRUCTURE_SRC) | $(BINDIR) $(MODDIR)
 	$(FC) $(FFLAGS) -fopenmp -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(VERTICAL_STRUCTURE_SRC) -o $@ $(LDFLAGS) -fopenmp
 vertical_structure: $(BINDIR)/vertical_structure
+
+$(BINDIR)/horizontal_structure: $(CORE_SOURCES) $(HORIZONTAL_STRUCTURE_SRC) | $(BINDIR) $(MODDIR)
+	$(FC) $(FFLAGS) -fopenmp -J$(MODDIR) -I$(MODDIR) $(CORE_SOURCES) $(HORIZONTAL_STRUCTURE_SRC) -o $@ $(LDFLAGS) -fopenmp
+horizontal_structure: $(BINDIR)/horizontal_structure
 
 run-flyby: $(BINDIR)/flyby_profile | $(RESDIR)
 	$(BINDIR)/flyby_profile 5
