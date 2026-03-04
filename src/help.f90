@@ -114,24 +114,24 @@ module help
         integer i, i1
         integer :: i2
         integer, intent(in) :: N
-        
+
         x1 = 1d0
         x2 = 1d0
         i2 = -1
-        
+
         if(xout < x(1)) then
           yout = y(1)
           return
         endif
-        
+
         if(xout > x(N)) then
           yout = y(N)
           return
         endif
-        
+
         i = 1
         i1 = 0
-        do while(i1 == 0 .and. i .lt. N) 
+        do while(i1 == 0 .and. i .lt. N)
           if(xout .lt. x(i+1) .and. xout .ge. x(i)) then
             i1 = i;       i2 = i+1;
             x1 = x(i1);   x2 = x(i2);
@@ -141,8 +141,8 @@ module help
 
         yout = y(i1) + (y(i2) - y(i1)) / (x2 - x1) * (xout - x1)
         return
-        
-      end function LiNTERPOL  
+
+      end function LiNTERPOL
 
 
 
@@ -272,19 +272,23 @@ module help
                 type(position_in_space), intent(in) :: point
                 type(source_properties), intent(in) :: source
                 real(8), intent(out) :: dphi, dbeta, xi
-                real(8) Rsource(3), vtmp(3)
+                real(8) Rsource(3), vtmp(3), tmp
 
                 Rsource = source%rrM / source%r
 
                 ! dphi is an angle between a vector pointing to the source
                 ! and a vector pointing to the spacecraft
-                dphi = acos(dot_product(Rsource, point%rvector) / point%r)
+                tmp = dot_product(Rsource, point%rvector) / point%r
+                if(abs(tmp) > 1d0) tmp = sign(1d0, tmp)
+                dphi = acos(tmp)
 
                 ! dbeta is an angle between proections of the same vectors
                 ! in the longitudinal plane
-                dbeta = acos((Rsource(1) * point%rvector(1) &
+                tmp = (Rsource(1) * point%rvector(1) &
                                     + Rsource(2) * point%rvector(2)) &
-                                    / (norma2d(Rsource(1:2)) * norma2d(point%rvector(1:2))))
+                                    / (norma2d(Rsource(1:2)) * norma2d(point%rvector(1:2)))
+                if(abs(tmp) > 1d0) tmp = sign(1d0, tmp)
+                dbeta = acos(tmp)
 
                 ! xi is an angle between the direction of source symmetry axis
                 ! and the direction from the source position to the spacecraft
@@ -376,7 +380,7 @@ module help
 
                 A(1,:) = t2
                 B(1) = dot_product(t2, M2)
-                
+
                 A(2,1) = -s1(2)
                 A(2,2) = s1(1)
                 A(2,3) = 0d0
