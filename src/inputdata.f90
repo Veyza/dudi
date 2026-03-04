@@ -113,42 +113,116 @@ module inputdata
 
 
 			! gas jets: 100 jets with gas-specific sd, ud, and production rate
-			subroutine get_gas_jets(jets, Njets, fname, rmin, rmax)
+			subroutine get_gas_jets(jets, Njets, fname)
 				use const
 				use define_types
+				use gu
 				implicit none
 				integer, intent(in) :: Njets
 				type(source_properties), intent(out) :: jets(Njets)
-				character(*), intent(in) :: fname
-				real(8), intent(in) :: rmin, rmax
 				integer i
-				call get_jets(jets, Njets, fname, 1, 1d0, rmin, rmax)
-				do i = 1, Njets
-					jets(i)%ud%ud_shape = 0
-					jets(i)%ud%umin = jets(i)%ud%umax - 20d0
-					jets(i)%sd = 0
-					jets(i)%production_rate = 1.000667d26
-				enddo
+				character(*), intent(in) :: fname
+				character(5) header
+
+				open(100, file = fname, status = 'old')
+					read(100,*) header
+					do i = 1, Njets
+						read(100,*) jets(i)%alphaM, jets(i)%betaM, &
+									jets(i)%zeta, jets(i)%eta
+						jets(i)%r = rm
+						jets(i)%alphaM = jets(i)%alphaM * deg2rad
+						jets(i)%betaM = jets(i)%betaM * deg2rad
+						jets(i)%alphaM = halfpi - jets(i)%alphaM
+
+						jets(i)%rrM(1) = rm * sin(jets(i)%alphaM) &
+						* cos(jets(i)%betaM)
+						jets(i)%rrM(2) = rm * sin(jets(i)%alphaM) &
+												* sin(jets(i)%betaM)
+						jets(i)%rrM(3) = rm * cos(jets(i)%alphaM)
+
+						jets(i)%zeta = jets(i)%zeta * deg2rad
+						jets(i)%eta = jets(i)%eta * deg2rad
+
+						jets(i)%is_jet = .TRUE.
+
+						jets(i)%ud%umax = 800d0		! m/s
+
+						jets(i)%ejection_angle_distr = 1
+
+						jets(i)%ud%ud_shape = 0
+						jets(i)%ud%umin = jets(i)%ud%umax - 20d0
+						jets(i)%sd = 0    ! uniform, non-normalized fR = 1d0
+						jets(i)%production_rate = 1.000667d26
+
+						call Gu_integral(jets(i)%ui, jets(i)%Gu_precalc, &
+						               jets(i)%sd, jets(i)%ud, 1d0, 1d0)
+
+						! normalization to account for dimension when treating gas molecules
+						! as dust particles with a size distribution between 0.1 and Rg_upperlim
+						jets(i)%Gu_precalc = jets(i)%Gu_precalc * (Rg_upperlim - 0.1d0)
+
+						call jet_direction(jets(i)%betaM, jets(i)%zeta, &
+						     jets(i)%eta, jets(i)%rrM, jets(i)%symmetry_axis)
+					enddo
+					close(100)
 			end subroutine get_gas_jets
 
+
+
 			! gas diffuse sources: 160 sources with gas-specific sd, ud, and production rate
-			subroutine get_gas_diffuse_sources(sources, Ns, fname, rmin, rmax)
+			subroutine get_gas_diffuse_sources(sources, Ndsources, fname)
 				use const
 				use define_types
+				use gu
 				implicit none
-				integer, intent(in) :: Ns
-				type(source_properties), intent(out) :: sources(Ns)
-				character(*), intent(in) :: fname
-				real(8), intent(in) :: rmin, rmax
+				integer, intent(in) :: Ndsources
+				type(source_properties), intent(out) :: sources(Ndsources)
 				integer i
-				call get_diffuse_sources(sources, Ns, fname, 1d0, rmin, rmax)
-				do i = 1, Ns
-					sources(i)%ud%ud_shape = 0
-					sources(i)%ud%umin = sources(i)%ud%umax - 20d0
-					sources(i)%sd = 0
-					sources(i)%production_rate = 6.25417d24
-				enddo
+				character(*), intent(in) :: fname
+				character(len = 5) header
+
+				open(100, file = fname, status = 'old')
+					read(100,*) header
+					do i = 1, Ndsources
+						read(100,*) sources(i)%alphaM, sources(i)%betaM, &
+									sources(i)%zeta, sources(i)%eta
+						sources(i)%r = rm
+
+						sources(i)%alphaM = sources(i)%alphaM * deg2rad
+						sources(i)%betaM = sources(i)%betaM * deg2rad
+						sources(i)%alphaM = halfpi - sources(i)%alphaM
+
+						sources(i)%rrM(1) = rm * sin(sources(i)%alphaM) &
+						* cos(sources(i)%betaM)
+						sources(i)%rrM(2) = rm * sin(sources(i)%alphaM) &
+												* sin(sources(i)%betaM)
+						sources(i)%rrM(3) = rm * cos(sources(i)%alphaM)
+
+						sources(i)%is_jet = .FALSE.
+
+						sources(i)%sd = 0	! uniform, non-normalized fR = 1d0
+						sources(i)%ud%umax = 400d0		! m/s
+
+						sources(i)%ejection_angle_distr = 3
+
+
+						sources(i)%ud%ud_shape = 0
+						sources(i)%ud%umin = sources(i)%ud%umax - 20d0
+						sources(i)%production_rate = 6.25417d24
+
+						call jet_direction(sources(i)%betaM, sources(i)%zeta, &
+						     sources(i)%eta, sources(i)%rrM, sources(i)%symmetry_axis)
+
+						call Gu_integral(sources(i)%ui, sources(i)%Gu_precalc, &
+						               sources(i)%sd, sources(i)%ud, 1d0, 1d0)
+						! normalization to account for dimension when treating gas molecules
+						! as dust particles with a size distribution between 0.1 and Rg_upperlim
+						sources(i)%Gu_precalc = sources(i)%Gu_precalc * (Rg_upperlim - 0.1d0)
+					enddo
+				close(100)
 			end subroutine get_gas_diffuse_sources
+
+
 
 			subroutine vert_sect(points, nt)
 				use const

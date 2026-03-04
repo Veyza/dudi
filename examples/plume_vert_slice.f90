@@ -27,20 +27,35 @@ program plume_vert_slice
 	type(position_in_space), allocatable, dimension(:,:) :: point
 	character(len = 42) :: flybytr
 	real(8) rmin, rmax, varfact, rminsalt, rmaxsalt
-	real fnum
-	character(len = 5) chfnum
+	real qid
+	character(len = 16) key, key_trim
 	real(8) production_salt_poor, production_salt_rich, production_salt_rich_jets
 	real(8) mass_salt_poor, mass_salt_rich, mass
 	real(8) alphatmp, alphatmp2, beta1, beta2
 
-	! what are we calculating? 0.1: dust mass distribution, 0.2: gas distribution, 0.4: composition distribution
-	call getarg(1, chfnum)
-	read(chfnum,*) fnum
+	! what are we calculating?
+	! keys:
+	!   mass -> dust mass distribution  (qid = 0.1)
+	!   gas  -> gas distribution        (qid = 0.2)
+	!   comp -> composition distribution (qid = 0.4)
+	! for backward compatibility, numeric values 0.1, 0.2, 0.4 are also accepted
+	call getarg(1, key)
+	key_trim = adjustl(key)
+	select case (key_trim(1:len_trim(key_trim)))
+	case ('mass')
+		qid = 0.1
+	case ('gas')
+		qid = 0.2
+	case ('comp')
+		qid = 0.4
+	case default
+		read(key_trim,*) qid
+	end select
 
 	allocate(type1(nt,nt), type3(nt,nt), tmp_res(nt,nt,2), point(nt,nt))
 
 	! setup flyby/plane parameters (rmin, rmax, etc.)
-	call define_flyby_params(fnum, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
+	call define_flyby_params(qid, flybytr, rmin, rmax, rminsalt, rmaxsalt, varfact)
 
 	! polar angle and longitude of the plane where we calculate the density
 	alphatmp = pi * 0.8d0
@@ -49,7 +64,7 @@ program plume_vert_slice
 	beta2 = 225d0 * deg2rad
 	call get_flyby_plane(point, nt, &
 	(/sin(alphatmp) * cos(beta1), sin(alphatmp) * sin(beta1), cos(alphatmp)/), &
-	(/sin(alphatmp2) * cos(beta2), sin(alphatmp2) * sin(beta2), cos(alphatmp2)/), fnum, cellsize)
+	(/sin(alphatmp2) * cos(beta2), sin(alphatmp2) * sin(beta2), cos(alphatmp2)/), qid, cellsize)
 
 	type1 = 0d0
 	type3 = 0d0
@@ -57,10 +72,10 @@ program plume_vert_slice
 	production_salt_rich = 0d0
 	production_salt_rich_jets = 0d0
 
-	if(fnum == 0.1) then
-		write(*,*) "calculating dust distribution"
+	if(qid == 0.1) then
+		write(*,*) "calculating dust mass distribution"
 		if(p /= 3) then
-			write(*,*) "wrong p parameter"
+			write(*,*) "wrong p parameter, in const.f90must be p = 3"
 			stop
 		endif
 		! type1: salt-poor dust from jets (sd=1)
@@ -145,10 +160,10 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 
-	else if(fnum == 0.4) then
+	else if(qid == 0.4) then
 		write(*,*) "calculating composition distribution"
 		if(p /= 0) then
-			write(*,*) "wrong p parameter"
+			write(*,*) "wrong p parameter, in const.f90must be p = 0"
 			stop
 		endif
 		! type1: salt-poor dust from jets (sd=1)
@@ -228,14 +243,14 @@ program plume_vert_slice
 			type3 = type3 + tmp_res(:,:,1) + tmp_res(:,:,2)
 		enddo
 
-	else if(fnum == 0.2) then
+	else if(qid == 0.2) then
 		write(*,*) "calculating gas distribution"
 		if(p /= 0) then
-			write(*,*) "wrong p parameter"
+			write(*,*) "wrong p parameter, in const.f90 must be p = 0"
 			stop
 		endif
-		call get_gas_jets(jets, Njets, './input_data_files/vertical_jets.dat', rmin, rmax)
-		call get_gas_diffuse_sources(difsources, Ndsources, './input_data_files/diffuse_sources.dat', rmin, rmax)
+		call get_gas_jets(jets, Njets, './input_data_files/vertical_jets.dat')
+		call get_gas_diffuse_sources(difsources, Ndsources, './input_data_files/diffuse_sources.dat')
 		do i = 1, Njets
 			production_salt_poor = production_salt_poor + jets(i)%production_rate
 		enddo
@@ -284,12 +299,12 @@ program plume_vert_slice
 	type1 = type1 * real(varfact, kind=kind(type1))
 	type3 = type3 * real(varfact, kind=kind(type1))
 
-	if(fnum == 0.2) then
-		call vertical_slicematrix_out((type1+type3) * H2Omass, nt, fnum, cellsize)
-	else if(fnum == 0.1) then
-		call vertical_slicematrix_out(type1+type3, nt, fnum, cellsize)
-	else if(fnum == 0.4) then
-		call composition_matrix_out(type1, type3, nt, fnum, cellsize)
+	if(qid == 0.2) then
+		call vertical_slicematrix_out((type1+type3) * H2Omass, nt, qid, cellsize)
+	else if(qid == 0.1) then
+		call vertical_slicematrix_out(type1+type3, nt, qid, cellsize)
+	else if(qid == 0.4) then
+		call composition_matrix_out(type1, type3, nt, qid, cellsize)
 	endif
 
 	deallocate(type1, type3, tmp_res, point)
