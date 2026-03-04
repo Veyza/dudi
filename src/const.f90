@@ -45,7 +45,7 @@ module const
 		! parameters of Gu function
 		! p = 0 -- number density is computed, 1 -- mean radius,
 		! 2 -- cross section, 3 -- mass density
-		integer, parameter :: p = 0
+		integer, parameter :: p = 3
 
 		! the maximum particle radius
 		real(8), parameter :: Rg_upperlim = 15d0	! micron

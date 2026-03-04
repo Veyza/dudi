@@ -86,6 +86,10 @@ module TwoBody_fun
                 sinlambdaM = - sinlambdaM
                 coslambdaM = - coslambdaM
             endif
+            if(abs(sinlambda) > 1d0) sinlambda = sign(1d0, sinlambda)
+            if(abs(coslambda) > 1d0) coslambda = sign(1d0, coslambda)
+            if(abs(sinlambdaM) > 1d0) sinlambdaM = sign(1d0, sinlambdaM)
+            if(abs(coslambdaM) > 1d0) coslambdaM = sign(1d0, coslambdaM)
             lambda = myatan1(coslambda, sinlambda)
 
             lambdaM = myatan1(coslambdaM, sinlambdaM)
@@ -247,6 +251,7 @@ module TwoBody_fun
                         write(*,*) 'NaN is obtained for an integrand value'
                         write(*,*) 'factor related to ejection speed distribution: fac1 =', fac1
                         write(*,*) 'factor related to ejection direction distribution: fac2 =', fac2
+                        write(*,*) 'dphi', dphi, 'dbeta', dbeta
                         write(*,*) 'the partial derivative of delta phi by theta =', ddphidtheta(i)
                         write(*,*) 'theta =', theta(i), 'psi =', psi(i), 'lambdaM =', lambdaM
                         write(*,*) 'dust production rate =', rate(i)

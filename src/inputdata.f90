@@ -299,12 +299,12 @@ module inputdata
 
 
 
-			subroutine get_surface_points(points, nt, griddist, latdist, maxalphaM, minalphaM)
+			subroutine get_surface_points(points, nt, griddist, latdist, maxalphaM, minalphaM, altitude)
 				use const
 				use help
 				use define_types
 				implicit none
-				real(8), intent(in) :: griddist, latdist, maxalphaM, minalphaM
+				real(8), intent(in) :: griddist, latdist, maxalphaM, minalphaM, altitude
 				integer, intent(in) :: nt
 				type(position_in_space), intent(out) :: points(nt)
 				real(8) mincos, maxcos, difcos
@@ -330,7 +330,7 @@ module inputdata
 					points(i)%rvector(3) = cos(points(i)%alpha)
 					points(i)%rvector(1) = sin(points(i)%alpha) * cos(points(i)%beta)
 					points(i)%rvector(2) = sin(points(i)%alpha) * sin(points(i)%beta)
-					points(i)%rvector = points(i)%rvector * (rm + 100d3)
+					points(i)%rvector = points(i)%rvector * (rm + altitude)
 					points(i)%r = norma3d(points(i)%rvector)
 					points(i)%r_scaled = points(i)%r / rm
 					points(i)%compute = .TRUE.

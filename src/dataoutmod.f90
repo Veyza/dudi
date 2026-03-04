@@ -124,17 +124,17 @@ module dataoutmod
 
 				if(fnum == 0.1) then
 					if(cellsize < 2.9d3) then
-						fname = './results/dens_in_0_plane_dust_close.dat'
+						fname = './results/dens_in_0_plane_dust_a-panel.dat'
 					else
-						fname = './results/dens_in_0_plane_dust.dat'
+						fname = './results/dens_in_0_plane_dust_b-panel.dat'
 					endif
 					open(111, file = fname, status = 'replace')
 				endif
 				if(fnum == 0.2) then
 					if(cellsize < 2.9d3) then
-						fname = './results/dens_in_0_plane_gas_close.dat'
+						fname = './results/dens_in_0_plane_gas_a-panel.dat'
 					else
-						fname = './results/dens_in_0_plane_gas.dat'
+						fname = './results/dens_in_0_plane_gas_b-panel.dat'
 					endif
 					open(111, file = fname, status = 'replace')
 				endif
@@ -158,11 +158,11 @@ module dataoutmod
 
 				if(fnum == 0.4) then
 					if(cellsize < 2.9d3) then
-						fname_poor = './results/salt_poor_0_plane_close.dat'
-						fname_rich = './results/salt_rich_0_plane_close.dat'
+						fname_poor = './results/salt_poor_0_plane_a-panel.dat'
+						fname_rich = './results/salt_rich_0_plane_a-panel.dat'
 					else
-						fname_poor = './results/salt_poor_0_plane.dat'
-						fname_rich = './results/salt_rich_0_plane.dat'
+						fname_poor = './results/salt_poor_0_plane_b-panel.dat'
+						fname_rich = './results/salt_rich_0_plane_b-panel.dat'
 					endif
 					open(111, file = fname_poor, status = 'replace')
 						do i = 1, nt
