@@ -86,37 +86,75 @@ composition_in_plane <- function(close = FALSE) {
   )
 }
 
-## 2) Number density: salt_poor + salt_rich ----------------------------------
+## 2) Densities in plane ------------------------------------------------------
 
-number_density_in_plane <- function(close = FALSE) {
-  # Plot total number density in the E0 vertical plane
+density_in_plane <- function(quantity = c("number", "mass", "gas"),
+                             close = FALSE) {
+  # Plot number, mass, or gas density in the E0 vertical plane
 
   library(RColorBrewer)
+  quantity <- match.arg(quantity)
 
   if (close) {
-    salt_poor_file <- "./results/salt_poor_0_plane_close.dat"
-    salt_rich_file <- "./results/salt_rich_0_plane_close.dat"
     x_range <- c(-150, 150); y_range <- c(237, 372)
-    out_file <- "./results/number_density_E0_close.png"
+    if (quantity == "number") {
+      salt_poor_file <- "./results/salt_poor_0_plane_close.dat"
+      salt_rich_file <- "./results/salt_rich_0_plane_close.dat"
+      out_file <- "./results/number_density_E0_close.png"
+    } else if (quantity == "mass") {
+      dens_file <- "./results/dens_in_0_plane_dust_close.dat"
+      out_file  <- "./results/mass_density_E0_close.png"
+    } else { # gas
+      dens_file <- "./results/dens_in_0_plane_gas_close.dat"
+      out_file  <- "./results/gas_density_E0_close.png"
+    }
   } else {
-    salt_poor_file <- "./results/salt_poor_0_plane.dat"
-    salt_rich_file <- "./results/salt_rich_0_plane.dat"
     x_range <- c(-450, 450); y_range <- c(0, 900)
-    out_file <- "./results/number_density_E0.png"
+    if (quantity == "number") {
+      salt_poor_file <- "./results/salt_poor_0_plane.dat"
+      salt_rich_file <- "./results/salt_rich_0_plane.dat"
+      out_file <- "./results/number_density_E0.png"
+    } else if (quantity == "mass") {
+      dens_file <- "./results/dens_in_0_plane_dust.dat"
+      out_file  <- "./results/mass_density_E0.png"
+    } else { # gas
+      dens_file <- "./results/dens_in_0_plane_gas.dat"
+      out_file  <- "./results/gas_density_E0.png"
+    }
   }
 
-  sp <- as.matrix(read.table(salt_poor_file))
-  sr <- as.matrix(read.table(salt_rich_file))
-  s  <- sp + sr
+  if (quantity == "number") {
+    sp <- as.matrix(read.table(salt_poor_file))
+    sr <- as.matrix(read.table(salt_rich_file))
+    s  <- sp + sr
 
-  # Your preferred levels; plotted on log10 scale, labels in linear units
-  lev_lin <- c(0.01, 0.1, 0.3, 1, 10, 100, 200, 300, 500,
-               1000, 2000, 3000, 4000)
-  min_lev <- min(lev_lin)
+    # Your preferred levels; plotted on log10 scale, labels in linear units
+    lev_lin <- c(0.01, 0.1, 0.3, 1, 10, 100, 200, 300, 500,
+                 1000, 2000, 3000, 4000)
+    min_lev <- min(lev_lin)
 
-  s_pos <- pmax(s, min_lev * 1e-2)
-  z     <- log10(s_pos)
-  lev   <- log10(lev_lin)
+    s_pos <- pmax(s, min_lev * 1e-2)
+    z     <- log10(s_pos)
+    lev   <- log10(lev_lin)
+
+    main_title <- "number density in E0 flyby plane"
+    key_lbls   <- lev_lin
+  } else {
+    s <- as.matrix(read.table(dens_file))
+
+    s[s <= 0] <- NA
+    z <- log10(s)
+    rng <- range(z, finite = TRUE)
+
+    lev <- pretty(rng, n = 12)
+    key_lbls <- signif(10^lev, digits = 3)
+
+    main_title <- if (quantity == "mass") {
+      "mass density in E0 flyby plane"
+    } else {
+      "gas density in E0 flyby plane"
+    }
+  }
 
   nbin <- length(lev) - 1
   cols <- rev(colorRampPalette(RColorBrewer::brewer.pal(9, "YlGnBu"))(nbin))
@@ -128,8 +166,8 @@ number_density_in_plane <- function(close = FALSE) {
     levels      = lev,
     cols        = cols,
     filename    = out_file,
-    main        = "number density in E0 flyby plane",
-    key_labels  = lev_lin,
+    main        = main_title,
+    key_labels  = key_lbls,
     xlab        = "km",
     ylab        = "km",
     draw_circle = TRUE
@@ -168,7 +206,7 @@ dust2gas_in_plane <- function(close = FALSE) {
   # User‑specified dust/gas levels (linear units)
   lev_lin <- c(4e-4, 0.00081, 0.0018, 0.0039, 0.008,
                0.014, 0.023, 0.036, 0.055, 0.08,
-               0.11, 0.145, 0.19, 0.25, 0.5, 0.8, 1.0)
+               0.11, 0.145, 0.19, 0.25)
   min_lev <- min(lev_lin)
 
   # Log10 for plotting, clip very small positive values
