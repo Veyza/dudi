@@ -49,7 +49,7 @@ module Gu
                     stop
                 endif
                 ! if a range of particle radii is considered
-                if(is_zero_r8(rlim2 - rlim1)) then
+                if(.not. is_zero_r8(rlim2 - rlim1)) then
                     up = rlim2
                     low = rlim1
                     S = 0d0
