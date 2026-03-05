@@ -224,36 +224,6 @@ module inputdata
 
 
 
-			subroutine vert_sect(points, nt)
-				use const
-				use help
-				use define_types
-				implicit none
-				integer, intent(in) :: nt
-				type(position_in_space), intent(out) :: points(nt, nt)
-				integer i, ii
-				real(8) xtmp(3), ytmp(3), lon
-				real(8), parameter :: cellsize = 2d3
-
-				lon = 45d0 * deg2rad
-
-				xtmp = (/cos(lon), sin(lon), 0d0/) * cellsize
-				ytmp = (/0d0, 0d0, 1d0/) * cellsize
-
-				do i = 1, nt
-				do ii = 1, nt
-					points(i,ii)%rvector = (nt/2-i) * xtmp - (/0d0, 0d0, 210d3/) - (ii) * ytmp
-					points(i,ii)%r = norma3d(points(i,ii)%rvector)
-					points(i,ii)%alpha = acos(points(i,ii)%rvector(3) / points(i,ii)%r)
-					points(i,ii)%beta = myatan1(points(i,ii)%rvector(1), points(i,ii)%rvector(2))
-					points(i,ii)%r_scaled = points(i,ii)%r / rm
-					points(i,ii)%compute = points(i,ii)%r_scaled >= 1d0
-				enddo
-				enddo
-
-			end subroutine vert_sect
-
-
 			subroutine get_flyby_plane(points, nt, r1, r2, fnum, cellsize)
 				use const
 				use help
@@ -650,45 +620,6 @@ module inputdata
 
 
 
-			subroutine SPT_sph_sect_of_points(Nalts, Nlats, Nlons, &
-			                       maxalt, alphaspan, maxalpha, points)
-				use const
-				use define_types
-				implicit none
-				integer, intent(in) :: Nalts, Nlats, Nlons
-				real(8), intent(in) :: maxalt, alphaspan, maxalpha
-				type(position_in_space), intent(out) :: points(Nalts, Nlats, Nlons)
-				integer i, ii, iii
-
-				forall(iii = 1:Nalts)
-					points(iii,:,:)%r = rm + maxalt * ((iii - 1.0) / dble(Nalts - 1))**2
-				endforall
-				forall(ii = 1:Nlats)
-					points(:,ii,:)%alpha = maxalpha - (ii-1) * alphaspan / dble(Nlats-1)
-				endforall
-				forall(i = 1:Nlons)
-					points(:,:,i)%beta = (i-1) * twopi / dble(Nlons)
-				endforall
-
-				forall(i = 1:Nlons)
-				forall(ii = 1:Nlats)
-				forall(iii = 1:Nalts)
-					points(iii,ii,i)%rvector(1) = points(iii,ii,i)%r * sin(points(iii,ii,i)%alpha) &
-													   * cos(points(iii,ii,i)%beta)
-					points(iii,ii,i)%rvector(2) = points(iii,ii,i)%r * sin(points(iii,ii,i)%alpha) &
-													   * sin(points(iii,ii,i)%beta)
-					points(iii,ii,i)%rvector(3) = points(iii,ii,i)%r * cos(points(iii,ii,i)%alpha)
-					points(iii,ii,i)%r_scaled = points(iii,ii,i)%r / rm
-					points(iii,ii,i)%compute = .TRUE.
-				endforall
-				endforall
-				endforall
-
-			end subroutine SPT_sph_sect_of_points
-
-
-
-
 			function cylindrical2point(rh, theta, z) result(point)
 				use const
 				use help
@@ -850,75 +781,6 @@ module inputdata
 
 
 			end subroutine jet_direction
-
-
-
-			subroutine get_meridian(longitude, alt, nt, points, latofset)
-				use const
-				use help
-				use define_types
-				real(8), intent(in) :: longitude, alt, latofset
-				integer, intent(in) :: nt
-				type(position_in_space), intent(out) :: points(nt)
-				integer i
-				real(8) dlat, latitude
-
-				dlat = (pi - latofset) / (nt + 1)
-
-				forall(i = 1:nt)
-					points(i)%alpha = latofset + dlat * i
-					points(i)%beta = longitude
-					points(i)%r = rm + alt
-					points(i)%rvector(1) = points(i)%r * sin(points(i)%alpha) &
-													   * cos(points(i)%beta)
-					points(i)%rvector(2) = points(i)%r * sin(points(i)%alpha) &
-													   * sin(points(i)%beta)
-					points(i)%rvector(3) = points(i)%r * cos(points(i)%alpha)
-					points(i)%r_scaled = points(i)%r / rm
-					points(i)%compute = .TRUE.
-				end forall
-
-				write(*,*) 'a meridian at the moon center distance of', points(1)%r * 1d-3, 'km', &
-				           ' and longitude of', longitude * rad2deg
-
-
-			end subroutine get_meridian
-
-
-
-		! returns a 2d array of position-inspace built of the 3d vectors x and y
-		! with cellsize as the distance between nodes
-		! and (0, yshift) as the central point in this array
-			subroutine get_plane(points, nt1, nt2, x, y, cellsize, yshift)
-				use const
-				use help
-				use define_types
-				implicit none
-				integer, intent(in) :: nt1, nt2
-				type(position_in_space), intent(out) :: points(nt1, nt2)
-				real(8), intent(in) :: x(3), y(3)
-				real(8) xtmp(3), ytmp(3)
-				integer i, ii
-				real(8), intent(in) :: yshift
-				real, intent(in) :: cellsize
-
-				xtmp = x / norma3d(x)
-				ytmp = y / norma3d(y)
-
-				do i = 1, nt1
-				do ii = 1, nt2
-					points(i,ii)%rvector = (nt1/2-i+0.5d0) * xtmp * cellsize &
-					                        + ytmp * yshift &
-					                  + (nt2/2 - ii) * ytmp * cellsize
-					points(i,ii)%r = norma3d(points(i,ii)%rvector)
-					points(i,ii)%alpha = acos(points(i,ii)%rvector(3) / points(i,ii)%r)
-					points(i,ii)%beta = myatan1(points(i,ii)%rvector(1), points(i,ii)%rvector(2))
-					points(i,ii)%r_scaled = points(i,ii)%r / rm
-					points(i,ii)%compute = points(i,ii)%r_scaled >= 1d0
-				enddo
-				enddo
-
-			end subroutine get_plane
 
 
 
