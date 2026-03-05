@@ -13,9 +13,7 @@ program plume_vert_slice
 	! number of sources (same as flyby_profile)
 	integer, parameter :: Njets = 100
 	integer, parameter :: Ndsources = 160
-	real(8), parameter :: maxalphaM = pi
-	real(8), parameter :: minalphaM = 155d0 * deg2rad
-	real, parameter :: H2Omass = 2.998e-26
+	real, parameter :: H2Omass = 2.998e-26	! kg
 	! number of points in the plane
 	integer, parameter :: nt = 300
 	real(8), parameter :: tnow = 0d0
@@ -251,6 +249,8 @@ program plume_vert_slice
 		endif
 		call get_gas_jets(jets, Njets, './input_data_files/vertical_jets.dat')
 		call get_gas_diffuse_sources(difsources, Ndsources, './input_data_files/diffuse_sources.dat')
+		production_salt_poor = 0d0
+		production_salt_rich = 0d0
 		do i = 1, Njets
 			production_salt_poor = production_salt_poor + jets(i)%production_rate
 		enddo
@@ -258,8 +258,8 @@ program plume_vert_slice
 			production_salt_rich = production_salt_rich + difsources(i)%production_rate
 		enddo
 		write(*,*) 'production rate of gas'
-		write(*,*) 'jets', production_salt_poor * H2Omass, 'kg/s'
-		write(*,*) 'diffuse sources', production_salt_rich * H2Omass, 'kg/s'
+		write(*,*) 'jets', production_salt_poor * H2Omass * varfact, 'kg/s'
+		write(*,*) 'diffuse sources', production_salt_rich * H2Omass * varfact, 'kg/s'
 		do i_s = 1, Njets
 			write(*,*) 'jet', i_s, '/', Njets
 			!$OMP PARALLEL PRIVATE(i) &

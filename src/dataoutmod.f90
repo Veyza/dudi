@@ -16,33 +16,6 @@
 
 module dataoutmod
 	implicit none
-		contains
-
-		  subroutine alt_decrease_out(fname, density, rs, alphas, Nalts, Nlats, Nlons)
-			use const
-			implicit none
-			character(*), intent(in) :: fname
-			integer, intent(in) :: Nalts, Nlats, Nlons
-			real, intent(in) :: density(Nalts, Nlats, Nlons)
-			real(8), intent(in) :: rs(Nalts), alphas(Nlats)
-			real aver_at_circle(Nalts, Nlats)
-			integer i, ii
-
-			forall(i = 1:Nalts)
-			forall(ii = 1:Nlats)
-				aver_at_circle(i,ii) = sum(density(i,ii,:)) / Nlons
-			endforall
-			endforall
-
-			open(111, file = fname, status = 'replace')
-				write(111,*) 999, (halfpi - alphas) * rad2deg
-				do i = 1, Nalts
-					write(111,*) rs(i), aver_at_circle(i,:)
-				enddo
-			close(111)
-
-
-		  end subroutine alt_decrease_out
 
 
 		  ! A helper subroutine to remove leading and trailing blanks from formatted_value
@@ -69,51 +42,6 @@ module dataoutmod
 
 
 
-			subroutine result_out(density, nt, point)
-				use const
-				use define_types
-				implicit none
-				integer, intent(in) :: nt
-				type(position_in_space), intent(in) :: point(nt)
-				real, intent(in) :: density(nt,2)
-				integer i
-
-				open(111, file = './results/twobody_model_result.dat', &
-				          status = 'replace')
-					do i = 1, nt
-						write(111,*) density(i,:), density(i,:), &
-							point(i)%r, (halfpi - point(i)%alpha) * rad2deg, &
-							point(i)%beta * rad2deg
-					enddo
-				close(111)
-
-			end subroutine result_out
-
-
-			subroutine spt_flux_out(point, t1, t2, t3, nt, outfile)
-				use const
-				use define_types
-				implicit none
-				integer, intent(in) :: nt
-				type(position_in_space), intent(in) :: point(nt)
-				real, intent(in) :: t1(nt), t2(nt), t3(nt)
-				real res
-			real(8) lat, lon
-				character(*), intent(in) :: outfile
-				integer i
-
-				open(333, file = outfile, status = 'replace')
-					do i = 1, nt
-						res = t1(i) + t2(i) + t3(i)
-						lat = (halfpi - point(i)%alpha) * rad2deg
-						lon = point(i)%beta * rad2deg
-						write(333,*) lat, lon, res
-					enddo
-				close(333)
-
-
-			end subroutine spt_flux_out
-
 			subroutine vertical_slicematrix_out(resmat, nt, fnum, cellsize)
 				real, intent(in) :: resmat(nt, nt)
 				integer, intent(in) :: nt
@@ -124,17 +52,17 @@ module dataoutmod
 
 				if(fnum == 0.1) then
 					if(cellsize < 2.9d3) then
-						fname = './results/dens_in_0_plane_dust_a-panel.dat'
+						fname = './results/dens_in_plane_dust_a-panel.dat'
 					else
-						fname = './results/dens_in_0_plane_dust_b-panel.dat'
+						fname = './results/dens_in_plane_dust_b-panel.dat'
 					endif
 					open(111, file = fname, status = 'replace')
 				endif
 				if(fnum == 0.2) then
 					if(cellsize < 2.9d3) then
-						fname = './results/dens_in_0_plane_gas_a-panel.dat'
+						fname = './results/dens_in_plane_gas_a-panel.dat'
 					else
-						fname = './results/dens_in_0_plane_gas_b-panel.dat'
+						fname = './results/dens_in_plane_gas_b-panel.dat'
 					endif
 					open(111, file = fname, status = 'replace')
 				endif
@@ -158,11 +86,11 @@ module dataoutmod
 
 				if(fnum == 0.4) then
 					if(cellsize < 2.9d3) then
-						fname_poor = './results/salt_poor_0_plane_a-panel.dat'
-						fname_rich = './results/salt_rich_0_plane_a-panel.dat'
+						fname_poor = './results/salt_poor_plane_a-panel.dat'
+						fname_rich = './results/salt_rich_plane_a-panel.dat'
 					else
-						fname_poor = './results/salt_poor_0_plane_b-panel.dat'
-						fname_rich = './results/salt_rich_0_plane_b-panel.dat'
+						fname_poor = './results/salt_poor_plane_b-panel.dat'
+						fname_rich = './results/salt_rich_plane_b-panel.dat'
 					endif
 					open(111, file = fname_poor, status = 'replace')
 						do i = 1, nt
@@ -199,33 +127,6 @@ module dataoutmod
 
 
 
-			subroutine surface_deposition_out(num, deposition, nt, dphi)
-				use const
-				implicit none
-				integer, intent(in) :: num, nt
-				real, intent(in) :: deposition(nt)
-				real(8), intent(in) :: dphi(nt)
-				integer i
-				character(len = 39) fname
-
-				select case(num)
-					case(1)
-						fname = './results/narrow_jet_shallow_sd.dat'
-					case(2)
-						fname = './results/diffuse_source_steep_sd.dat'
-					case(3)
-						fname = './results/diffuse_source_shallow_sd.dat'
-					case(4)
-						fname = './results/narrow_jet_steep_sd.dat'
-				endselect
-
-				open(111, file = fname, status = 'replace')
-					do i = 1, nt
-						write(111,*) dphi(i) * rm * 1d-3, deposition(i)
-					enddo
-				close(111)
-
-			end subroutine surface_deposition_out
 
 
 			subroutine matrix_out(fname, image, nt1, nt2)

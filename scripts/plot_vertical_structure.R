@@ -44,13 +44,13 @@ composition_in_plane <- function(close = FALSE) {
   library(RColorBrewer)
 
   if (close) {
-    salt_poor_file <- "./results/salt_poor_0_plane_a-panel.dat"
-    salt_rich_file <- "./results/salt_rich_0_plane_a-panel.dat"
+    salt_poor_file <- "./results/salt_poor_plane_a-panel.dat"
+    salt_rich_file <- "./results/salt_rich_plane_a-panel.dat"
     x_range <- c(-150, 150); y_range <- c(237, 372)
     out_file <- "./results/type3_proportion_a-panel.png"
   } else {
-    salt_poor_file <- "./results/salt_poor_0_plane_b-panel.dat"
-    salt_rich_file <- "./results/salt_rich_0_plane_b-panel.dat"
+    salt_poor_file <- "./results/salt_poor_plane_b-panel.dat"
+    salt_rich_file <- "./results/salt_rich_plane_b-panel.dat"
     x_range <- c(-450, 450); y_range <- c(0, 900)
     out_file <- "./results/type3_proportion_b-panel.png"
   }
@@ -98,27 +98,27 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
   if (close) {
     x_range <- c(-150, 150); y_range <- c(237, 372)
     if (quantity == "number") {
-      salt_poor_file <- "./results/salt_poor_0_plane_a-panel.dat"
-      salt_rich_file <- "./results/salt_rich_0_plane_a-panel.dat"
+      salt_poor_file <- "./results/salt_poor_plane_a-panel.dat"
+      salt_rich_file <- "./results/salt_rich_plane_a-panel.dat"
       out_file <- "./results/number_density_a-panel.png"
     } else if (quantity == "mass") {
-      dens_file <- "./results/dens_in_0_plane_dust_a-panel.dat"
+      dens_file <- "./results/dens_in_plane_dust_a-panel.dat"
       out_file  <- "./results/mass_density_a-panel.png"
     } else { # gas
-      dens_file <- "./results/dens_in_0_plane_gas_a-panel.dat"
+      dens_file <- "./results/dens_in_plane_gas_a-panel.dat"
       out_file  <- "./results/gas_density_a-panel.png"
     }
   } else {
     x_range <- c(-450, 450); y_range <- c(0, 900)
     if (quantity == "number") {
-      salt_poor_file <- "./results/salt_poor_0_plane_b-panel.dat"
-      salt_rich_file <- "./results/salt_rich_0_plane_b-panel.dat"
+      salt_poor_file <- "./results/salt_poor_plane_b-panel.dat"
+      salt_rich_file <- "./results/salt_rich_plane_b-panel.dat"
       out_file <- "./results/number_density_b-panel.png"
     } else if (quantity == "mass") {
-      dens_file <- "./results/dens_in_0_plane_dust_b-panel.dat"
+      dens_file <- "./results/dens_in_plane_dust_b-panel.dat"
       out_file  <- "./results/mass_density_b-panel.png"
     } else { # gas
-      dens_file <- "./results/dens_in_0_plane_gas_b-panel.dat"
+      dens_file <- "./results/dens_in_plane_gas_b-panel.dat"
       out_file  <- "./results/gas_density_b-panel.png"
     }
   }
@@ -137,7 +137,7 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
     z     <- log10(s_pos)
     lev   <- log10(lev_lin)
 
-    main_title <- "number density in vertical structure plane"
+    main_title <- "dust number density"
     key_lbls   <- lev_lin
   } else {
     s <- as.matrix(read.table(dens_file))
@@ -150,9 +150,9 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
     key_lbls <- signif(10^lev, digits = 3)
 
     main_title <- if (quantity == "mass") then
-      "mass density in vertical structure plane"
+      "dust mass density"
     else
-      "gas density in vertical structure plane"
+      "gas mass density"
     end if
   }
 
@@ -184,13 +184,13 @@ dust2gas_in_plane <- function(close = FALSE) {
   library(RColorBrewer)
 
   if (close) {
-    dust_file <- "./results/dens_in_0_plane_dust_a-panel.dat"
-    gas_file  <- "./results/dens_in_0_plane_gas_a-panel.dat"
+    dust_file <- "./results/dens_in_plane_dust_a-panel.dat"
+    gas_file  <- "./results/dens_in_plane_gas_a-panel.dat"
     x_range <- c(-150, 150); y_range <- c(237, 372)
     out_file <- "./results/dust2gas_a-panel.png"
   } else {
-    dust_file <- "./results/dens_in_0_plane_dust_b-panel.dat"
-    gas_file  <- "./results/dens_in_0_plane_gas_b-panel.dat"
+    dust_file <- "./results/dens_in_plane_dust_b-panel.dat"
+    gas_file  <- "./results/dens_in_plane_gas_b-panel.dat"
     x_range <- c(-450, 450); y_range <- c(0, 900)
     out_file <- "./results/dust2gas_b-panel.png"
   }
@@ -239,7 +239,7 @@ dust2gas_in_plane <- function(close = FALSE) {
     col    = cols,
     plot.title = {
       par(cex.main = 2.5, cex.lab = 2.5)
-      title(main = "dust / gas ratio in vertical structure plane",
+      title(main = "dust / gas ratio",
             xlab = "km", ylab = "km")
     },
     plot.axes = {
