@@ -149,11 +149,7 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
     lev <- pretty(rng, n = 12)
     key_lbls <- signif(10^lev, digits = 3)
 
-    main_title <- if (quantity == "mass") then
-      "dust mass density"
-    else
-      "gas mass density"
-    end if
+    main_title <- if (quantity == "mass") "dust mass density" else "gas density"
   }
 
   nbin <- length(lev) - 1

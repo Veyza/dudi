@@ -74,7 +74,7 @@ help:
 	@echo "  make horizontal_structure"
 	@echo ""
 	@echo "Run:"
-	@echo "  make run-flyby   # run flyby_profile with params 5, 17, 7.1, 7.2, 7.3, 21.1, 21.2, 21.3"
+	@echo "  make run-flyby   # run flyby_profile with params 5, 5.2, 17, 17.17, 7.1, 7.2, 7.3, 21.1, 21.2, 21.3"
 	@echo ""
 	@echo "Other:"
 	@echo "  make list | make clean | make distclean"

@@ -116,7 +116,7 @@ plot_horizontal_structure <- function(
   ncols <- 64
 
   # Output PNG
-  png(file.path(results_dir, "horizontal_slices.png"),
+  png(file.path(results_dir, "dust_mass_density_at_altitudes.png"),
       width = 2200, height = 1400)
   on.exit(dev.off(), add = TRUE)
 

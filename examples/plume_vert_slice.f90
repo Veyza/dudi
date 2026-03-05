@@ -17,7 +17,7 @@ program plume_vert_slice
 	! number of points in the plane
 	integer, parameter :: nt = 300
 	real(8), parameter :: tnow = 0d0
-	real(8), parameter :: cellsize = 3d3
+	real(8), parameter :: cellsize = 1d3
 	integer i_s, i, ii
 	real, allocatable, dimension(:,:) :: type1, type3
 	real, allocatable, dimension(:,:,:) :: tmp_res

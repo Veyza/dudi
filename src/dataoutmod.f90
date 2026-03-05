@@ -16,7 +16,7 @@
 
 module dataoutmod
 	implicit none
-
+	contains
 
 		  ! A helper subroutine to remove leading and trailing blanks from formatted_value
 		  subroutine trim_and_format(value)
