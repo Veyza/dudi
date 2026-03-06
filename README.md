@@ -117,6 +117,7 @@ make run-flyby
 ---
 
 ## Workflow 2: `plume_vertical_structure`
+**This workflow includes a possibility to calculate the gas density. DUDI is a dust code and the approach to calculations of gas density differs from DUDI's standard algorithm. The author of the code currently suspects a mistake in the gas density calculations and does not recommend using the gas density distribution obtained with this model until the matter is properly investigated.**
 
 ### Compile:
 ```bash
