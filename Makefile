@@ -55,7 +55,6 @@ CORE_SOURCES := \
   $(SRCDIR)/inputdata.f90 \
   $(SRCDIR)/dataoutmod.f90 \
   $(SRCDIR)/integrator.f90 \
-  $(SRCDIR)/batching.f90 \
   $(SRCDIR)/image_construction.f90
 
 # -------- Example/main program sources --------
