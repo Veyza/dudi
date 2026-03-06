@@ -55,6 +55,7 @@ CORE_SOURCES := \
   $(SRCDIR)/inputdata.f90 \
   $(SRCDIR)/dataoutmod.f90 \
   $(SRCDIR)/integrator.f90 \
+  $(SRCDIR)/batching.f90 \
   $(SRCDIR)/image_construction.f90
 
 # -------- Example/main program sources --------
@@ -163,7 +164,7 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
-	
+
 # Strict warnings sweep: clean + rebuild (compile only)
 clean-warnings:
 	$(MAKE) clean
