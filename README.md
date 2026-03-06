@@ -201,7 +201,7 @@ In `src/dataoutmod.f90`:
     - `./results/salt_poor_plane_b-panel.dat`
     - `./results/salt_rich_plane_b-panel.dat`
 
-### Running examples
+Running examples (runs for several minutes, prints progress indicators)
 
 ```bash
 # Dust mass vertical slice (near plane, requires p = 3)
@@ -251,7 +251,7 @@ make horizontal_structure
 
 ### Command‑line argument (altitude)
 
-`horizontal_structure` expects **one argument: altitude in meters**. To obtain the equivalent of Fig. 16 from Ershova et al., 2024 run:
+`horizontal_structure` expects **one argument: altitude in meters**. To obtain the equivalent of Fig. 16 from Ershova et al., 2024 run (each runs for less then 1 min, prints progress indicators):
 
 ```bash
 ./bin/horizontal_structure 25d3     # 25 km
