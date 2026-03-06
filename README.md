@@ -1,4 +1,4 @@
-## DUDI – Specialized Workflow Branch
+## DUDI – Enceladus dust plume model
 
 This branch contains the setup of the DUDI package used for modeling the dust plume of Enceladus. The model implementation follows the approach described in
 Ershova, A., Schmidt, J., Postberg, F., Khawaja, N., Nölle, L., Srama, R., Kempf, S., & Southworth, B. (2024). Modeling the Enceladus dust plume based on in situ measurements performed with the Cassini Cosmic Dust Analyzer. Astronomy & Astrophysics, 689, A114. https://doi.org/10.1051/0004-6361/202450429
@@ -18,7 +18,7 @@ This workflow outputs a text file with a matrix (or 2 matrices) 300x300 numbers 
 - **`horizontal_structure`** – dust mass density distribution at the fixed altitude above the south pole.
 This workflow output has 3 columns: latitude, Eastern longitude, and the dust mass density at the given point (altitude above Enceladus surface is fixed and given in the name of the output file).
 
-**Units.** Number density in the output files is always in m^{-3}, mass density is in kg/m^3, angles are written in degrees.
+**Units.** Number density in the output files is always in 1/m³, mass density is in kg/m³, angles are written in degrees.
 
 All paths below are relative to the repository root.
 
