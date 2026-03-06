@@ -6,21 +6,32 @@
   x_seq <- seq(x_range[1], x_range[2], length.out = nx)
   y_seq <- seq(y_range[1], y_range[2], length.out = ny)
 
-  png(filename, width = 900, height = 800)
-  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5), cex.axis = 2)
+  # Choose device size so the plot region can keep asp=1 without
+  # leaving large empty bands (especially in the "close" window).
+  dx <- diff(x_range)
+  dy <- diff(y_range)
+  height_px <- 800
+  key_frac <- 0.18
+  width_px <- max(900, as.integer(round(height_px * (dx / dy) / (1 - key_frac))))
+
+  png(filename, width = width_px, height = height_px)
+  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5),
+      cex.axis = 2, las = 0)
 
   graphics::filled.contour(
     x = x_seq, y = y_seq, z = z,
     levels = levels,
     col    = cols,
+    asp    = 1,
     plot.title = {
       par(cex.main = 2.5, cex.lab = 2.5)
-      title(main = main, xlab = xlab, ylab = ylab)
+      title(main = main, xlab = xlab)
+      mtext(ylab, side = 2, line = 4.2, las = 0, cex = 2.5)
     },
     plot.axes = {
       axis(1); axis(2)
       if (draw_circle) {
-        symbols(x = -3, y = 0, circles = 252, inches = FALSE, add = TRUE,
+        symbols(x = -1.5, y = 0, circles = 253, inches = FALSE, add = TRUE,
                 bg = "darkgrey", fg = "darkgrey")
       }
     },
@@ -46,7 +57,7 @@ composition_in_plane <- function(close = FALSE) {
   if (close) {
     salt_poor_file <- "./results/salt_poor_plane_a-panel.dat"
     salt_rich_file <- "./results/salt_rich_plane_a-panel.dat"
-    x_range <- c(-150, 150); y_range <- c(237, 372)
+    x_range <- c(-150, 150); y_range <- c(222, 522)
     out_file <- "./results/type3_proportion_a-panel.png"
   } else {
     salt_poor_file <- "./results/salt_poor_plane_b-panel.dat"
@@ -63,8 +74,18 @@ composition_in_plane <- function(close = FALSE) {
   mask <- s_total > 1e-22
   frac[mask] <- sr[mask] / s_total[mask] * 100.0
 
+  # For the close case, restrict the shown y‑range to 234–370 km
   if (close) {
-    lev <- c(5, 10, 17, seq(30, 90, by = 10))
+    y_full  <- c(222, 522)
+    ny_full <- ncol(frac)
+    y_seq_full <- seq(y_full[1], y_full[2], length.out = ny_full)
+    y_keep <- y_seq_full >= 235 & y_seq_full <= 370
+    frac <- frac[, y_keep, drop = FALSE]
+    y_range <- c(235, 370)
+  }
+
+  if (close) {
+    lev <- c(5, 10, 12, 17, seq(30, 90, by = 10))
   } else {
     lev <- seq(5, 75, by = 5)
   }
@@ -96,7 +117,7 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
   quantity <- match.arg(quantity)
 
   if (close) {
-    x_range <- c(-150, 150); y_range <- c(237, 372)
+    x_range <- c(-150, 150); y_range <- c(222, 522)
     if (quantity == "number") {
       salt_poor_file <- "./results/salt_poor_plane_a-panel.dat"
       salt_rich_file <- "./results/salt_rich_plane_a-panel.dat"
@@ -152,6 +173,16 @@ density_in_plane <- function(quantity = c("number", "mass", "gas"),
     main_title <- if (quantity == "mass") "dust mass density" else "gas density"
   }
 
+  # For the close case, restrict the shown y‑range to 234–370 km
+  if (close) {
+    y_full  <- c(222, 522)
+    ny_full <- ncol(z)
+    y_seq_full <- seq(y_full[1], y_full[2], length.out = ny_full)
+    y_keep <- y_seq_full >= 235 & y_seq_full <= 370
+    z <- z[, y_keep, drop = FALSE]
+    y_range <- c(235, 370)
+  }
+
   nbin <- length(lev) - 1
   cols <- rev(colorRampPalette(RColorBrewer::brewer.pal(9, "YlGnBu"))(nbin))
 
@@ -182,7 +213,7 @@ dust2gas_in_plane <- function(close = FALSE) {
   if (close) {
     dust_file <- "./results/dens_in_plane_dust_a-panel.dat"
     gas_file  <- "./results/dens_in_plane_gas_a-panel.dat"
-    x_range <- c(-150, 150); y_range <- c(237, 372)
+    x_range <- c(-150, 150); y_range <- c(222, 522)
     out_file <- "./results/dust2gas_a-panel.png"
   } else {
     dust_file <- "./results/dens_in_plane_dust_b-panel.dat"
@@ -199,10 +230,27 @@ dust2gas_in_plane <- function(close = FALSE) {
   mask  <- gas > 1e-22
   ratio[mask] <- dust[mask] / gas[mask]
 
+  # For the close case, restrict the shown y‑range to 234–370 km
+  if (close) {
+    y_full  <- c(222, 522)
+    ny_full <- ncol(ratio)
+    y_seq_full <- seq(y_full[1], y_full[2], length.out = ny_full)
+    y_keep <- y_seq_full >= 235 & y_seq_full <= 370
+    ratio <- ratio[, y_keep, drop = FALSE]
+    gas   <- gas[, y_keep, drop = FALSE]
+    y_range <- c(235, 370)
+  }
+
   # User‑specified dust/gas levels (linear units)
-  lev_lin <- c(4e-4, 0.00081, 0.0018, 0.0039, 0.008,
+  if(close) {
+    lev_lin <- c(4e-4, 0.00081, 0.0018, 0.0039, 0.008,
+               0.014, 0.023, 0.036, 0.055, 0.08,
+               0.11, 0.145, 0.19, 0.25, 0.4, 0.6)
+  } else {
+    lev_lin <- c(4e-4, 0.00081, 0.0018, 0.0039, 0.008,
                0.014, 0.023, 0.036, 0.055, 0.08,
                0.11, 0.145, 0.19, 0.25)
+  }
   min_lev <- min(lev_lin)
 
   # Log10 for plotting, clip very small positive values
@@ -219,8 +267,15 @@ dust2gas_in_plane <- function(close = FALSE) {
   nbin <- length(lev) - 1
   cols <- rev(colorRampPalette(RColorBrewer::brewer.pal(11, "PuOr"))(nbin))
 
-  png(out_file, width = 900, height = 800)
-  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5), cex.axis = 2)
+  dx <- diff(x_range)
+  dy <- diff(y_range)
+  height_px <- 800
+  key_frac <- 0.18
+  width_px <- max(900, as.integer(round(height_px * (dx / dy) / (1 - key_frac))))
+
+  png(out_file, width = width_px, height = height_px)
+  par(oma = c(2.0, 3.0, 0.0, 0.5), mar = c(4, 5, 4, 1.5),
+      cex.axis = 2, las = 0)
 
   # Light‑grey background where gas = 0 (NA in z)
   plot.new()
@@ -233,14 +288,15 @@ dust2gas_in_plane <- function(close = FALSE) {
     x = x_seq, y = y_seq, z = z,
     levels = lev,
     col    = cols,
+    asp    = 1,
     plot.title = {
       par(cex.main = 2.5, cex.lab = 2.5)
-      title(main = "dust / gas ratio",
-            xlab = "km", ylab = "km")
+      title(main = "dust / gas ratio", xlab = "km")
+      mtext("km", side = 2, line = 3.2, las = 0)
     },
     plot.axes = {
       axis(1); axis(2)
-      symbols(x = 0, y = 0, circles = 252, inches = FALSE, add = TRUE,
+      symbols(x = 0, y = 0, circles = 253, inches = FALSE, add = TRUE,
               bg = "darkgrey", fg = "darkgrey")
     },
     key.axes = {
