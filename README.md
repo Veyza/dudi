@@ -1,13 +1,24 @@
 ## DUDI – Specialized Workflow Branch
 
-This branch contains an experimental set of workflows for the DUDI model.
-It is **not** intended to be merged into `main`. This `README.md` documents the branch‑specific executables and how to run them.
+This branch contains the setup of the DUDI package used for modeling the dust plume of Enceladus. The model implementation follows the approach described in
+Ershova, A., Schmidt, J., Postberg, F., Khawaja, N., Nölle, L., Srama, R., Kempf, S., & Southworth, B. (2024). Modeling the Enceladus dust plume based on in situ measurements performed with the Cassini Cosmic Dust Analyzer. Astronomy & Astrophysics, 689, A114. https://doi.org/10.1051/0004-6361/202450429
 
-The three primary workflows are:
+The input data include lists of dust sources with their corresponding physical parameters and the ephemerides of the Cassini spacecraft, which are used to simulate Cassini flybys of Enceladus and compute the resulting dust environment along the spacecraft trajectory, as well as the precomputed file "background_size_distribution.dat" used to take into account the E ring dust.
 
-- **`flyby_profiles`** – dust number–density profiles along Cassini flybys.
-- **`plume_vertical_structure`** – vertical slices through the plume (dust mass, gas, composition).
-- **`horizontal_structure`** – horizontal slices of dust mass density above the south pole.
+The file "vertical_jets.dat" contains latitudes and Eastern longitudes of the jets from Porco et al, 2014. However, the jets' zenith angles and azimuts are set to zeros. The file "diffuse_sources.dat" has the same structure. The files with Cassini ephemeridae have 4 columns: seconds from the moment of the closest approach to Enceladus, radial distance to the moon center, latitude and Eastern longitude.
+
+The three primary workflows and their output:
+
+- **`flyby_profiles`** – dust number–density profiles along Cassini flybys used to obtain the plots in Figs. 12 - 15 of Ershova et al., 2024.
+The output of this workflow is a 5-column table: seconds from the closest approach, number density of dust particles within the detectable size range of the Cassini instrument (HRD or CA), proportion of type1, type2, and type3 dust. In the case of E7 and E21 flybys type1 and type2 proportions do not matter as separate quantities but should be summed to obtain the proportion of salt-poor dust.
+
+- **`plume_vertical_structure`** – vertical slice of the plume (dust mass, gas, composition) shown in Figs. 19-20 of Ershova et al., 2024.
+This workflow outputs a text file with a matrix (or 2 matrices) 300x300 numbers corresponding to the computed quantity in the equidistant grid nodes. Depending on the keywords, the output can be gas density, dust mass density (salt-rich and salt-poor dust together), or dust number density - separately salt-rich and salt-poor particles. The dust mass of number density are computed for the particles with sizes between 0.1 um and 15 um.
+
+- **`horizontal_structure`** – dust mass density distribution at the fixed altitude above the south pole.
+This workflow output has 3 columns: latitude, Eastern longitude, and the dust mass density at the given point (altitude above Enceladus surface is fixed and given in the name of the output file).
+
+**Units.** Number density in the output files is always in m^{-3}, mass density is in kg/m^3, angles are written in degrees.
 
 All paths below are relative to the repository root.
 
