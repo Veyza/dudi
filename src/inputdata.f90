@@ -326,24 +326,6 @@ module inputdata
 					rmaxsalt = Rg_upperlim
 					varfact = 1d0
 				endif
-				if(fnum == 5.0) then
-					flybytr = './input_data_files/Cassini_E5_flyby.dat'
-					rmin = 0.2d0
-					rmax = 1.7d0
-					rminsalt = 0.1d0
-					rmaxsalt = 1.1d0
-					varfact = 1d0
-					Rleft = 0.2d0
-					Rright = 0.4d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = 0.26906965d0
-					bcoeflin = -0.05381393d0
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile like it was in the paper, k =', varfact
-				endif
 				if(fnum == 5.2) then
 					flybytr = './input_data_files/Cassini_E5_flyby.dat'
 					rmin = 0.2d0
@@ -351,42 +333,6 @@ module inputdata
 					rminsalt = 0.1d0
 					rmaxsalt = 1.1d0
 					varfact = 2d0
-					Rleft = 0.2d0
-					Rright = 0.4d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = 0.26906965d0
-					bcoeflin = -0.05381393d0
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile like it was in the paper, k =', varfact
-				endif
-				if(fnum == 5.01) then
-					flybytr = './input_data_files/Cassini_E5_flyby.dat'
-					rmin = 0.2d0
-					rmax = 1.7d0
-					rminsalt = 0.1d0
-					rmaxsalt = 1.1d0
-					varfact = 1d0
-					Rleft = 0.2d0
-					Rright = 0.4d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = fR / (Rright - Rleft)
-					bcoeflin = -acoeflin * Rleft
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile like it should have been in the paper, k =', varfact
-				endif
-				if(fnum == 5.22) then
-					flybytr = './input_data_files/Cassini_E5_flyby.dat'
-					rmin = 0.2d0
-					rmax = 1.7d0
-					rminsalt = 0.1d0
-					rmaxsalt = 1.1d0
-					varfact = 2d0
 					Rleft = 0.3d0
 					Rright = 0.5d0
 					fR = size_distribution(Rright, 1)
@@ -396,27 +342,9 @@ module inputdata
 					write(*,*) 'Rright=', Rright
 					write(*,*) 'a=', acoeflin
 					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile - a nice fit, k =', varfact
+					write(*,*) 'E5 profile corrected, k =', varfact
 				endif
-				if(fnum == 5.21) then
-					flybytr = './input_data_files/Cassini_E5_flyby.dat'
-					rmin = 0.2d0
-					rmax = 1.7d0
-					rminsalt = 0.1d0
-					rmaxsalt = 1.1d0
-					varfact = 2d0
-					Rleft = 0.2d0
-					Rright = 0.4d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = fR / (Rright - Rleft)
-					bcoeflin = -acoeflin * Rleft
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile like it should have been in the paper, k =', varfact
-				endif
-				if(fnum == 5.02) then
+				if(fnum == 5) then
 					flybytr = './input_data_files/Cassini_E5_flyby.dat'
 					rmin = 0.2d0
 					rmax = 1.7d0
@@ -432,7 +360,7 @@ module inputdata
 					write(*,*) 'Rright=', Rright
 					write(*,*) 'a=', acoeflin
 					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E5 profile - a nice fit, k =', varfact
+					write(*,*) 'E5 profile corrected, k =', varfact
 				endif
 				if(fnum == 17.17) then
 					rmin = 0.8d0
@@ -441,42 +369,6 @@ module inputdata
 					rmaxsalt = 4.1d0
 					flybytr = './input_data_files/Cassini_E17_flyby.dat'
 					varfact = 1.7d0
-					Rleft = 0.8d0
-					Rright = 1.0d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = 0.1931092d0
-					bcoeflin = -0.1544874d0
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile like it was in the paper, k =', varfact
-				endif
-				if(fnum == 17.27) then
-					rmin = 0.8d0
-					rmax = 6.2d0
-					rminsalt = 0.5d0
-					rmaxsalt = 4.1d0
-					flybytr = './input_data_files/Cassini_E17_flyby.dat'
-					varfact = 1.7d0
-					Rleft = 0.8d0
-					Rright = 1.0d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = fR / (Rright - Rleft)
-					bcoeflin = -acoeflin * Rleft
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile like it should have been in the paper, k =', varfact
-				endif
-				if(fnum == 17.37) then
-					rmin = 0.8d0
-					rmax = 6.2d0
-					rminsalt = 0.5d0
-					rmaxsalt = 4.1d0
-					flybytr = './input_data_files/Cassini_E17_flyby.dat'
-					varfact = 1.7d0
 					Rleft = 0.9d0
 					Rright = 1.1d0
 					fR = size_distribution(Rright, 1)
@@ -486,45 +378,9 @@ module inputdata
 					write(*,*) 'Rright=', Rright
 					write(*,*) 'a=', acoeflin
 					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile - a nice fit, k =', varfact
+					write(*,*) 'E17 profile corrected, k =', varfact
 				endif
-				if(fnum == 17.0) then
-					rmin = 0.8d0
-					rmax = 6.2d0
-					rminsalt = 0.5d0
-					rmaxsalt = 4.1d0
-					flybytr = './input_data_files/Cassini_E17_flyby.dat'
-					varfact = 1.0d0
-					Rleft = 0.8d0
-					Rright = 1.0d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = 0.1931092d0
-					bcoeflin = -0.1544874d0
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile like it was in the paper, k =', varfact
-				endif
-				if(fnum == 17.2) then
-					rmin = 0.8d0
-					rmax = 6.2d0
-					rminsalt = 0.5d0
-					rmaxsalt = 4.1d0
-					flybytr = './input_data_files/Cassini_E17_flyby.dat'
-					varfact = 1.0d0
-					Rleft = 0.8d0
-					Rright = 1.0d0
-					fR = size_distribution(Rright, 1)
-					acoeflin = fR / (Rright - Rleft)
-					bcoeflin = -acoeflin * Rleft
-					write(*,*) 'Rleft=', Rleft
-					write(*,*) 'Rright=', Rright
-					write(*,*) 'a=', acoeflin
-					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile like it should have been in the paper, k =', varfact
-				endif
-				if(fnum == 17.3) then
+				if(fnum == 17) then
 					rmin = 0.8d0
 					rmax = 6.2d0
 					rminsalt = 0.5d0
@@ -540,7 +396,7 @@ module inputdata
 					write(*,*) 'Rright=', Rright
 					write(*,*) 'a=', acoeflin
 					write(*,*) 'b=', bcoeflin
-					write(*,*) 'E17 profile - a nice fit, k =', varfact
+					write(*,*) 'E17 profile corrected, k =', varfact
 				endif
 				if(fnum == 7.1) then
 					flybytr = './input_data_files/Cassini_E7_flyby.dat'
