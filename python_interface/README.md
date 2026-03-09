@@ -105,6 +105,10 @@ When finished, you should see:
 python_interface/dudi/libpy_dudi_bridge.so
 
 ### 3.4. Install the Python package
+Create an environment to avoid conflicts and system complaints:
+
+python3 -m venv .venv
+source .venv/bin/activate
 
 Editable mode:
 
