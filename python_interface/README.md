@@ -116,7 +116,33 @@ pip install -e .
 
 ### Tests
 
+To run the Python interface tests locally (from the repo root):
+
+1. Build the Fortran ctypes bridge (only needed once per build):
+
+```bash
+bash python_interface/fortran_bridge/build_ctypes_bridge.sh
+```
+
+2. (Recommended) Create and activate a virtual environment and install the package with test dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .[dev]
+```
+
+3. Run the tests:
+
+```bash
 python3 -m pytest -q
+```
+
+The tests live under `tests/` and include:
+
+- `test_density_scalar_vs_batch.py` – compares scalar `density` calls to `batch_over_points`.
+- `test_mean_velocity_shapes.py` – checks `mean_velocity` and batched shapes/values.
+- `test_examples_enceladus_smoke.py` – runs the `enceladus_example` script end-to-end.
 
 ## 4. Model input and numerical method
 
