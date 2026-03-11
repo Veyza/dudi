@@ -14,3 +14,14 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.swp
+
+# log file
+fort.666
+
+# python interface build artefacts
+python_interface/dudi.egg-info/
+python_interface/dudi/libpy_dudi_bridge.so
+
+# environment
+.venv/
+myenv/
