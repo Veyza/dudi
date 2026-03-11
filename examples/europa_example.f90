@@ -54,10 +54,10 @@ program europa_example
     mass_shallow = source(1)%production_rate * m1
 
     write(*,*) '   '
-    write(*,'(A84,e10.3,x,A2)') 'with the shallow size distribution the total ', &
-                                'mass produced in a second', mass_shallow, 'kg'
-    write(*,'(A84,e10.3,x,A2)') 'with the steep size distribution the total ', &
-                                'mass produced in a second  ', mass_steep, 'kg'
+    write(*,'(A84,e10.3,x,A2)') &
+    'with the shallow size distribution the total mass produced in a second', mass_shallow, 'kg'
+    write(*,'(A84,e10.3,x,A2)') &
+    'with the steep size distribution the total mass produced in a second  ', mass_steep, 'kg'
     write(*,*) '   '
 
     do i_s = 1, Ns
