@@ -29,9 +29,9 @@ module const
         real(8), parameter :: gravity_constant = 6.674d-11                ! m^3 / kg / s^2
 
         ! parameters defining the moon
-        real(8), parameter :: moon_mass = 1.08022d+20!8.94d+22        ! kg
+        real(8), parameter :: moon_mass = 8.94d+22         ! kg
         real(8), parameter :: gm = gravity_constant * moon_mass
-        real(8), parameter :: rm = 252d3!1.8216d+6        ! meters
+        real(8), parameter :: rm = 1.8216d+6          ! meters
         real(8), parameter :: vesc = sqrt(gm * 2d0 / rm)
 
         ! other parameters defining the quantity of interest
