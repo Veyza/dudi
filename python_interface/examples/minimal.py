@@ -18,7 +18,8 @@ import numpy as np
 from dudi.api import density, mean_velocity, batch_over_points, batch_over_sources
 from dudi.models import Point, Source, EjectionSpeedProperties, spherical_to_cartesian
 
-# Moon radius (e.g. Enceladus), meters
+# Moon radius (e.g. Io), meters.
+# IT MUST BE CONSISTENT WITH THE MOON DEFINED IN const.f90 BY THE PARAMETERS moon_mass AND rm.
 RM = 1.8216e6
 
 # Observation point: above the pole, 2 moon radii
