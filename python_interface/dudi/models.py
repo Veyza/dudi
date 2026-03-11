@@ -79,14 +79,18 @@ class Point:
         Eastern longitude [rad].
     rvector : Vec3
         Cartesian coordinates [m] in moon-centered frame, shape (3,).
+    compute : bool
+        Whether density should be computed at this point (analogue of Fortran
+        position_in_space%compute). For most uses this is True.
 
-    Matches Fortran position_in_space (r_scaled and compute are derived in the bridge).
+    Matches Fortran position_in_space (r_scaled is derived in the bridge).
     """
 
     r: float  # m
     alpha: float  # rad
     beta: float  # rad
     rvector: Vec3  # m, moon-centered
+    compute: bool = True
 
     def __post_init__(self) -> None:
         if not (math.isfinite(self.r) and self.r >= 0.0):
@@ -94,6 +98,8 @@ class Point:
         if not (math.isfinite(self.alpha) and math.isfinite(self.beta)):
             raise ValueError("Point angles must be finite.")
         _ = as_vec3(self.rvector, "Point.rvector")
+        # Accept NumPy booleans etc. and normalize to a plain bool.
+        self.compute = bool(self.compute)
 
 
 @dataclass
