@@ -96,7 +96,12 @@ sudo apt-get install gfortran libgomp1 python3 python3-pip git
 git clone https://github.com/Veyza/dudi.git
 cd dudi
 
-### 3.3. Build the Fortran ctypes bridge
+### 3.3 Set up the moon for modeling
+
+Set the moon's mass (moon_mass [kg]) and radius (rm [meters])
+in the module const.f90.
+
+### 3.4. Build the Fortran ctypes bridge
 
 bash python_interface/fortran_bridge/build_ctypes_bridge.sh
 
@@ -104,7 +109,7 @@ When finished, you should see:
 
 python_interface/dudi/libpy_dudi_bridge.so
 
-### 3.4. Install the Python package
+### 3.5. Install the Python package
 Create an environment to avoid conflicts and system complaints:
 
 python3 -m venv .venv
