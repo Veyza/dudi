@@ -51,7 +51,7 @@ plots will not be generated.
 == 2. Basic Usage
 
 DUDI requires setting up specific parameters before running simulations.
-These parameters can be configured in various `..f90` files as described
+These parameters can be configured in various `.f90` files as described
 in the later sections of this README. For details on modifying these
 parameters and using the software to simulate dust distributions, refer
 to the sections 'Specify the key parameters' and 'Running Examples'.
@@ -147,7 +147,7 @@ point in space where the density is calculated.
 - `point%r_scaled` (real(8)): Radial distance scaled to the moon's radius.
    This is calculated as:
    point%r_scaled = point%r / rm
-   where `rm` is the radius of the moon set in module const..f90.
+   where `rm` is the radius of the moon set in module const.f90.
 - `point%alpha` (real(8)): Polar angle in the moon's centered coordinate system
    (radians).
 - `point%beta` (real(8)): Eastern longitude in the moon's centered coordinate
@@ -226,7 +226,7 @@ from a main program, which manages the input and output of the data.
 A template for such a main program, `examples/main_program.f90`, is provided within the
 package to assist users in setting up their simulations quickly and efficiently.
 
-The `main_program..f90` file is provided as a template for the main program. It
+The `main_program.f90` file is provided as a template for the main program. It
 uses subroutines from the `input_data` module to create:
 - An array of dust sources.
 - An array of points in space for density calculations.
@@ -314,7 +314,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
     - Performs a loop over 100 points along the Cassini spacecraft trajectory.
     - Computes the number density of dust from a tilted jet representing the
       Enceladus dust plume.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 1.08022d+20` // Enceladus's mass in kg
     * `rm = 252d+3`             // Enceladus's mean radius in meters
     * `flux = .FALSE.`          // Interested in number density, not flux
@@ -353,7 +353,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       and one of two ejection direction distributions.
     - The total mass production rate is computed separately for each of these
       four scenarios.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 4.8d+22`  // Europa's mass in kg
 
  The plot shown in the paper (Ershova & Schmidt, 2021) was generated with an
@@ -380,7 +380,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
   - Source and Location Settings:
     - No input files used.
     - Parameters for the sources and deposition points are set in the subroutine
-      `get_europa_input` in the module `inputdata..f90`.
+      `get_europa_input` in the module `inputdata.f90`.
   - Command to Run:
     - Execute: `make europa`
     - Compiles the program, producing `europa_model`, and runs it.
@@ -399,7 +399,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
 
 *Example 3: The Images of a Fictive Volcano Erupted on Io*
   - Main Program: `examples/io_example.f90`
-    - Utilizes additional modules including `image_construction..f90`.
+    - Utilizes additional modules including `image_construction.f90`.
     - Constructs images simulating a CCD camera with 128x128 pixels,
       calculating the line of sight for each pixel across a grid of 41 points.
     - Computes the 2nd moment of the number density at each point and
@@ -409,7 +409,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       excluded from calculations (point%compute = .FALSE.).
     - Creates 9 images representing non-stationary ejection at 9 specific
       moments.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 8.94d+22`  // Io's mass in kg
     * `rm = 1.8216d+6`        // Io's mean radius in meters
     * `flux = .FALSE.`        // Not calculating flux
@@ -425,9 +425,9 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
   - Source and Location Settings:
     - No input files used.
     - Source parameters are configured in `get_volcano_params` subroutine
-      within `inputdata..f90`.
+      within `inputdata.f90`.
     - Grid for calculating particle cross section is formed in the `line_of_sight`
-      subroutine in `image_construction..f90`.
+      subroutine in `image_construction.f90`.
   - Command to Run:
     - Execute: `make io`
     - Compiles the program, producing `io_model`, and runs it.
@@ -533,18 +533,18 @@ To address this:
 
 - **Warning Management:**
   DUDI now tracks warnings logged to `fort.666`. If the count exceeds the
-  `maxNofWarnings` set in `const..f90`, the program will terminate and alert
+  `maxNofWarnings` set in `const.f90`, the program will terminate and alert
   the user via the command line. This prevents the creation of large warning
   files due to parameter errors.
 
 - **Update to `size_distribution`:**
-  The `size_distribution` function in `distributions_fun..f90` no longer
-  uses the "p" parameter from `const..f90`. It now returns only the PDF for
+  The `size_distribution` function in `distributions_fun.f90` no longer
+  uses the "p" parameter from `const.f90`. It now returns only the PDF for
   the specified grain radius. Required calculations based on "p" are handled
-  by functions in `gu..f90`.
+  by functions in `gu.f90`.
 
 - **Ejection Velocity Correction:**
-  Fixed an issue in `integrator..f90` where the integration was
+  Fixed an issue in `integrator.f90` where the integration was
   incorrectly handled when minimum ejection velocity exceeded the moon's
   escape velocity.
 
