@@ -270,6 +270,7 @@ array of `Source` and `Point` objects, and evaluates dust number density
 along the Cassini E2 flyby using `DUDI`. The script writes the resulting
 profile to the `results/` directory in the same format as the Fortran
 example so that it can be plotted with `scripts/e2plot.py`.
+**To run this example change the parameters in module src/const.f90 as described in the main README.md for the Enceladus example**
 
 ### `io_example.py`
 
