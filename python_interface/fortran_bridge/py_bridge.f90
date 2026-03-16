@@ -364,6 +364,7 @@ contains
 
   !--------------------------------------------------------------------
   !  Batched over sources (single point). density_out(2*n_sources).
+  !  One [bound, unbound] pair per source.
   !--------------------------------------------------------------------
   subroutine py_dudi_batch_sources( &
        n_sources, density_out, &
@@ -420,7 +421,10 @@ contains
        call jet_direction(sources(i)%betaM, sources(i)%zeta, sources(i)%eta, sources(i)%rrM, sources(i)%symmetry_axis)
        call Gu_integral(sources(i)%ui, sources(i)%Gu_precalc, sources(i)%sd, sources(i)%ud, rmin, rmax)
     end do
-    call DUDI_batch_sources(int(n_sources, kind=kind(1)), density_2d, point, sources, real(tnow, kind=real64))
+
+    call DUDI_batch_sources(int(n_sources, kind=kind(1)), density_2d, point, sources, &
+         real(tnow, kind=real64))
+
     do i = 1, n_sources
        density_out(2*(i-1)+1) = real(density_2d(1, i), kind=real64)
        density_out(2*(i-1)+2) = real(density_2d(2, i), kind=real64)

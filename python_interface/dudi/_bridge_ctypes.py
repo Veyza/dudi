@@ -283,7 +283,7 @@ def call_batch_points(
 # ==============  py_dudi_batch_sources  ==============
 _lib.py_dudi_batch_sources.argtypes = [
     C.c_int,
-    Vec1d,  # n_sources, density_out
+    Vec1d,  # n_sources, density_out[2*n_sources]
     C.c_double,
     C.c_double,
     C.c_double,  # point

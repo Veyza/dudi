@@ -139,7 +139,6 @@ def batch_over_sources(
     if not srcs:
         return np.empty((0, 2), dtype=np.float64)
 
-    n = len(srcs)
     src_r = np.array([float(s.r) for s in srcs], dtype=np.float64)
     src_alphaM = np.array([float(s.alphaM) for s in srcs], dtype=np.float64)
     src_betaM = np.array([float(s.betaM) for s in srcs], dtype=np.float64)

@@ -108,14 +108,10 @@ contains
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i, dens) SCHEDULE(static)
         do i = 1, n_points
             call DUDI(dens, points(i), sources(i_s), tnow)
-            tmp(1, i) = dens(1)
-            tmp(2, i) = dens(2)
+            tmp(:, i) = dens(:)
         end do
         !$OMP END PARALLEL DO
-        do i = 1, n_points
-            density(1, i) = density(1, i) + tmp(1, i)
-            density(2, i) = density(2, i) + tmp(2, i)
-        end do
+        density = density + tmp
     end do
 
     end subroutine DUDI_batch_sources_points
@@ -159,19 +155,15 @@ contains
         type(position_in_space), intent(in) :: point
         type(source_properties), intent(in) :: sources(n_sources)
         real(8), intent(in) :: tnow
-
         integer :: i
         real :: int8(8)
-
         integral(:, :) = 0.0
-
         !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i, int8) SCHEDULE(static)
         do i = 1, n_sources
             call DUDI_mean_velocity(int8, point, sources(i), tnow)
             integral(:, i) = int8(:)
         end do
         !$OMP END PARALLEL DO
-
     end subroutine DUDI_mean_velocity_batch_sources
 
 
