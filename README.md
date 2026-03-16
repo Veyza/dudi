@@ -96,7 +96,7 @@ used in the example applications.
     - `sd` (integer): Selector for the size distribution type
     - Returns `fR` (real(8)): Probability density function (PDF) of size
       distribution evaluated at R.
- -- Write your own distribution at`case(4)` or further.
+ -- Write your own distribution at `case(4)` or further.
 
 * `ejection_speed_distribution(ud, u, R, fu)`:
     - `ud` (type(ejection_speed_properties)): Structure containing parameters
@@ -107,13 +107,13 @@ used in the example applications.
     - `u` (real(8)): Ejection speed (m/s)
     - `R` (real(8)): Particle radius (microns)
     - Returns `fu` (real(8)): PDF of ejection speed distribution.
- -- Write your own distribution at`case(3)` or further.
+ -- Write your own distribution at `case(3)` or further.
 
 * `ejection_direction_distribution(distribution_shape, wpsi, psi, lambdaM,
   zeta, eta, fpsi)`:
-    - istribution parameters defining the shape and orientation
+    - distribution parameters defining the shape and orientation
     - Returns `fpsi` (real(8)): PDF of ejection direction distribution.
- -- Write your own distribution at`case(4)` or further.
+ -- Write your own distribution at `case(4)` or further.
 
 * `production_rate(t, gamma0, ratefun, gammarate)`:
     - `t` (real(8)): Time of ejection (seconds)
@@ -185,7 +185,7 @@ parameters describing the dust ejection.
    (counted from the local North, clockwise) (radians).
 - `source%symmetry_axis` (real(8) 3D-vector): Unit vector in moon-centered
    coordinate system pointing to the direction of the ejection symmetry axis.
-   module input_data contains the subroutine jet_direction so that
+   module inputdata.f90 contains the subroutine jet_direction so that
    the following line of the code:
 
      call jet_direction(source%alphaM, source%betaM, source%zeta, source%eta, &
@@ -231,7 +231,7 @@ A template for such a main program, `examples/main_program.f90`, is provided wit
 package to assist users in setting up their simulations quickly and efficiently.
 
 The `main_program.f90` file is provided as a template for the main program. It
-uses subroutines from the `input_data` module to create:
+uses subroutines from the `inputdata.f90` module to create:
 - An array of dust sources.
 - An array of points in space for density calculations.
 
@@ -454,7 +454,7 @@ To address this:
 
 * In `bash`, increase the stack size by running:
   `ulimit -s unlimited`
-* In `tcshell`, use:
+* In `tcsh`, use:
   `limit stacksize unlimited`
 
 == 12. Changes in the Latest Version
@@ -470,7 +470,7 @@ To address this:
   - Still requires setting up the model parameters in FORTRAN source files to use the full flexibility of the
     model.
 
-  - Includes Python equivalents of the Fortran example programs: enceladus_example.py io_example.py
+  - Includes Python equivalents of the Fortran example programs: enceladus_example.py, io_example.py
 
   - Batching utilities are provided to make efficient use of the internal Fortran OpenMP parallelism when
     evaluating dust density at many points or considering many sources.
@@ -525,7 +525,7 @@ Full installation instructions, API documentation, and examples are provided in 
     `Integrand_mean_flux` from the module `twobody_fun.f90`.
 
   - A detailed description of the algorithm can be found in the file
-    **`DUDI_average_velocity_vectors.pdf´** available in this repository.
+    **DUDI_average_velocity_vectors.pdf** available in this repository.
 
 
 === Version 1.1.0
