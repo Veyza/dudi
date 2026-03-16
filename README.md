@@ -18,6 +18,10 @@ A. Ershova, J. Schmidt, F. Postberg, N. Khawaja, L. Nölle, R. Srama, S. Kempf, 
 
 DUDI is distributed under GNU GENERAL PUBLIC LICENSE Version 3.
 
+== Python interface
+
+Starting from version 1.3.0, DUDI-heliocentric includes an optional Python interface that provides access to all core DUDI functionality directly from Python scripts via a lightweight Fortran-2003 bind(C) bridge. The scientific core of the package remains written in Fortran-95 and unchanged. For installation instructions, API documentation, and usage examples, refer to the directory python_interface/ and the README file in it.
+
 = Table of Contents
 
 1. Prerequisites
@@ -453,9 +457,25 @@ To address this:
 * In `tcshell`, use:
   `limit stacksize unlimited`
 
-
-
 == 12. Changes in the Latest Version
+
+=== Version 1.3.0
+
+  - Introduces a Python interface to DUDI, built via a lightweight Fortran-2003
+    interoperability layer (bind(C)) and a shared library accessed from Python through ctypes.
+
+  - Adds high-level Python classes (Point, Source) that mirror the Fortran derived types for preparing
+    model inputs.
+
+  - Still requires setting up the model parameters in FORTRAN source files to use the full flexibility of the
+    model.
+
+  - Includes Python equivalents of the Fortran example programs: enceladus_example.py io_example.py
+
+  - Batching utilities are provided to make efficient use of the internal Fortran OpenMP parallelism when
+    evaluating dust density at many points or considering many sources.
+
+Full installation instructions, API documentation, and examples are provided in python_interface/README.md.
 
 === Version 1.2.3
   - Codebase cleaned of unused variables and unsafe real comparisons; fixed
