@@ -96,10 +96,16 @@ sudo apt-get install gfortran libgomp1 python3 python3-pip git
 git clone https://github.com/Veyza/dudi.git
 cd dudi
 
-### 3.3 Set up the moon for modeling
+### 3.3 Set up the low-level parameters and define the disctributions (modify FORTRAN source files).
 
-Set the moon's mass (moon_mass [kg]) and radius (rm [meters])
-in the module const.f90.
+In the module const.f90:
+    Set the moon's mass (`moon_mass` [kg]) and radius (`rm` [meters])
+    Set the length of Gu integral precalculated (`GRN`). This parameter defines the number of points over the ejection speed interval used to approximate the ejection speed distribution.
+    Set the parameter p which defines the quantity of interest: number density (`p=0`), mean radius (`p=1`), area covered by the dust grains (`p=2`), mass density (`p=3`).
+    Set the dust grains density `rho`.
+    Set the orders of integration over the particle sizes `order_R` and speeds `order_v_el` and `order_v_hy`.
+In the module distributions_fun.f90:
+    Program the equations of the distributions to describe the radii of the dust particles, their ejection speeds and directions, as well as the production rate if it is variable in time. Each distribution must be ascribed an integer number. This numbers is a part of source properties and can be set either in FORTRAN or through the Python interface.
 
 ### 3.4. Build the Fortran ctypes bridge
 
@@ -140,7 +146,7 @@ pip install -e .[dev]
 3. Run the tests:
 
 ```bash
-python3 -m pytest -q
+python3 -m pytest -vv # verbouse mode for a full report
 ```
 
 The tests live under `tests/` and include:
@@ -149,7 +155,7 @@ The tests live under `tests/` and include:
 - `test_mean_velocity_shapes.py` – checks `mean_velocity` and batched shapes/values.
 - `test_examples_enceladus_smoke.py` – runs the `enceladus_example` script end-to-end.
 
-## 4. Model input and numerical method
+## 4. Model input
 
 ### 4.1 General model input
 For the physical meaning of all input quantities, users should refer to
@@ -172,7 +178,72 @@ Distribution families are selected via the integer flags `sd`,
 `ud_shape`, and `ejection_angle_distr` in the `Source` object, matching
 the Fortran code.
 
-## 5. Python examples
+## 5. Batching subroutines
+
+The Python API exposes several batching helpers that wrap the
+Fortran batching module (`src/batching.f90`). Thus, the parallelization is done at FORTRAN level with OpenMP
+which makes the code run faster. All the functions use NumPy arrays on input and output.
+
+- **Density batching**
+
+  - **`dudi.api.batch_over_points(points, source, tnow)`**
+    - **Inputs**:
+      - `points`: sequence of `Point` objects.
+      - `source`: single `Source`.
+      - `tnow`: float, time in seconds.
+    - **Output**:
+      - `ndarray` of shape `(n_points, 2)` with `[n_bound, n_unbound]`
+        for each point.
+
+  - **`dudi.api.batch_over_sources(point, sources, tnow)`**
+    - **Inputs**:
+      - `point`: single `Point`.
+      - `sources`: sequence of `Source` objects.
+      - `tnow`: float.
+    - **Output**:
+      - `ndarray` of shape `(n_sources, 2)` with `[n_bound, n_unbound]`
+        for each source at the given point.
+
+  - **`dudi.api.batch_over_points_sources(points, sources, tnow)`**
+    - **Inputs**:
+      - `points`: sequence of `Point` objects.
+      - `sources`: sequence of `Source` objects.
+      - `tnow`: float.
+    - **Output**:
+      - `ndarray` of shape `(n_points, 2)` where the densities from all
+        sources are **contribution from different sources is summed for each point**.
+
+- **Mean-velocity batching (returns number densities and mean velocity vectors of the particles moving upward and downward separately**
+
+  - **`dudi.api.mean_velocity_batch_points(points, source, tnow)`**
+    - **Inputs**:
+      - `points`: sequence of `Point` objects.
+      - `source`: single `Source`.
+      - `tnow`: float.
+    - **Output**:
+      - `ndarray` of shape `(n_points, 8)` with
+        `[v_up_x, v_up_y, v_up_z, v_down_x, v_down_y, v_down_z, n_up, n_down]`
+        for each point.
+
+  - **`dudi.api.mean_velocity_batch_sources(point, sources, tnow)`**
+    - **Inputs**:
+      - `point`: single `Point`.
+      - `sources`: sequence of `Source` objects.
+      - `tnow`: float.
+    - **Output**:
+      - `ndarray` of shape `(n_sources, 8)` with the 8-component mean-velocity
+        vector for each source at the given point.
+
+  - **`dudi.api.mean_velocity_batch_points_sources(points, sources, tnow)`**
+    - **Inputs**:
+      - `points`: sequence of `Point` objects.
+      - `sources`: sequence of `Source` objects.
+      - `tnow`: float.
+    - **Output**:
+      - `ndarray` of shape `(n_points, 8)` where the contributions from all
+        sources are **contribution from different sources is summed for each point**.
+
+## 6. Python examples
 
 The Python examples can be found in the folder `python_interface/examples`
 and may serve as templates for your own applications. Apart from
@@ -200,15 +271,6 @@ along the Cassini E2 flyby using `DUDI`. The script writes the resulting
 profile to the `results/` directory in the same format as the Fortran
 example so that it can be plotted with `scripts/e2plot.py`.
 
-### `europa_example.py`
-
-`europa_example.py` is the Python analogue of `examples/europa_example.f90`.
-It configures several sources and deposition points on the surface of
-Europa (mirroring `get_europa_input` in `src/inputdata.f90`), calls
-`DUDI` in batches over these locations, and writes the resulting mass
-flux profiles to the `results/` directory. The output layout matches the
-Fortran example and can be plotted with `scripts/deposition.py`.
-
 ### `io_example.py`
 
 `io_example.py` is the Python analogue of `examples/io_example.f90`. It
@@ -218,7 +280,7 @@ at all sample points using `DUDI`, integrates along each line of sight,
 and writes a sequence of 2D images to `results/`. These can be visualized
 with `scripts/volcano_image.py`.
 
-## 6. Maintenance notes
+## 7. Maintenance notes
 
 ### 6.1 Rebuilding the Fortran bridge (release and debug modes)
 
@@ -258,5 +320,7 @@ A full CI run:
 
   3. Run pytest.
 
-If CI is extended to include macOS or Windows, update the classifiers in
-pyproject.toml accordingly and ensure the build script is adapted.
+### 6.4 Commiting to GitHub
+
+The ci.yml includes a test run performed on pushes. This test run requires the set up for Io in the module
+const.f90. Therefore, when commiting, make sure to copy to the module const.f90 the settings described in the main READNE for the Example 3 -- a volcanic aruption on Io.
