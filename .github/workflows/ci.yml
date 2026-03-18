@@ -53,3 +53,31 @@ jobs:
             results/**
             !results/.gitkeep
           if-no-files-found: ignore
+
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python package (editable) with test deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Build Fortran ctypes bridge
+        run: |
+          bash python_interface/fortran_bridge/build_ctypes_bridge.sh
+
+      - name: Run pytest
+        run: |
+          PYTHONPATH=python_interface python -m pytest python_interface/tests -q

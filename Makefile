@@ -163,7 +163,7 @@ clean:
 
 distclean: clean
 	@rm -rf $(BINDIR) $(RESDIR)/*
-	
+
 # Strict warnings sweep: clean + rebuild (compile only)
 clean-warnings:
 	$(MAKE) clean

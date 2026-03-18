@@ -4,13 +4,23 @@ DUDI is a Fortran-95 software package developed to simulate the two-body
 model for the distribution of dust ejected from the surface of an
 atmosphereless celestial body. This tool is based on the research by
 Anastasiia Ershova & Juergen Schmidt, as detailed in the paper:
+
 Ershova, A. & Schmidt, J. (2021). Two-body model for the spatial
 distribution of dust ejected from an atmosphereless body. Astronomy and
 Astrophysics, 650.
 
+The branch **Enceladus_plume_2024model** contains the setup of DUDI for modeling
+the Enceladus dust plume as described in
+
+A. Ershova, J. Schmidt, F. Postberg, N. Khawaja, L. Nölle, R. Srama, S. Kempf, B. Southworth: Modeling the Enceladus dust plume based on in situ measurements performed with the Cassini Cosmic Dust Analyzer, A\&A 689, A114 (2024).
+
 == License
 
 DUDI is distributed under GNU GENERAL PUBLIC LICENSE Version 3.
+
+== Python interface
+
+Starting from version 1.3.0, DUDI-heliocentric includes an optional Python interface that provides access to all core DUDI functionality directly from Python scripts via a lightweight Fortran-2003 bind(C) bridge. The scientific core of the package remains written in Fortran-95 and unchanged. For installation instructions, API documentation, and usage examples, refer to the directory python_interface/ and the README file in it.
 
 = Table of Contents
 
@@ -45,7 +55,7 @@ plots will not be generated.
 == 2. Basic Usage
 
 DUDI requires setting up specific parameters before running simulations.
-These parameters can be configured in various `..f90` files as described
+These parameters can be configured in various `.f90` files as described
 in the later sections of this README. For details on modifying these
 parameters and using the software to simulate dust distributions, refer
 to the sections 'Specify the key parameters' and 'Running Examples'.
@@ -86,7 +96,7 @@ used in the example applications.
     - `sd` (integer): Selector for the size distribution type
     - Returns `fR` (real(8)): Probability density function (PDF) of size
       distribution evaluated at R.
- -- Write your own distribution at`case(4)` or further.
+ -- Write your own distribution at `case(4)` or further.
 
 * `ejection_speed_distribution(ud, u, R, fu)`:
     - `ud` (type(ejection_speed_properties)): Structure containing parameters
@@ -97,13 +107,13 @@ used in the example applications.
     - `u` (real(8)): Ejection speed (m/s)
     - `R` (real(8)): Particle radius (microns)
     - Returns `fu` (real(8)): PDF of ejection speed distribution.
- -- Write your own distribution at`case(3)` or further.
+ -- Write your own distribution at `case(3)` or further.
 
 * `ejection_direction_distribution(distribution_shape, wpsi, psi, lambdaM,
   zeta, eta, fpsi)`:
-    - istribution parameters defining the shape and orientation
+    - distribution parameters defining the shape and orientation
     - Returns `fpsi` (real(8)): PDF of ejection direction distribution.
- -- Write your own distribution at`case(4)` or further.
+ -- Write your own distribution at `case(4)` or further.
 
 * `production_rate(t, gamma0, ratefun, gammarate)`:
     - `t` (real(8)): Time of ejection (seconds)
@@ -141,7 +151,7 @@ point in space where the density is calculated.
 - `point%r_scaled` (real(8)): Radial distance scaled to the moon's radius.
    This is calculated as:
    point%r_scaled = point%r / rm
-   where `rm` is the radius of the moon set in module const..f90.
+   where `rm` is the radius of the moon set in module const.f90.
 - `point%alpha` (real(8)): Polar angle in the moon's centered coordinate system
    (radians).
 - `point%beta` (real(8)): Eastern longitude in the moon's centered coordinate
@@ -175,7 +185,7 @@ parameters describing the dust ejection.
    (counted from the local North, clockwise) (radians).
 - `source%symmetry_axis` (real(8) 3D-vector): Unit vector in moon-centered
    coordinate system pointing to the direction of the ejection symmetry axis.
-   module input_data contains the subroutine jet_direction so that
+   module inputdata.f90 contains the subroutine jet_direction so that
    the following line of the code:
 
      call jet_direction(source%alphaM, source%betaM, source%zeta, source%eta, &
@@ -220,8 +230,8 @@ from a main program, which manages the input and output of the data.
 A template for such a main program, `examples/main_program.f90`, is provided within the
 package to assist users in setting up their simulations quickly and efficiently.
 
-The `main_program..f90` file is provided as a template for the main program. It
-uses subroutines from the `input_data` module to create:
+The `main_program.f90` file is provided as a template for the main program. It
+uses subroutines from the `inputdata.f90` module to create:
 - An array of dust sources.
 - An array of points in space for density calculations.
 
@@ -308,7 +318,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
     - Performs a loop over 100 points along the Cassini spacecraft trajectory.
     - Computes the number density of dust from a tilted jet representing the
       Enceladus dust plume.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 1.08022d+20` // Enceladus's mass in kg
     * `rm = 252d+3`             // Enceladus's mean radius in meters
     * `flux = .FALSE.`          // Interested in number density, not flux
@@ -347,7 +357,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       and one of two ejection direction distributions.
     - The total mass production rate is computed separately for each of these
       four scenarios.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 4.8d+22`  // Europa's mass in kg
 
  The plot shown in the paper (Ershova & Schmidt, 2021) was generated with an
@@ -374,7 +384,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
   - Source and Location Settings:
     - No input files used.
     - Parameters for the sources and deposition points are set in the subroutine
-      `get_europa_input` in the module `inputdata..f90`.
+      `get_europa_input` in the module `inputdata.f90`.
   - Command to Run:
     - Execute: `make europa`
     - Compiles the program, producing `europa_model`, and runs it.
@@ -393,7 +403,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
 
 *Example 3: The Images of a Fictive Volcano Erupted on Io*
   - Main Program: `examples/io_example.f90`
-    - Utilizes additional modules including `image_construction..f90`.
+    - Utilizes additional modules including `image_construction.f90`.
     - Constructs images simulating a CCD camera with 128x128 pixels,
       calculating the line of sight for each pixel across a grid of 41 points.
     - Computes the 2nd moment of the number density at each point and
@@ -403,7 +413,7 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
       excluded from calculations (point%compute = .FALSE.).
     - Creates 9 images representing non-stationary ejection at 9 specific
       moments.
-  - Parameter Settings in `const..f90`:
+  - Parameter Settings in `const.f90`:
     * `moon_mass = 8.94d+22`  // Io's mass in kg
     * `rm = 1.8216d+6`        // Io's mean radius in meters
     * `flux = .FALSE.`        // Not calculating flux
@@ -419,9 +429,9 @@ of the E2 Flyby of the Cassini Spacecraft at Enceladus*
   - Source and Location Settings:
     - No input files used.
     - Source parameters are configured in `get_volcano_params` subroutine
-      within `inputdata..f90`.
+      within `inputdata.f90`.
     - Grid for calculating particle cross section is formed in the `line_of_sight`
-      subroutine in `image_construction..f90`.
+      subroutine in `image_construction.f90`.
   - Command to Run:
     - Execute: `make io`
     - Compiles the program, producing `io_model`, and runs it.
@@ -444,17 +454,33 @@ To address this:
 
 * In `bash`, increase the stack size by running:
   `ulimit -s unlimited`
-* In `tcshell`, use:
+* In `tcsh`, use:
   `limit stacksize unlimited`
-
-
 
 == 12. Changes in the Latest Version
 
+=== Version 1.3.0
+
+  - Introduces a Python interface to DUDI, built via a lightweight Fortran-2003
+    interoperability layer (bind(C)) and a shared library accessed from Python through ctypes.
+
+  - Adds high-level Python classes (Point, Source) that mirror the Fortran derived types for preparing
+    model inputs.
+
+  - Still requires setting up the model parameters in FORTRAN source files to use the full flexibility of the
+    model.
+
+  - Includes Python equivalents of the Fortran example programs: enceladus_example.py, io_example.py
+
+  - Batching utilities are provided to make efficient use of the internal Fortran OpenMP parallelism when
+    evaluating dust density at many points or considering many sources.
+
+Full installation instructions, API documentation, and examples are provided in python_interface/README.md.
+
 === Version 1.2.3
-  - Codebase cleaned of unused variables and unsafe real comparisons; fixed 
+  - Codebase cleaned of unused variables and unsafe real comparisons; fixed
     implicit conversions.
-  - Kept standard Fortran-95. Added src/comparison_utils.f90 to centralize 
+  - Kept standard Fortran-95. Added src/comparison_utils.f90 to centralize
     numeric checks:
       - is_nan_r8(x) – NaN detection (F95-friendly).
       - is_finite_r8(x) – finite vs. Inf/NaN.
@@ -462,9 +488,9 @@ To address this:
       - nearly_equal_r8(a,b[, rtol, atol]) – relative/absolute tolerance equality.
   - Makefile: new clean-warnings target to rebuild with strict warning flags for
     code hygiene.
-  - Note: comparison_utils.f90 may still emit compare-reals warnings in strict mode; 
+  - Note: comparison_utils.f90 may still emit compare-reals warnings in strict mode;
     these are intentional and safe
-  
+
 === Version 1.2.2
 
   - Fixed build reliability by explicitly ordering Fortran source files in Makefile.
@@ -473,7 +499,7 @@ To address this:
 
   - Restructured repository with clear src/, examples/, scripts/, bin/, build/, and results/ folders.
   - Updated Makefile and .gitignore accordingly
-  
+
 === Version 1.2.0
 
   A feature has been added to compute the average velocity vector of dust grains
@@ -499,7 +525,7 @@ To address this:
     `Integrand_mean_flux` from the module `twobody_fun.f90`.
 
   - A detailed description of the algorithm can be found in the file
-    **`DUDI_average_velocity_vectors.pdf´** available in this repository.
+    **DUDI_average_velocity_vectors.pdf** available in this repository.
 
 
 === Version 1.1.0
@@ -527,22 +553,21 @@ To address this:
 
 - **Warning Management:**
   DUDI now tracks warnings logged to `fort.666`. If the count exceeds the
-  `maxNofWarnings` set in `const..f90`, the program will terminate and alert
+  `maxNofWarnings` set in `const.f90`, the program will terminate and alert
   the user via the command line. This prevents the creation of large warning
   files due to parameter errors.
 
 - **Update to `size_distribution`:**
-  The `size_distribution` function in `distributions_fun..f90` no longer
-  uses the "p" parameter from `const..f90`. It now returns only the PDF for
+  The `size_distribution` function in `distributions_fun.f90` no longer
+  uses the "p" parameter from `const.f90`. It now returns only the PDF for
   the specified grain radius. Required calculations based on "p" are handled
-  by functions in `gu..f90`.
+  by functions in `gu.f90`.
 
 - **Ejection Velocity Correction:**
-  Fixed an issue in `integrator..f90` where the integration was
+  Fixed an issue in `integrator.f90` where the integration was
   incorrectly handled when minimum ejection velocity exceeded the moon's
   escape velocity.
 
 - **Io Example Optimization:**
   Multidimensional arrays are reshaped and nested loops reordered in the Io
   example, enhancing performance.
-

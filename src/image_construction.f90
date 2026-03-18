@@ -49,7 +49,7 @@ module image_construction
             xcam = (/0d0, 0d0, 1d0/)
             ycam = (/-1d0 / sqrt2d0, 1d0 / sqrt2d0, 0d0/)
             zcam = (/-1d0 / sqrt2d0, -1d0 / sqrt2d0, 0d0/)
-            ! distance from Cassini to the "center of the plume", meters
+            ! distance from the spacecraft to the "center of the plume", meters
             vtmp = scpos-source%rrM
             r0 = norma3d(vtmp)
 
