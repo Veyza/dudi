@@ -33,7 +33,7 @@ contains
     ! finite <=> not NaN and not infinite
     is_finite_r8 = .not.(x /= x) .and. (abs(x) < huge(0.0d0))
   end function is_finite_r8
-  
+
   elemental pure logical function is_zero_r8(x, atol)
     implicit none
     real(8), intent(in) :: x
@@ -47,7 +47,7 @@ contains
     is_zero_r8 = abs(x) <= a0
   end function is_zero_r8
 
-  
+
   ! helper that works well across scales
   pure logical function nearly_equal_r8(a,b,rtol,atol) result(eq)
     implicit none
